@@ -1,0 +1,109 @@
+{
+  "GET_api_products": {
+    "description": "Retrieve list of products, optionally filtered by category, price, color, size, and search keywords.",
+    "endpoint": "GET /api/products",
+    "sample_response": {
+      "success": true,
+      "count": 1,
+      "products": [
+        {
+          "id": "66708d72f1a2ef29b8c04901",
+          "_id": "66708d72f1a2ef29b8c04901",
+          "name": "Brown Coat",
+          "category": "Coats",
+          "price": 75,
+          "originalPrice": 150,
+          "rating": "4.9",
+          "reviewsCount": 3,
+          "image": "http://192.168.1.10:5000/images/fashion_portrait_3_1781014096781.png",
+          "gallery": [
+            "http://192.168.1.10:5000/images/fashion_portrait_3_1781014096781.png",
+            "http://192.168.1.10:5000/images/brown_coat_pose1.png",
+            "http://192.168.1.10:5000/images/brown_coat_pose2.png"
+          ],
+          "sizes": ["S", "M", "L", "XL", "XXL", "XXXL"],
+          "defaultSize": "M",
+          "colors": [
+            { "name": "Brown", "hex": "#5A3825", "_id": "66708d72f1a2ef29b8c04902" }
+          ],
+          "defaultColor": "Brown",
+          "seller": {
+            "name": "Leslie Alexander",
+            "role": "Manager",
+            "avatar": "http://192.168.1.10:5000/images/seller_avatar.png"
+          },
+          "isFeatured": true,
+          "createdAt": "2026-06-17T16:15:00.123Z",
+          "updatedAt": "2026-06-17T16:15:05.456Z"
+        }
+      ]
+    }
+  },
+  "GET_api_products_id": {
+    "description": "Retrieve full detailed properties of a product by database ID.",
+    "endpoint": "GET /api/products/66708d72f1a2ef29b8c04901",
+    "sample_response": {
+      "success": true,
+      "product": {
+        "id": "66708d72f1a2ef29b8c04901",
+        "_id": "66708d72f1a2ef29b8c04901",
+        "name": "Brown Coat",
+        "category": "Coats",
+        "price": 75,
+        "originalPrice": 150,
+        "rating": "4.9",
+        "reviewsCount": 3,
+        "image": "http://192.168.1.10:5000/images/fashion_portrait_3_1781014096781.png",
+        "gallery": [
+          "http://192.168.1.10:5000/images/fashion_portrait_3_1781014096781.png",
+          "http://192.168.1.10:5000/images/brown_coat_pose1.png",
+          "http://192.168.1.10:5000/images/brown_coat_pose2.png",
+          "http://192.168.1.10:5000/images/brown_coat_pose3.png",
+          "http://192.168.1.10:5000/images/brown_coat_pose4.png"
+        ],
+        "sizes": ["S", "M", "L", "XL", "XXL", "XXXL"],
+        "defaultSize": "M",
+        "colors": [
+          { "name": "Brown", "hex": "#5A3825", "_id": "66708d72f1a2ef29b8c04902" },
+          { "name": "Beige", "hex": "#DFBAA7", "_id": "66708d72f1a2ef29b8c04903" }
+        ],
+        "defaultColor": "Brown",
+        "seller": {
+          "name": "Leslie Alexander",
+          "role": "Manager",
+          "avatar": "http://192.168.1.10:5000/images/seller_avatar.png"
+        },
+        "isFeatured": true,
+        "createdAt": "2026-06-17T16:15:00.123Z",
+        "updatedAt": "2026-06-17T16:15:05.456Z"
+      }
+    }
+  },
+  "GET_api_products_id_reviews": {
+    "description": "Retrieve all customer reviews for a given product ID.",
+    "endpoint": "GET /api/products/66708d72f1a2ef29b8c04901/reviews",
+    "sample_response": {
+      "success": true,
+      "count": 2,
+      "reviews": [
+        {
+          "id": "66708d7ef1a2ef29b8c04910",
+          "_id": "66708d7ef1a2ef29b8c04910",
+          "product": "66708d72f1a2ef29b8c04901",
+          "name": "Jenny Wilson",
+          "avatar": "http://192.168.1.10:5000/images/jenny_avatar.png",
+          "verified": true,
+          "rating": 5,
+          "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt",
+          "images": [
+            "http://192.168.1.10:5000/images/review_hat_girl.png",
+            "http://192.168.1.10:5000/images/review_hat_girl.png"
+          ],
+          "createdAt": "2026-06-15T10:00:00.000Z",
+          "updatedAt": "2026-06-15T10:00:00.000Z",
+          "timeAgo": "2 days ago"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,59 @@
+# Dependency directories
+node_modules/
+application/node_modules/
+backend/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+application/.env
+application/.env.*
+!application/.env.example
+
+# Expo/Metro build directories and files
+application/.expo/
+application/dist/
+application/web-build/
+application/expo-env.d.ts
+application/.metro-health-check*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Native build folders (iOS/Android)
+application/ios/
+application/android/
+application/.kotlin/
+application/*.orig.*
+application/*.jks
+application/*.p8
+application/*.p12
+application/*.key
+application/*.mobileprovision
+
+# IDE configs
+.vscode/
+application/.vscode/
+backend/.vscode/
+.idea/
+
+# Testing
+application/coverage/
+backend/coverage/
+
+# Misc
+*.pem
+*.tsbuildinfo
