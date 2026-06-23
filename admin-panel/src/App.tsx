@@ -66,6 +66,32 @@ const SuspenseLoader = () => (
   </div>
 );
 
+// Clear old localStorage keys to force reload the fresh Andhra database names
+const DB_VERSION_KEY = 'fs_db_version_andhra_v3';
+if (typeof window !== 'undefined' && !localStorage.getItem(DB_VERSION_KEY)) {
+  const keysToClear = [
+    'users_data',
+    'users_activities',
+    'orders_data',
+    'shipments_data',
+    'returns_data',
+    'refunds_data',
+    'replacements_data',
+    'tickets_data',
+    'rbac_audit_logs',
+    'products_catalog',
+    'categories_catalog',
+    'products_movements',
+    'products_activities',
+    'fs_transactions',
+    'fs_invoices',
+    'fs_credit_notes',
+    'fs_notifications'
+  ];
+  keysToClear.forEach(key => localStorage.removeItem(key));
+  localStorage.setItem(DB_VERSION_KEY, 'true');
+}
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';

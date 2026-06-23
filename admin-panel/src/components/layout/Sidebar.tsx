@@ -330,6 +330,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
       }
 
       const isActive = location.pathname === link.path || (link.path !== '/dashboard' && location.pathname.startsWith(link.path));
+      const isGreenTheme = link.path === '/dashboard' || link.path === '/dashboard/roles';
       return (
         <Link
           key={link.name}
@@ -337,8 +338,8 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
           onClick={onClickCallback}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200 ${
             isActive
-              ? 'bg-[#F8B057]/10 border-r-4 border-[#401900] text-[#401900]'
-              : 'text-[#797979] hover:bg-[#F6F6F6] hover:text-[#401900]'
+              ? (isGreenTheme ? 'bg-[#00522E]/10 border-r-4 border-[#00522E] text-[#00522E]' : 'bg-[#F8B057]/10 border-r-4 border-[#401900] text-[#401900]')
+              : (isGreenTheme ? 'text-[#797979] hover:bg-[#F6F6F6] hover:text-[#00522E]' : 'text-[#797979] hover:bg-[#F6F6F6] hover:text-[#401900]')
           }`}
         >
           <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">

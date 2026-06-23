@@ -245,7 +245,7 @@ export default function Roles() {
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div
             className={`w-3 h-3 rounded-full ${
-              toast.type === 'success' ? 'bg-[#00522E]' : toast.type === 'error' ? 'bg-[#BA1A1A]' : 'bg-[#F8B057]'
+              toast.type === 'success' ? 'bg-[#00522E]' : toast.type === 'error' ? 'bg-[#BA1A1A]' : 'bg-[#10B981]'
             }`}
           ></div>
           <span className="text-sm font-bold text-[#111E16]">{toast.message}</span>
@@ -273,7 +273,7 @@ export default function Roles() {
             <h3 className="text-sm font-bold text-[#242424] uppercase tracking-wider">Access Roles ({roles.length})</h3>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-3 py-1.5 bg-[#401900] hover:bg-[#2D1100] text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 bg-[#00522E] hover:bg-[#003B21] text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -294,7 +294,7 @@ export default function Roles() {
               placeholder="Search roles..."
               value={searchRoleQuery}
               onChange={(e) => setSearchRoleQuery(e.target.value)}
-              className="w-full bg-[#F6F6F6] text-xs text-[#242424] placeholder-[#797979] rounded-lg pl-9 pr-3 py-2 border border-[#E0E0E0] focus:border-[#F8B057] focus:outline-none transition-all"
+              className="w-full bg-[#F6F6F6] text-xs text-[#242424] placeholder-[#797979] rounded-lg pl-9 pr-3 py-2 border border-[#E0E0E0] focus:border-[#00522E] focus:outline-none transition-all"
             />
           </div>
 
@@ -309,15 +309,15 @@ export default function Roles() {
                   onClick={() => handleSelectRole(role.name)}
                   className={`group p-3 rounded-xl border transition-all duration-150 cursor-pointer flex flex-col gap-1.5 ${
                     isSelected
-                      ? 'bg-[#401900]/5 border-[#401900] text-[#401900]'
+                      ? 'bg-[#00522E]/5 border-[#00522E] text-[#00522E]'
                       : 'border-transparent hover:bg-[#F6F6F6] text-[#797979]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs sm:text-sm text-[#242424] group-hover:text-[#401900] transition-colors flex items-center gap-1.5">
+                    <span className="font-bold text-xs sm:text-sm text-[#242424] group-hover:text-[#00522E] transition-colors flex items-center gap-1.5">
                       {role.name}
                       {role.isCustom && (
-                        <span className="text-[9px] font-bold bg-[#F8B057]/15 text-[#401900] px-1.5 py-0.5 rounded border border-[#F8B057]/20 uppercase">
+                        <span className="text-[9px] font-bold bg-[#00522E]/10 text-[#00522E] px-1.5 py-0.5 rounded border border-[#00522E]/20 uppercase">
                           Custom
                         </span>
                       )}
@@ -357,7 +357,7 @@ export default function Roles() {
                           setEditForm({ name: selectedRole.name, description: selectedRole.description });
                           setIsEditModalOpen(true);
                         }}
-                        className="text-xs font-bold text-[#401900] hover:underline"
+                        className="text-xs font-bold text-[#00522E] hover:underline"
                       >
                         Edit Details
                       </button>
@@ -477,7 +477,7 @@ export default function Roles() {
                               checked={isAllSelected}
                               disabled={selectedRoleName === 'Super Admin'}
                               onChange={(e) => handleSelectAllModule(moduleKey, e.target.checked)}
-                              className="rounded border-gray-300 text-[#401900] focus:ring-[#401900] cursor-pointer"
+                              className="rounded border-gray-300 text-[#00522E] focus:ring-[#00522E] cursor-pointer"
                             />
                             <span className="hidden sm:inline">Select All</span>
                           </label>
@@ -526,7 +526,7 @@ export default function Roles() {
                                       checked={checked}
                                       disabled={!isModuleActive || selectedRoleName === 'Super Admin'}
                                       onChange={(e) => handlePermissionChange(moduleKey, sub, action, e.target.checked)}
-                                      className={`rounded border-gray-300 text-[#401900] focus:ring-[#401900] ${
+                                      className={`rounded border-gray-300 text-[#00522E] focus:ring-[#00522E] ${
                                         isModuleActive ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
                                       }`}
                                     />
@@ -575,7 +575,7 @@ export default function Roles() {
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-4 shadow-sm space-y-3">
             <div className="flex items-center justify-between border-b border-[#E0E0E0] pb-2">
               <span className="text-xs font-bold text-[#242424] uppercase tracking-wider flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-[#401900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                <svg className="w-4 h-4 text-[#00522E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
                 Audit Log for Permission Changes
@@ -589,7 +589,7 @@ export default function Roles() {
                     <span>{new Date(log.timestamp).toLocaleString()}</span>
                   </div>
                   <p>
-                    <span className="font-bold text-[#401900]">{log.user}</span>: {log.details}
+                    <span className="font-bold text-[#00522E]">{log.user}</span>: {log.details}
                   </p>
                 </div>
               ))}
@@ -612,7 +612,7 @@ export default function Roles() {
             <div className="space-y-1.5">
               <h4 className="font-bold text-base text-[#242424]">Save Permission Changes?</h4>
               <p className="text-xs text-[#797979]">
-                This will immediately update security configurations. Users with the role <span className="font-bold text-[#401900]">"{selectedRoleName}"</span> will experience modified permissions immediately.
+                This will immediately update security configurations. Users with the role <span className="font-bold text-[#00522E]">"{selectedRoleName}"</span> will experience modified permissions immediately.
               </p>
             </div>
             <div className="flex gap-3 justify-center pt-2">
@@ -645,7 +645,7 @@ export default function Roles() {
             <div className="space-y-1.5">
               <h4 className="font-bold text-base text-[#242424]">Reset to Defaults?</h4>
               <p className="text-xs text-[#797979]">
-                Are you sure you want to revert <span className="font-bold text-[#401900]">"{selectedRoleName}"</span> permissions? Any custom changes made will be lost.
+                Are you sure you want to revert <span className="font-bold text-[#00522E]">"{selectedRoleName}"</span> permissions? Any custom changes made will be lost.
               </p>
             </div>
             <div className="flex gap-3 justify-center pt-2">
@@ -760,7 +760,7 @@ export default function Roles() {
                   placeholder="e.g. Marketing Manager"
                   value={createForm.name}
                   onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#F8B057] focus:outline-none transition-all"
+                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#00522E] focus:outline-none transition-all"
                 />
               </div>
 
@@ -770,7 +770,7 @@ export default function Roles() {
                   placeholder="Describe operations allowed under this role..."
                   value={createForm.description}
                   onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#F8B057] focus:outline-none transition-all h-20 resize-none"
+                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#00522E] focus:outline-none transition-all h-20 resize-none"
                 />
               </div>
 
@@ -779,7 +779,7 @@ export default function Roles() {
                 <select
                   value={createForm.copyFrom}
                   onChange={(e) => setCreateForm({ ...createForm, copyFrom: e.target.value })}
-                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#F8B057] focus:outline-none cursor-pointer"
+                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#00522E] focus:outline-none cursor-pointer"
                 >
                   <option value="">Blank (All access denied by default)</option>
                   {roles.map((r) => (
@@ -800,7 +800,7 @@ export default function Roles() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#401900] hover:bg-[#2D1100] text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
+                  className="px-4 py-2 bg-[#00522E] hover:bg-[#003B21] text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
                 >
                   Create Security Role
                 </button>
@@ -834,7 +834,7 @@ export default function Roles() {
                   required
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#F8B057] focus:outline-none transition-all"
+                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#00522E] focus:outline-none transition-all"
                 />
               </div>
 
@@ -843,7 +843,7 @@ export default function Roles() {
                 <textarea
                   value={editForm.description}
                   onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#F8B057] focus:outline-none transition-all h-20 resize-none"
+                  className="w-full bg-[#F6F6F6] text-xs text-[#242424] rounded-lg p-2.5 border border-[#E0E0E0] focus:border-[#00522E] focus:outline-none transition-all h-20 resize-none"
                 />
               </div>
 
@@ -857,7 +857,7 @@ export default function Roles() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#401900] hover:bg-[#2D1100] text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
+                  className="px-4 py-2 bg-[#00522E] hover:bg-[#003B21] text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
                 >
                   Save Details
                 </button>

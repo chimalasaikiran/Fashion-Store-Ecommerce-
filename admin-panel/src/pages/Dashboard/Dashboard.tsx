@@ -26,8 +26,8 @@ export default function Dashboard() {
       value: formatCurrency(totalRevenueVal),
       change: '+12%',
       isPositive: true,
-      color: 'rgba(248, 176, 87, 0.12)',
-      iconColor: '#401900',
+      color: 'rgba(16, 185, 129, 0.12)',
+      iconColor: '#00522E',
       icon: (
         <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -39,8 +39,8 @@ export default function Dashboard() {
       value: totalSalesVal.toLocaleString(),
       change: '+8%',
       isPositive: true,
-      color: 'rgba(64, 25, 0, 0.08)',
-      iconColor: '#401900',
+      color: 'rgba(0, 82, 46, 0.08)',
+      iconColor: '#00522E',
       icon: (
         <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -52,7 +52,7 @@ export default function Dashboard() {
       value: orders.length.toLocaleString(),
       change: '-2%',
       isPositive: false,
-      color: 'rgba(248, 176, 87, 0.08)',
+      color: 'rgba(16, 185, 129, 0.08)',
       iconColor: '#797979',
       icon: (
         <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -65,8 +65,8 @@ export default function Dashboard() {
       value: totalCustomersVal.toLocaleString(),
       change: '+15%',
       isPositive: true,
-      color: 'rgba(64, 25, 0, 0.06)',
-      iconColor: '#F8B057',
+      color: 'rgba(0, 82, 46, 0.06)',
+      iconColor: '#10B981',
       icon: (
         <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -143,13 +143,13 @@ export default function Dashboard() {
   const getOrderStatusStyles = (status: string) => {
     switch (status) {
       case 'Delivered':
-        return { bg: 'rgba(248, 176, 87, 0.15)', text: '#401900' };
+        return { bg: 'rgba(16, 185, 129, 0.15)', text: '#00522E' };
       case 'Processing':
-        return { bg: 'rgba(248, 176, 87, 0.1)', text: '#797979' };
+        return { bg: 'rgba(16, 185, 129, 0.1)', text: '#797979' };
       case 'Cancelled':
         return { bg: 'rgba(255, 218, 214, 0.2)', text: '#BA1A1A' };
       default:
-        return { bg: 'rgba(248, 176, 87, 0.05)', text: '#F8B057' };
+        return { bg: 'rgba(16, 185, 129, 0.05)', text: '#10B981' };
     }
   };
 
@@ -159,7 +159,7 @@ export default function Dashboard() {
       case 'HIGH':
         return { bg: 'rgba(255, 218, 214, 0.2)', text: '#BA1A1A' };
       case 'MEDIUM':
-        return { bg: 'rgba(248, 176, 87, 0.15)', text: '#401900' };
+        return { bg: 'rgba(16, 185, 129, 0.15)', text: '#00522E' };
       default:
         return { bg: '#E0E0E0/50', text: '#797979' };
     }
@@ -206,7 +206,7 @@ export default function Dashboard() {
 
           <button 
             onClick={() => alert('Exporting analytics report...')}
-            className="flex items-center gap-2 px-4 py-2 bg-[#401900] hover:bg-[#2D1100] text-white border border-transparent rounded-lg text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md cursor-pointer transition-all duration-150"
+            className="flex items-center gap-2 px-4 py-2 bg-[#00522E] hover:bg-[#003B21] text-white border border-transparent rounded-lg text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md cursor-pointer transition-all duration-150"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -220,7 +220,7 @@ export default function Dashboard() {
         {kpis.map((kpi) => (
           <article
             key={kpi.title}
-            className="bg-white border border-[#E0E0E0]/60 hover:border-[#F8B057]/50 shadow-xs hover:shadow-md rounded-xl p-5 flex flex-col justify-between transition-all duration-200 group"
+            className="bg-white border border-[#E0E0E0]/60 hover:border-[#10B981]/50 shadow-xs hover:shadow-md rounded-xl p-5 flex flex-col justify-between transition-all duration-200 group"
           >
             <div className="flex items-center justify-between w-full">
               <div
@@ -233,7 +233,7 @@ export default function Dashboard() {
               <div
                 className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
                   kpi.isPositive
-                    ? 'bg-[#F8B057]/10 text-[#401900] border border-[#F8B057]/20'
+                    ? 'bg-[#10B981]/10 text-[#00522E] border border-[#10B981]/20'
                     : 'bg-red-50 text-[#BA1A1A] border border-red-100'
                 }`}
               >
@@ -274,7 +274,7 @@ export default function Dashboard() {
             
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2 text-[10px] font-bold text-[#797979] tracking-wider uppercase">
-                <span className="w-3 h-3 rounded-full bg-[#401900] block"></span>
+                <span className="w-3 h-3 rounded-full bg-[#00522E] block"></span>
                 <span>Current</span>
               </div>
               <div className="flex items-center gap-2 text-[10px] font-bold text-[#797979] tracking-wider uppercase">
@@ -293,8 +293,8 @@ export default function Dashboard() {
               
               <defs>
                 <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#401900" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#401900" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="#00522E" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#00522E" stopOpacity="0.0" />
                 </linearGradient>
                 <linearGradient id="previousGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#797979" stopOpacity="0.12" />
@@ -321,7 +321,7 @@ export default function Dashboard() {
               <path
                 d={linePath}
                 fill="none"
-                stroke="#401900"
+                stroke="#00522E"
                 strokeWidth="3.5"
                 strokeLinecap="round"
               />
@@ -363,7 +363,7 @@ export default function Dashboard() {
                   </div>
                   <div className="h-2 w-full bg-[#F6F6F6] rounded-full overflow-hidden border border-[#E0E0E0]/30">
                     <div
-                      className="h-full bg-[#401900] rounded-full transition-all duration-1000 ease-out"
+                      className="h-full bg-[#00522E] rounded-full transition-all duration-1000 ease-out"
                       style={{ width: cat.percent }}
                     ></div>
                   </div>
@@ -375,7 +375,7 @@ export default function Dashboard() {
           <div className="pt-2">
             <button
               onClick={() => alert('Redirecting to Category Analytics...')}
-              className="w-full text-center py-2.5 text-xs sm:text-sm font-bold text-[#401900] hover:text-[#2D1100] border border-[#401900]/25 hover:border-[#401900]/60 hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer"
+              className="w-full text-center py-2.5 text-xs sm:text-sm font-bold text-[#00522E] hover:text-[#003B21] border border-[#00522E]/25 hover:border-[#00522E]/60 hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer"
             >
               View All Categories
             </button>
@@ -389,7 +389,7 @@ export default function Dashboard() {
             <h3 className="text-lg font-bold text-[#242424]">Recent Orders</h3>
             <button
               onClick={() => alert('Navigating to full orders view...')}
-              className="text-xs sm:text-sm font-bold text-[#401900] hover:text-[#2D1100] cursor-pointer"
+              className="text-xs sm:text-sm font-bold text-[#00522E] hover:text-[#003B21] cursor-pointer"
             >
               View All
             </button>
@@ -425,15 +425,15 @@ export default function Dashboard() {
                     const displayId = order.id.startsWith('ORD-') ? order.id : `ORD-${order.id}`;
                     return (
                       <tr key={order.id} className="hover:bg-[#F6F6F6]/40 transition-colors duration-100">
-                        <td className="py-3 px-4 font-mono font-bold text-[#401900] whitespace-nowrap">
+                        <td className="py-3 px-4 font-mono font-bold text-[#00522E] whitespace-nowrap">
                           {displayId}
                         </td>
 
                         <td className="py-3 px-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <span
-                              className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-[#401900] shadow-xs select-none"
-                              style={{ backgroundColor: 'rgba(248, 176, 87, 0.25)' }}
+                              className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-[#00522E] shadow-xs select-none"
+                              style={{ backgroundColor: 'rgba(16, 185, 129, 0.25)' }}
                             >
                               {initial}
                             </span>
@@ -461,7 +461,7 @@ export default function Dashboard() {
                         <td className="py-3 px-4 text-center whitespace-nowrap">
                           <button
                             onClick={() => alert(`Details for order ${order.id}`)}
-                            className="p-1.5 text-[#797979] hover:text-[#401900] hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer inline-flex items-center justify-center"
+                            className="p-1.5 text-[#797979] hover:text-[#00522E] hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer inline-flex items-center justify-center"
                             aria-label="View Order"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -506,7 +506,7 @@ export default function Dashboard() {
                 return (
                   <div
                     key={ticket.id}
-                    className="border border-[#E0E0E0]/30 hover:border-[#F8B057]/45 rounded-xl p-3.5 space-y-2.5 transition-all duration-150 hover:bg-[#F8B057]/5"
+                    className="border border-[#E0E0E0]/30 hover:border-[#10B981]/45 rounded-xl p-3.5 space-y-2.5 transition-all duration-150 hover:bg-[#10B981]/5"
                   >
                     <div className="flex justify-between items-start gap-2">
                       <h4 className="text-sm font-bold text-[#242424] line-clamp-1">{ticket.subject}</h4>
@@ -537,7 +537,7 @@ export default function Dashboard() {
           <div className="pt-2">
             <button
               onClick={() => alert('Navigating to Ticket Center...')}
-              className="w-full text-center py-2.5 text-xs sm:text-sm font-bold text-[#401900] hover:text-[#2D1100] border-t border-[#E0E0E0]/30 hover:bg-[#F6F6F6]/40 transition-all cursor-pointer"
+              className="w-full text-center py-2.5 text-xs sm:text-sm font-bold text-[#00522E] hover:text-[#003B21] border-t border-[#E0E0E0]/30 hover:bg-[#F6F6F6]/40 transition-all cursor-pointer"
             >
               Go to Ticket Center
             </button>

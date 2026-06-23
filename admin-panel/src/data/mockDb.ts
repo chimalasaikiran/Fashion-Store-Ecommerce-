@@ -214,23 +214,23 @@ export const PRODUCT_MOVEMENTS = [
   { id: 'mov-1', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', sku: 'ACC-SLK-01', type: 'In', changeQuantity: 50, resultingQuantity: 50, timestamp: '2025-02-15T09:00:00Z', reason: 'Initial inventory load', user: 'System Admin' },
   { id: 'mov-2', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', sku: 'ACC-SLK-01', type: 'Out', changeQuantity: -5, resultingQuantity: 45, timestamp: '2025-06-10T14:30:00Z', reason: 'Order fulfillment #ORD-8291-B', user: 'System Agent' },
   { id: 'mov-3', productId: 'prd-8205', productName: 'Designer Leather Sneakers', sku: 'FTW-LSN-05', type: 'In', changeQuantity: 5, resultingQuantity: 5, timestamp: '2025-03-05T10:15:00Z', reason: 'Supplier delivery batch #992', user: 'System Admin' },
-  { id: 'mov-4', productId: 'prd-8205', productName: 'Designer Leather Sneakers', sku: 'FTW-LSN-05', type: 'Out', changeQuantity: -2, resultingQuantity: 3, timestamp: '2025-06-22T11:00:00Z', reason: 'Damaged item written off', user: 'Ekta Rodriguez' }
+  { id: 'mov-4', productId: 'prd-8205', productName: 'Designer Leather Sneakers', sku: 'FTW-LSN-05', type: 'Out', changeQuantity: -2, resultingQuantity: 3, timestamp: '2025-06-22T11:00:00Z', reason: 'Damaged item written off', user: 'Ekta Chowdary' }
 ];
 
 // Product Audit Log
 export const PRODUCT_ACTIVITIES = [
   { id: 'act-1', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', action: 'Product created and set to live', timestamp: '2025-02-15T09:00:00Z', user: 'System Admin' },
   { id: 'act-2', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', action: 'Updated product price from ₹8,999 to ₹9,999', timestamp: '2025-06-10T14:30:00Z', user: 'System Admin' },
-  { id: 'act-3', productId: 'prd-8206', productName: 'Striped Cotton T-Shirt', action: 'Product set to draft status', timestamp: '2025-06-18T16:00:00Z', user: 'Sneha Iyer' },
-  { id: 'act-4', productId: 'prd-8205', productName: 'Designer Leather Sneakers', action: 'Inventory adjusted (-2 stock written off)', timestamp: '2025-06-22T11:00:00Z', user: 'Ekta Rodriguez' }
+  { id: 'act-3', productId: 'prd-8206', productName: 'Striped Cotton T-Shirt', action: 'Product set to draft status', timestamp: '2025-06-18T16:00:00Z', user: 'Sneha Reddy' },
+  { id: 'act-4', productId: 'prd-8205', productName: 'Designer Leather Sneakers', action: 'Inventory adjusted (-2 stock written off)', timestamp: '2025-06-22T11:00:00Z', user: 'Ekta Chowdary' }
 ];
 
 // User Management Database
 export const USERS = [
   {
     id: '92831',
-    name: 'Sneha Iyer',
-    email: 'sneha.iyer@gmail.com',
+    name: 'Sneha Reddy',
+    email: 'sneha.reddy@gmail.com',
     phone: '+91 98123 45678',
     orders: 42,
     spent: 124500,
@@ -240,8 +240,8 @@ export const USERS = [
   },
   {
     id: '92834',
-    name: 'Rohan Malhotra',
-    email: 'rohan.m@malhotraenterprise.in',
+    name: 'Rohan Naidu',
+    email: 'rohan.n@naiduenterprise.in',
     phone: '+91 99234 56789',
     orders: 128,
     spent: 541205,
@@ -251,8 +251,8 @@ export const USERS = [
   },
   {
     id: '92842',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@yahoo.co.in',
+    name: 'Priya Reddy',
+    email: 'priya.reddy@yahoo.co.in',
     phone: '+91 98345 67890',
     orders: 5,
     spent: 12000,
@@ -262,8 +262,8 @@ export const USERS = [
   },
   {
     id: '92845',
-    name: 'Kavya Nair',
-    email: 'kavya.nair@nairassociates.com',
+    name: 'Kavya Naidu',
+    email: 'kavya.naidu@naiduassociates.com',
     phone: '+91 98456 78901',
     orders: 18,
     spent: 42300,
@@ -273,8 +273,8 @@ export const USERS = [
   },
   {
     id: '92848',
-    name: 'Amit Verma',
-    email: 'amit.verma@vermaconsulting.in',
+    name: 'Amit Raju',
+    email: 'amit.raju@rajuconsulting.in',
     phone: '+91 98567 89012',
     orders: 34,
     spent: 98400,
@@ -284,8 +284,8 @@ export const USERS = [
   },
   {
     id: '92850',
-    name: 'Ekta Rodriguez',
-    email: 'ekta.rodriguez@gmail.com',
+    name: 'Ekta Chowdary',
+    email: 'ekta.chowdary@gmail.com',
     phone: '+91 98678 90123',
     orders: 72,
     spent: 210500,
@@ -295,8 +295,8 @@ export const USERS = [
   },
   {
     id: '92855',
-    name: 'Vikram Singh',
-    email: 'vikram.singh@singhtravels.co.in',
+    name: 'Vikram Reddy',
+    email: 'vikram.reddy@reddytravels.co.in',
     phone: '+91 98789 01234',
     orders: 0,
     spent: 0,
@@ -306,8 +306,8 @@ export const USERS = [
   },
   {
     id: '92857',
-    name: 'Rajesh Gupta',
-    email: 'rajesh.gupta@guptaretails.in',
+    name: 'Rajesh Rao',
+    email: 'rajesh.rao@raoretails.in',
     phone: '+91 98890 12345',
     orders: 14,
     spent: 31005,
@@ -317,8 +317,8 @@ export const USERS = [
   },
   {
     id: '92860',
-    name: 'Chloe Patel',
-    email: 'chloe.p@patelclinics.in',
+    name: 'Charitha Rao',
+    email: 'charitha.r@raoclinics.in',
     phone: '+91 98901 23456',
     orders: 55,
     spent: 149000,
@@ -328,8 +328,8 @@ export const USERS = [
   },
   {
     id: '92863',
-    name: 'Nikhilesh Basu',
-    email: 'nikhilesh.basu@physics.isi.edu',
+    name: 'Nikhilesh Rao',
+    email: 'nikhilesh.rao@physics.isi.edu',
     phone: '+91 99012 34567',
     orders: 11,
     spent: 24500,
@@ -339,8 +339,8 @@ export const USERS = [
   },
   {
     id: '92865',
-    name: 'Sonia Gandhi',
-    email: 'sonia.g@delhi.gov.in',
+    name: 'Sujatha Reddy',
+    email: 'sujatha.r@ap.gov.in',
     phone: '+91 11 5555-0133',
     orders: 9,
     spent: 19802,
@@ -363,19 +363,19 @@ export const USERS = [
 
 // User Activity Logs
 export const USER_ACTIVITIES = [
-  { id: 'act-1', userId: '92831', userName: 'Sneha Iyer', action: 'Logged into admin panel', timestamp: '2026-06-22T16:10:00Z', ipAddress: '192.168.1.45', device: 'Chrome / Windows', status: 'Success', category: 'Auth' },
-  { id: 'act-2', userId: '92834', userName: 'Rohan Malhotra', action: 'Attempted login - Account Blocked', timestamp: '2026-06-22T15:34:12Z', ipAddress: '82.44.112.5', device: 'Safari / iPhone', status: 'Failed', category: 'Auth' },
-  { id: 'act-3', userId: '92831', userName: 'Sneha Iyer', action: 'Updated profile description', timestamp: '2026-06-22T14:22:05Z', ipAddress: '192.168.1.45', device: 'Chrome / Windows', status: 'Success', category: 'Profile' },
-  { id: 'act-4', userId: '92842', userName: 'Priya Sharma', action: 'Placed new order #ORD-8291-B', timestamp: '2026-06-22T12:05:44Z', ipAddress: '210.14.99.12', device: 'Chrome / macOS', status: 'Success', category: 'Transaction' },
-  { id: 'act-5', userId: '92850', userName: 'Ekta Rodriguez', action: 'Changed password security policy', timestamp: '2026-06-22T09:15:30Z', ipAddress: '95.24.120.3', device: 'Firefox / Linux', status: 'Success', category: 'Security' }
+  { id: 'act-1', userId: '92831', userName: 'Sneha Reddy', action: 'Logged into admin panel', timestamp: '2026-06-22T16:10:00Z', ipAddress: '192.168.1.45', device: 'Chrome / Windows', status: 'Success', category: 'Auth' },
+  { id: 'act-2', userId: '92834', userName: 'Rohan Naidu', action: 'Attempted login - Account Blocked', timestamp: '2026-06-22T15:34:12Z', ipAddress: '82.44.112.5', device: 'Safari / iPhone', status: 'Failed', category: 'Auth' },
+  { id: 'act-3', userId: '92831', userName: 'Sneha Reddy', action: 'Updated profile description', timestamp: '2026-06-22T14:22:05Z', ipAddress: '192.168.1.45', device: 'Chrome / Windows', status: 'Success', category: 'Profile' },
+  { id: 'act-4', userId: '92842', userName: 'Priya Reddy', action: 'Placed new order #ORD-8291-B', timestamp: '2026-06-22T12:05:44Z', ipAddress: '210.14.99.12', device: 'Chrome / macOS', status: 'Success', category: 'Transaction' },
+  { id: 'act-5', userId: '92850', userName: 'Ekta Chowdary', action: 'Changed password security policy', timestamp: '2026-06-22T09:15:30Z', ipAddress: '95.24.120.3', device: 'Firefox / Linux', status: 'Success', category: 'Security' }
 ];
 
 // Orders Database
 export const ORDERS = [
   {
     id: '8291-B',
-    customerName: 'Sneha Iyer',
-    customerEmail: 'sneha.iyer@gmail.com',
+    customerName: 'Sneha Reddy',
+    customerEmail: 'sneha.reddy@gmail.com',
     customerPhone: '+91 98123 45678',
     items: [
       { id: 'p1', name: 'Slim Fit Corduroy Blazer', price: 20000, quantity: 2, size: 'L', color: 'Forest Green', image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=150' },
@@ -387,7 +387,7 @@ export const ORDERS = [
     deliveryStatus: 'Pending',
     createdDate: 'Oct 24, 2023',
     shippingAddress: {
-      name: 'Sneha Iyer',
+      name: 'Sneha Reddy',
       street: 'Flat 404, Maker Towers, Nariman Point',
       city: 'Mumbai',
       state: 'Maharashtra',
@@ -396,7 +396,7 @@ export const ORDERS = [
       phone: '+91 98123 45678'
     },
     billingAddress: {
-      name: 'Sneha Iyer',
+      name: 'Sneha Reddy',
       street: 'Flat 404, Maker Towers, Nariman Point',
       city: 'Mumbai',
       state: 'Maharashtra',
@@ -422,13 +422,13 @@ export const ORDERS = [
       { id: 'a3', action: 'Status changed from Pending to Processing', user: 'System (Auto Route)', timestamp: '2023-10-25T09:00:00Z' }
     ],
     notes: [
-      { id: 'n1', author: 'Sneha Iyer', content: 'Please wrap carefully. This is a birthday gift.', timestamp: 'Oct 24, 2023, 02:30 PM' }
+      { id: 'n1', author: 'Sneha Reddy', content: 'Please wrap carefully. This is a birthday gift.', timestamp: 'Oct 24, 2023, 02:30 PM' }
     ]
   },
   {
     id: '9021-C',
-    customerName: 'Priya Sharma',
-    customerEmail: 'priya.sharma@yahoo.co.in',
+    customerName: 'Priya Reddy',
+    customerEmail: 'priya.reddy@yahoo.co.in',
     customerPhone: '+91 98345 67890',
     items: [
       { id: 'p3', name: 'Ribbed Knit Midi Dress', price: 6999, quantity: 1, size: 'M', color: 'Oatmeal', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=150' }
@@ -439,7 +439,7 @@ export const ORDERS = [
     deliveryStatus: 'Delivered',
     createdDate: 'Nov 02, 2023',
     shippingAddress: {
-      name: 'Priya Sharma',
+      name: 'Priya Reddy',
       street: '15, Connaught Place, Block H',
       city: 'New Delhi',
       state: 'Delhi',
@@ -448,7 +448,7 @@ export const ORDERS = [
       phone: '+91 98345 67890'
     },
     billingAddress: {
-      name: 'Priya Sharma',
+      name: 'Priya Reddy',
       street: '15, Connaught Place, Block H',
       city: 'New Delhi',
       state: 'Delhi',
@@ -478,8 +478,8 @@ export const ORDERS = [
   },
   {
     id: '1284-F',
-    customerName: 'Amit Verma',
-    customerEmail: 'amit.verma@vermaconsulting.in',
+    customerName: 'Amit Raju',
+    customerEmail: 'amit.raju@rajuconsulting.in',
     customerPhone: '+91 98567 89012',
     items: [
       { id: 'p4', name: 'Oversized Cashmere Sweater', price: 15000, quantity: 2, size: 'S', color: 'Ivory', image: 'https://images.unsplash.com/photo-1574164904299-3a102b110380?w=150' },
@@ -492,7 +492,7 @@ export const ORDERS = [
     deliveryStatus: 'Pending',
     createdDate: 'Dec 15, 2023',
     shippingAddress: {
-      name: 'Amit Verma',
+      name: 'Amit Raju',
       street: '120, Residency Road, Richmond Town',
       city: 'Bengaluru',
       state: 'Karnataka',
@@ -501,7 +501,7 @@ export const ORDERS = [
       phone: '+91 98567 89012'
     },
     billingAddress: {
-      name: 'Amit Verma',
+      name: 'Amit Raju',
       street: '120, Residency Road, Richmond Town',
       city: 'Bengaluru',
       state: 'Karnataka',
@@ -530,8 +530,8 @@ export const ORDERS = [
   },
   {
     id: '4567-A',
-    customerName: 'Rohan Malhotra',
-    customerEmail: 'rohan.m@malhotraenterprise.in',
+    customerName: 'Rohan Naidu',
+    customerEmail: 'rohan.n@naiduenterprise.in',
     customerPhone: '+91 99234 56789',
     items: [
       { id: 'p7', name: 'Wool Wrap Coat', price: 25000, quantity: 1, size: 'XL', color: 'Camel', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150' }
@@ -542,7 +542,7 @@ export const ORDERS = [
     deliveryStatus: 'In Transit',
     createdDate: 'Jan 10, 2024',
     shippingAddress: {
-      name: 'Rohan Malhotra',
+      name: 'Rohan Naidu',
       street: '88, Koregaon Park Road, Lane 5',
       city: 'Pune',
       state: 'Maharashtra',
@@ -551,7 +551,7 @@ export const ORDERS = [
       phone: '+91 99234 56789'
     },
     billingAddress: {
-      name: 'Rohan Malhotra',
+      name: 'Rohan Naidu',
       street: '88, Koregaon Park Road, Lane 5',
       city: 'Pune',
       state: 'Maharashtra',
@@ -580,8 +580,8 @@ export const ORDERS = [
   },
   {
     id: '7890-X',
-    customerName: 'Kavya Nair',
-    customerEmail: 'kavya.nair@nairassociates.com',
+    customerName: 'Kavya Naidu',
+    customerEmail: 'kavya.naidu@naiduassociates.com',
     customerPhone: '+91 98456 78901',
     items: [
       { id: 'p8', name: 'Silk Shirt & Camisole Set', price: 22000, quantity: 4, size: 'S', color: 'Burgundy', image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=150' }
@@ -592,7 +592,7 @@ export const ORDERS = [
     deliveryStatus: 'Delivered',
     createdDate: 'Feb 14, 2024',
     shippingAddress: {
-      name: 'Kavya Nair',
+      name: 'Kavya Naidu',
       street: '404, Maker Chambers V, Nariman Point',
       city: 'Mumbai',
       state: 'Maharashtra',
@@ -601,7 +601,7 @@ export const ORDERS = [
       phone: '+91 98456 78901'
     },
     billingAddress: {
-      name: 'Kavya Nair',
+      name: 'Kavya Naidu',
       street: '404, Maker Chambers V, Nariman Point',
       city: 'Mumbai',
       state: 'Maharashtra',
@@ -619,7 +619,7 @@ export const ORDERS = [
       { id: 't2', title: 'Payment Confirmed', description: 'Payment captured successfully via Razorpay.', timestamp: 'Feb 14, 2024, 08:30 AM', status: 'completed' },
       { id: 't3', title: 'Processing Order', description: 'Prepared for logistics dispatch.', timestamp: 'Feb 14, 2024, 01:00 PM', status: 'completed' },
       { id: 't4', title: 'Shipped', description: 'Shipped via Delhivery Express #DLV29102.', timestamp: 'Feb 15, 2024, 09:00 AM', status: 'completed' },
-      { id: 't5', title: 'Delivered', description: 'Delivered and signed by K. Nair.', timestamp: 'Feb 17, 2024, 02:45 PM', status: 'completed' }
+      { id: 't5', title: 'Delivered', description: 'Delivered and signed by K. Naidu.', timestamp: 'Feb 17, 2024, 02:45 PM', status: 'completed' }
     ],
     activityLogs: [
       { id: 'a1', action: 'Order Placed', user: 'Customer', timestamp: '2024-02-14T08:20:00Z' },
@@ -678,8 +678,8 @@ export const ORDERS = [
   },
   {
     id: '3344-Z',
-    customerName: 'Ekta Rodriguez',
-    customerEmail: 'ekta.rodriguez@gmail.com',
+    customerName: 'Ekta Chowdary',
+    customerEmail: 'ekta.chowdary@gmail.com',
     customerPhone: '+91 98678 90123',
     items: [
       { id: 'p10', name: 'Shearling Aviator Jacket', price: 185000, quantity: 1, size: 'M', color: 'Vintage Black', image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=150' }
@@ -690,7 +690,7 @@ export const ORDERS = [
     deliveryStatus: 'Cancelled',
     createdDate: 'Apr 05, 2024',
     shippingAddress: {
-      name: 'Ekta Rodriguez',
+      name: 'Ekta Chowdary',
       street: '12, Sector 15, Vashi',
       city: 'Navi Mumbai',
       state: 'Maharashtra',
@@ -699,7 +699,7 @@ export const ORDERS = [
       phone: '+91 98678 90123'
     },
     billingAddress: {
-      name: 'Ekta Rodriguez',
+      name: 'Ekta Chowdary',
       street: '12, Sector 15, Vashi',
       city: 'Navi Mumbai',
       state: 'Maharashtra',
@@ -728,8 +728,8 @@ export const ORDERS = [
   },
   {
     id: '5566-W',
-    customerName: 'Chloe Patel',
-    customerEmail: 'chloe.p@patelclinics.in',
+    customerName: 'Charitha Rao',
+    customerEmail: 'charitha.r@raoclinics.in',
     customerPhone: '+91 98901 23456',
     items: [
       { id: 'p11', name: 'Embellished Evening Gown', price: 35000, quantity: 1, size: 'S', color: 'Navy Blue', image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=150' }
@@ -740,20 +740,20 @@ export const ORDERS = [
     deliveryStatus: 'Pending',
     createdDate: 'May 12, 2024',
     shippingAddress: {
-      name: 'Chloe Patel',
-      street: 'Block 2, Patel Hospital, Ring Road',
-      city: 'Rajkot',
-      state: 'Gujarat',
-      zip: '360001',
+      name: 'Charitha Rao',
+      street: 'Block 2, Rao Hospital, Ring Road',
+      city: 'Visakhapatnam',
+      state: 'Andhra Pradesh',
+      zip: '530026',
       country: 'India',
       phone: '+91 98901 23456'
     },
     billingAddress: {
-      name: 'Chloe Patel',
-      street: 'Block 2, Patel Hospital, Ring Road',
-      city: 'Rajkot',
-      state: 'Gujarat',
-      zip: '360001',
+      name: 'Charitha Rao',
+      street: 'Block 2, Rao Hospital, Ring Road',
+      city: 'Visakhapatnam',
+      state: 'Andhra Pradesh',
+      zip: '530026',
       country: 'India',
       phone: '+91 98901 23456'
     },
@@ -775,8 +775,8 @@ export const ORDERS = [
   },
   {
     id: '7788-V',
-    customerName: 'Nikhilesh Basu',
-    customerEmail: 'nikhilesh.basu@physics.isi.edu',
+    customerName: 'Nikhilesh Rao',
+    customerEmail: 'nikhilesh.rao@physics.isi.edu',
     customerPhone: '+91 99012 34567',
     items: [
       { id: 'p12', name: 'Merino Wool Polo Shirt', price: 7500, quantity: 2, size: 'L', color: 'Navy', image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=150' }
@@ -787,7 +787,7 @@ export const ORDERS = [
     deliveryStatus: 'Delivered',
     createdDate: 'Jun 01, 2024',
     shippingAddress: {
-      name: 'Nikhilesh Basu',
+      name: 'Nikhilesh Rao',
       street: 'Physics Dept, Indian Statistical Institute, 203 B.T. Road',
       city: 'Kolkata',
       state: 'West Bengal',
@@ -796,7 +796,7 @@ export const ORDERS = [
       phone: '+91 99012 34567'
     },
     billingAddress: {
-      name: 'Nikhilesh Basu',
+      name: 'Nikhilesh Rao',
       street: 'Physics Dept, Indian Statistical Institute, 203 B.T. Road',
       city: 'Kolkata',
       state: 'West Bengal',
@@ -825,9 +825,9 @@ export const ORDERS = [
   },
   {
     id: '9900-U',
-    customerName: 'Sonia Gandhi',
-    customerEmail: 'sonia.g@delhi.gov.in',
-    customerPhone: '+91 11 5555-0133',
+    customerName: 'Sujatha Reddy',
+    customerEmail: 'sujatha.r@ap.gov.in',
+    customerPhone: '+91 866 555-0133',
     items: [
       { id: 'p13', name: 'Handcrafted Pashmina Shawl', price: 7999, quantity: 1, size: 'One Size', color: 'Emerald Green', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=150' }
     ],
@@ -837,22 +837,22 @@ export const ORDERS = [
     deliveryStatus: 'Pending',
     createdDate: 'Jun 18, 2026',
     shippingAddress: {
-      name: 'Sonia Gandhi',
-      street: '10 Janpath',
-      city: 'New Delhi',
-      state: 'Delhi',
-      zip: '110011',
+      name: 'Sujatha Reddy',
+      street: 'Plot 10, Sector 4, Amaravati',
+      city: 'Guntur',
+      state: 'Andhra Pradesh',
+      zip: '522501',
       country: 'India',
-      phone: '+91 11 5555-0133'
+      phone: '+91 866 555-0133'
     },
     billingAddress: {
-      name: 'Sonia Gandhi',
-      street: '10 Janpath',
-      city: 'New Delhi',
-      state: 'Delhi',
-      zip: '110011',
+      name: 'Sujatha Reddy',
+      street: 'Plot 10, Sector 4, Amaravati',
+      city: 'Guntur',
+      state: 'Andhra Pradesh',
+      zip: '522501',
       country: 'India',
-      phone: '+91 11 5555-0133'
+      phone: '+91 866 555-0133'
     },
     paymentDetails: {
       method: 'UPI (Awaiting Authorization)',
@@ -875,9 +875,9 @@ export const TRANSACTIONS = [
   {
     id: 'TXN-94281',
     orderId: 'ORD-8291-B',
-    customerName: 'Sneha Iyer',
-    customerEmail: 'sneha.iyer@gmail.com',
-    customerAvatar: 'SI',
+    customerName: 'Sneha Reddy',
+    customerEmail: 'sneha.reddy@gmail.com',
+    customerAvatar: 'SR',
     amount: 115000,
     tax: 20700,
     method: 'Visa',
@@ -891,9 +891,9 @@ export const TRANSACTIONS = [
   {
     id: 'TXN-94280',
     orderId: 'ORD-9021-C',
-    customerName: 'Priya Sharma',
-    customerAvatar: 'PS',
-    customerEmail: 'priya.sharma@yahoo.co.in',
+    customerName: 'Priya Reddy',
+    customerAvatar: 'PR',
+    customerEmail: 'priya.reddy@yahoo.co.in',
     amount: 6999,
     tax: 1260,
     method: 'PayPal', // Fallback mapped in context as UPI standard representation
@@ -907,9 +907,9 @@ export const TRANSACTIONS = [
   {
     id: 'TXN-94279',
     orderId: 'ORD-1284-F',
-    customerName: 'Amit Verma',
-    customerAvatar: 'AV',
-    customerEmail: 'amit.verma@vermaconsulting.in',
+    customerName: 'Amit Raju',
+    customerAvatar: 'AR',
+    customerEmail: 'amit.raju@rajuconsulting.in',
     amount: 45000,
     tax: 8100,
     method: 'Mastercard',
@@ -923,9 +923,9 @@ export const TRANSACTIONS = [
   {
     id: 'TXN-94278',
     orderId: 'ORD-3344-Z',
-    customerName: 'Ekta Rodriguez',
-    customerAvatar: 'ER',
-    customerEmail: 'ekta.rodriguez@gmail.com',
+    customerName: 'Ekta Chowdary',
+    customerAvatar: 'EC',
+    customerEmail: 'ekta.chowdary@gmail.com',
     amount: 185000,
     tax: 33300,
     method: 'Crypto (BTC)', // Retained mapping type but adjusted context reference to UPI refund
@@ -939,9 +939,9 @@ export const TRANSACTIONS = [
   {
     id: 'TXN-94277',
     orderId: 'ORD-4567-A',
-    customerName: 'Rohan Malhotra',
-    customerAvatar: 'RM',
-    customerEmail: 'rohan.m@malhotraenterprise.in',
+    customerName: 'Rohan Naidu',
+    customerAvatar: 'RN',
+    customerEmail: 'rohan.n@naiduenterprise.in',
     amount: 25000,
     tax: 4500,
     method: 'Wire',
@@ -959,8 +959,8 @@ export const INVOICES = [
   {
     number: 'INV-2023-94281',
     orderRef: '8291-B',
-    customerName: 'Sneha Iyer',
-    customerEmail: 'sneha.iyer@gmail.com',
+    customerName: 'Sneha Reddy',
+    customerEmail: 'sneha.reddy@gmail.com',
     amount: 115000,
     tax: 20700,
     status: 'Paid',
@@ -973,8 +973,8 @@ export const INVOICES = [
   {
     number: 'INV-2023-94277',
     orderRef: '4567-A',
-    customerName: 'Rohan Malhotra',
-    customerEmail: 'rohan.m@malhotraenterprise.in',
+    customerName: 'Rohan Naidu',
+    customerEmail: 'rohan.n@naiduenterprise.in',
     amount: 25000,
     tax: 4500,
     status: 'Paid',
@@ -986,8 +986,8 @@ export const INVOICES = [
   {
     number: 'INV-2023-94276',
     orderRef: '7788-V',
-    customerName: 'Nikhilesh Basu',
-    customerEmail: 'nikhilesh.basu@physics.isi.edu',
+    customerName: 'Nikhilesh Rao',
+    customerEmail: 'nikhilesh.rao@physics.isi.edu',
     amount: 15000,
     tax: 2700,
     status: 'Paid',
@@ -999,8 +999,8 @@ export const INVOICES = [
   {
     number: 'INV-2023-94280',
     orderRef: '9021-C',
-    customerName: 'Priya Sharma',
-    customerEmail: 'priya.sharma@yahoo.co.in',
+    customerName: 'Priya Reddy',
+    customerEmail: 'priya.reddy@yahoo.co.in',
     amount: 6999,
     tax: 1260,
     status: 'Paid',
@@ -1016,7 +1016,7 @@ export const CREDIT_NOTES = [
   {
     number: 'CN-2023-94278',
     relatedInvoice: 'INV-2023-94278',
-    customerName: 'Ekta Rodriguez',
+    customerName: 'Ekta Chowdary',
     refundAmount: 185000,
     reason: 'Size exchange cancellation before packaging',
     status: 'Issued',
@@ -1059,9 +1059,9 @@ export const STATUS_NOTIFICATIONS = [
   {
     id: 'notif-1',
     type: 'Email',
-    recipient: 'sneha.iyer@gmail.com',
+    recipient: 'sneha.reddy@gmail.com',
     title: 'Receipt for Order 8291-B at Fashion Store',
-    body: 'Hi Sneha Iyer,\n\nWe have successfully processed your payment of ₹1,15,000 for Order 8291-B.\n\nThank you for shopping with us!\nFashion Store Support',
+    body: 'Hi Sneha Reddy,\n\nWe have successfully processed your payment of ₹1,15,000 for Order 8291-B.\n\nThank you for shopping with us!\nFashion Store Support',
     status: 'Sent',
     date: '2023-10-24T14:23:00',
     event: 'Payment Successful'
@@ -1069,9 +1069,9 @@ export const STATUS_NOTIFICATIONS = [
   {
     id: 'notif-2',
     type: 'Email',
-    recipient: 'amit.verma@vermaconsulting.in',
+    recipient: 'amit.raju@rajuconsulting.in',
     title: 'Action Required: Payment failed for Order 1284-F',
-    body: 'Hi Amit Verma,\n\nYour transaction of ₹45,000 for Order 1284-F has failed. Please verify your payment details and try again to avoid order cancellation.\n\nFashion Store Support',
+    body: 'Hi Amit Raju,\n\nYour transaction of ₹45,000 for Order 1284-F has failed. Please verify your payment details and try again to avoid order cancellation.\n\nFashion Store Support',
     status: 'Sent',
     date: '2023-10-23T18:46:00',
     event: 'Payment Failed Alert'
@@ -1093,8 +1093,8 @@ export const SHIPMENTS = [
   {
     id: 'SH-2026-9041',
     orderId: '8291-B',
-    customerName: 'Sneha Iyer',
-    customerEmail: 'sneha.iyer@gmail.com',
+    customerName: 'Sneha Reddy',
+    customerEmail: 'sneha.reddy@gmail.com',
     shippingAddress: 'Flat 404, Maker Towers, Nariman Point, Mumbai, MH, 400021, India',
     courier: 'Delhivery',
     shippingMethod: 'Air',
@@ -1109,8 +1109,8 @@ export const SHIPMENTS = [
   {
     id: 'SH-2026-1029',
     orderId: '4567-A',
-    customerName: 'Rohan Malhotra',
-    customerEmail: 'rohan.m@malhotraenterprise.in',
+    customerName: 'Rohan Naidu',
+    customerEmail: 'rohan.n@naiduenterprise.in',
     shippingAddress: '88, Koregaon Park Road, Lane 5, Pune, MH, 411001, India',
     courier: 'Blue Dart',
     shippingMethod: 'Air',
@@ -1125,8 +1125,8 @@ export const SHIPMENTS = [
   {
     id: 'SH-2026-5590',
     orderId: '7788-V',
-    customerName: 'Nikhilesh Basu',
-    customerEmail: 'nikhilesh.basu@physics.isi.edu',
+    customerName: 'Nikhilesh Rao',
+    customerEmail: 'nikhilesh.rao@physics.isi.edu',
     shippingAddress: 'Physics Dept, ISI, 203 B.T. Road, Kolkata, WB, 700108, India',
     courier: 'DTDC Express',
     shippingMethod: 'Land',
@@ -1141,8 +1141,8 @@ export const SHIPMENTS = [
   {
     id: 'SH-2026-0819',
     orderId: '9900-U',
-    customerName: 'Sonia Gandhi',
-    customerEmail: 'sonia.g@delhi.gov.in',
+    customerName: 'Sujatha Reddy',
+    customerEmail: 'sujatha.r@ap.gov.in',
     shippingAddress: '10 Janpath, New Delhi, Delhi, 110011, India',
     courier: 'Delhivery',
     shippingMethod: 'Air',
@@ -1161,8 +1161,8 @@ export const RETURN_REQUESTS = [
   {
     id: 'RET-101',
     orderId: '9021-C',
-    customerName: 'Priya Sharma',
-    customerEmail: 'priya.sharma@yahoo.co.in',
+    customerName: 'Priya Reddy',
+    customerEmail: 'priya.reddy@yahoo.co.in',
     reason: 'Size too large',
     productName: 'Ribbed Knit Midi Dress',
     productPrice: 6999,
@@ -1172,8 +1172,8 @@ export const RETURN_REQUESTS = [
   {
     id: 'RET-102',
     orderId: '7788-V',
-    customerName: 'Nikhilesh Basu',
-    customerEmail: 'nikhilesh.basu@physics.isi.edu',
+    customerName: 'Nikhilesh Rao',
+    customerEmail: 'nikhilesh.rao@physics.isi.edu',
     reason: 'Incorrect color shipped',
     productName: 'Merino Wool Polo Shirt',
     productPrice: 7500,
@@ -1183,8 +1183,8 @@ export const RETURN_REQUESTS = [
   {
     id: 'RET-103',
     orderId: '1284-F',
-    customerName: 'Amit Verma',
-    customerEmail: 'amit.verma@vermaconsulting.in',
+    customerName: 'Amit Raju',
+    customerEmail: 'amit.raju@rajuconsulting.in',
     reason: 'Fabric defect near collar',
     productName: 'Oversized Cashmere Sweater',
     productPrice: 15000,
@@ -1230,8 +1230,8 @@ export const REPLACEMENT_ORDERS = [
   {
     id: 'REP-301',
     originalOrderId: '9021-C',
-    customerName: 'Priya Sharma',
-    customerEmail: 'priya.sharma@yahoo.co.in',
+    customerName: 'Priya Reddy',
+    customerEmail: 'priya.reddy@yahoo.co.in',
     originalProduct: 'Ribbed Knit Midi Dress (Size M)',
     replacementProduct: 'Ribbed Knit Midi Dress (Size S)',
     status: 'Pending',
@@ -1241,8 +1241,8 @@ export const REPLACEMENT_ORDERS = [
   {
     id: 'REP-302',
     originalOrderId: '4567-A',
-    customerName: 'Rohan Malhotra',
-    customerEmail: 'rohan.m@malhotraenterprise.in',
+    customerName: 'Rohan Naidu',
+    customerEmail: 'rohan.n@naiduenterprise.in',
     originalProduct: 'Wool Wrap Coat (Size XL)',
     replacementProduct: 'Wool Wrap Coat (Size L)',
     status: 'Shipped',
@@ -1255,13 +1255,13 @@ export const REPLACEMENT_ORDERS = [
 export const TICKETS = [
   {
     id: '#TK-9821',
-    customerName: 'Jyoti Deshmukh',
-    customerEmail: 'jyoti.d@deshmukhretail.in',
+    customerName: 'Jyoti Reddy',
+    customerEmail: 'jyoti.r@reddyretail.in',
     subject: 'Payment gateway timeout on checkout',
     category: 'Payments',
     priority: 'CRITICAL',
     status: 'In Progress',
-    assignedAgent: 'Sunita Sharma',
+    assignedAgent: 'Sunita Reddy',
     createdDate: 'Jun 22, 2026, 09:12 AM',
     updatedDate: 'Jun 22, 2026, 10:45 AM',
     slaDue: 'Jun 22, 2026, 11:12 AM',
@@ -1270,10 +1270,10 @@ export const TICKETS = [
       {
         id: 'msg-1',
         sender: 'Customer',
-        senderName: 'Jyoti Deshmukh',
+        senderName: 'Jyoti Reddy',
         text: 'Hello, we are experiencing repeated timeouts on UPI / Razorpay integration during checkout. It seems to happen specifically when users select QR Code scanner payment. Please look into this urgently.',
         timestamp: 'Jun 22, 2026, 09:12 AM',
-        avatar: 'JD'
+        avatar: 'JR'
       },
       {
         id: 'msg-2',
@@ -1285,31 +1285,31 @@ export const TICKETS = [
       {
         id: 'msg-3',
         sender: 'Agent',
-        senderName: 'Sunita Sharma',
+        senderName: 'Sunita Reddy',
         text: 'Hi Jyoti, I am looking into your ticket now. I see the timeout errors in our checkout logs. It looks like the network request to Razorpay is taking over 15 seconds. Let me run diagnostics.',
         timestamp: 'Jun 22, 2026, 10:00 AM'
       },
       {
         id: 'msg-4',
         sender: 'Customer',
-        senderName: 'Jyoti Deshmukh',
+        senderName: 'Jyoti Reddy',
         text: 'Thanks Sunita. Any update? Customers are getting errors and abandoning carts.',
         timestamp: 'Jun 22, 2026, 10:45 AM',
-        avatar: 'JD'
+        avatar: 'JR'
       }
     ],
     notes: [
       {
         id: 'note-1',
-        author: 'Sunita Sharma',
+        author: 'Sunita Reddy',
         text: 'Investigating processor logs. Timeout seems to occur on verify request. Potential latency on the UPI partner bank side.',
         timestamp: 'Jun 22, 2026, 10:15 AM'
       }
     ],
     timeline: [
-      { id: 'act-1', action: 'Ticket Created', actor: 'Jyoti Deshmukh', timestamp: 'Jun 22, 2026, 09:12 AM' },
-      { id: 'act-2', action: 'Ticket Assigned to Sunita Sharma', actor: 'System', timestamp: 'Jun 22, 2026, 09:13 AM' },
-      { id: 'act-3', action: 'Status changed to In Progress', actor: 'Sunita Sharma', timestamp: 'Jun 22, 2026, 10:00 AM' }
+      { id: 'act-1', action: 'Ticket Created', actor: 'Jyoti Reddy', timestamp: 'Jun 22, 2026, 09:12 AM' },
+      { id: 'act-2', action: 'Ticket Assigned to Sunita Reddy', actor: 'System', timestamp: 'Jun 22, 2026, 09:13 AM' },
+      { id: 'act-3', action: 'Status changed to In Progress', actor: 'Sunita Reddy', timestamp: 'Jun 22, 2026, 10:00 AM' }
     ],
     attachments: [
       { name: 'checkout_error_screenshot.png', size: '245 KB', type: 'image/png' },
@@ -1353,7 +1353,7 @@ export const TICKETS = [
     category: 'Inventory Mgmt',
     priority: 'MEDIUM',
     status: 'In Progress',
-    assignedAgent: 'Manish Verma',
+    assignedAgent: 'Manish Varma',
     createdDate: 'Jun 21, 2026, 11:20 AM',
     updatedDate: 'Jun 22, 2026, 09:15 AM',
     slaDue: 'Jun 23, 2026, 11:20 AM',
@@ -1370,7 +1370,7 @@ export const TICKETS = [
       {
         id: 'msg-21',
         sender: 'Agent',
-        senderName: 'Manish Verma',
+        senderName: 'Manish Varma',
         text: 'Hi, I have received the CSV sheet. I will check the file headers against our database schema to find which column is causing the rejection. Usually this happens due to trailing whitespace.',
         timestamp: 'Jun 22, 2026, 09:15 AM'
       }
@@ -1378,8 +1378,8 @@ export const TICKETS = [
     notes: [],
     timeline: [
       { id: 'act-20', action: 'Ticket Created', actor: 'Karan Exports Ltd', timestamp: 'Jun 21, 2026, 11:20 AM' },
-      { id: 'act-21', action: 'Ticket Assigned to Manish Verma', actor: 'System', timestamp: 'Jun 21, 2026, 11:22 AM' },
-      { id: 'act-22', action: 'Status changed to In Progress', actor: 'Manish Verma', timestamp: 'Jun 22, 2026, 09:15 AM' }
+      { id: 'act-21', action: 'Ticket Assigned to Manish Varma', actor: 'System', timestamp: 'Jun 21, 2026, 11:22 AM' },
+      { id: 'act-22', action: 'Status changed to In Progress', actor: 'Manish Varma', timestamp: 'Jun 22, 2026, 09:15 AM' }
     ],
     attachments: [
       { name: 'inventory_import_week25.csv', size: '1.4 MB', type: 'text/csv' }
@@ -1387,13 +1387,13 @@ export const TICKETS = [
   },
   {
     id: '#TK-9788',
-    customerName: 'Shree Boutique',
-    customerEmail: 'billing@shreeboutique.in',
+    customerName: 'Sree Boutique',
+    customerEmail: 'billing@sreeboutique.in',
     subject: 'Unauthorized refund request detected',
     category: 'Risk & Security',
     priority: 'CRITICAL',
     status: 'Escalated',
-    assignedAgent: 'Ekta Rodriguez',
+    assignedAgent: 'Ekta Chowdary',
     createdDate: 'Jun 20, 2026, 03:45 PM',
     updatedDate: 'Jun 22, 2026, 11:00 AM',
     slaDue: 'Jun 20, 2026, 05:45 PM',
@@ -1404,7 +1404,7 @@ export const TICKETS = [
       {
         id: 'msg-30',
         sender: 'Customer',
-        senderName: 'Manager Shree',
+        senderName: 'Manager Sree',
         text: 'We noticed a refund of ₹1,85,000 on Order #3344-Z that was not triggered by any of our operators. We suspect our API key or operator session might have been hijacked. Please audit this refund transaction immediately.',
         timestamp: 'Jun 20, 2026, 03:45 PM',
         avatar: 'MS'
@@ -1412,7 +1412,7 @@ export const TICKETS = [
       {
         id: 'msg-31',
         sender: 'Agent',
-        senderName: 'Ekta Rodriguez',
+        senderName: 'Ekta Chowdary',
         text: 'Hello, I have locked the transaction and temporarily suspended the associated operator session. This has been escalated to Tier-2 Security for a full audit of IP ranges and signatures.',
         timestamp: 'Jun 22, 2026, 11:00 AM'
       }
@@ -1426,9 +1426,9 @@ export const TICKETS = [
       }
     ],
     timeline: [
-      { id: 'act-30', action: 'Ticket Created', actor: 'Shree Boutique', timestamp: 'Jun 20, 2026, 03:45 PM' },
-      { id: 'act-31', action: 'Assigned to Ekta Rodriguez', actor: 'System', timestamp: 'Jun 20, 2026, 03:50 PM' },
-      { id: 'act-32', action: 'Escalated to Tier-2 Fraud Ops', actor: 'Ekta Rodriguez', timestamp: 'Jun 22, 2026, 11:00 AM' }
+      { id: 'act-30', action: 'Ticket Created', actor: 'Sree Boutique', timestamp: 'Jun 20, 2026, 03:45 PM' },
+      { id: 'act-31', action: 'Assigned to Ekta Chowdary', actor: 'System', timestamp: 'Jun 20, 2026, 03:50 PM' },
+      { id: 'act-32', action: 'Escalated to Tier-2 Fraud Ops', actor: 'Ekta Chowdary', timestamp: 'Jun 22, 2026, 11:00 AM' }
     ],
     attachments: []
   },
@@ -1440,7 +1440,7 @@ export const TICKETS = [
     category: 'IAM Module',
     priority: 'LOW',
     status: 'Resolved',
-    assignedAgent: 'Lalit Kumar',
+    assignedAgent: 'Lalit Rao',
     createdDate: 'Jun 19, 2026, 02:15 PM',
     updatedDate: 'Jun 20, 2026, 11:00 AM',
     slaDue: 'Jun 22, 2026, 02:15 PM',
@@ -1458,7 +1458,7 @@ export const TICKETS = [
       {
         id: 'msg-41',
         sender: 'Agent',
-        senderName: 'Lalit Kumar',
+        senderName: 'Lalit Rao',
         text: 'Hello, I have adjusted your tenant configuration. The expiration window for the password link is now extended to 30 minutes. Could you ask them to trigger a new link and try again?',
         timestamp: 'Jun 20, 2026, 10:15 AM'
       },
@@ -1474,8 +1474,8 @@ export const TICKETS = [
     notes: [],
     timeline: [
       { id: 'act-40', action: 'Ticket Created', actor: 'Ananda Solutions', timestamp: 'Jun 19, 2026, 02:15 PM' },
-      { id: 'act-41', action: 'Assigned to Lalit Kumar', actor: 'System', timestamp: 'Jun 19, 2026, 02:20 PM' },
-      { id: 'act-42', action: 'Ticket Resolved', actor: 'Lalit Kumar', timestamp: 'Jun 20, 2026, 11:00 AM' }
+      { id: 'act-41', action: 'Assigned to Lalit Rao', actor: 'System', timestamp: 'Jun 19, 2026, 02:20 PM' },
+      { id: 'act-42', action: 'Ticket Resolved', actor: 'Lalit Rao', timestamp: 'Jun 20, 2026, 11:00 AM' }
     ],
     attachments: []
   }
@@ -1483,12 +1483,12 @@ export const TICKETS = [
 
 // Agent Names
 export const AGENTS = [
-  'Sunita Sharma',
-  'Manish Verma',
-  'Ekta Rodriguez',
-  'Lalit Kumar',
-  'Amit Saxena',
-  'Pooja Nair'
+  'Sunita Reddy',
+  'Manish Varma',
+  'Ekta Chowdary',
+  'Lalit Rao',
+  'Amit Naidu',
+  'Pooja Reddy'
 ];
 
 // Ticket Categories
