@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --color-primary-brown: #401900;
+  --color-accent-amber: #F8B057;
+  --color-text-header: #242424;
+  --color-text-muted: #797979;
+  --color-border-custom: #E0E0E0;
+  --color-bg-light: #F6F6F6;
+
+  --animate-slide-in-left: slide-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in: fade-in 0.25s ease-out;
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-light);
+  margin: 0;
+  padding: 0;
+}
