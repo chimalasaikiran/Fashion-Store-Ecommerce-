@@ -19,7 +19,7 @@ export default function DashboardLayout({ onLogout }: DashboardLayoutProps) {
         onLogout={onLogout}
       />
       <main className="flex-1 h-full flex flex-col overflow-hidden">
-        <Header setIsSidebarOpen={setIsSidebarOpen} />
+        <Header setIsSidebarOpen={setIsSidebarOpen} onLogout={onLogout} />
         <div className="flex-1 overflow-y-auto flex flex-col justify-between">
           <section className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto flex-1">
             <Outlet />
