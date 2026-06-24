@@ -56,7 +56,8 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
 
     // Real login API call
     setLoading(true);
-    fetch('http://localhost:5000/api/admins/login', {
+    const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
+    fetch(`${API_URL}/admins/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -237,7 +237,7 @@ const getDefaultRolePermissions = (roleName: string): RolePermissions => {
   return permissions;
 };
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
 
 export const RoleAccessProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: boolean }> = ({ children, isLoggedIn }) => {
   const [roles, setRoles] = useState<RoleData[]>([]);
