@@ -12,10 +12,12 @@ const {
   validateProductQuery,
   validateProductCreate,
 } = require("../middleware/productValidation");
+const { protect } = require("../src/middleware/auth.middleware");
+const { checkPermission } = require("../src/middleware/permission.middleware");
 
 router.route("/")
   .get(validateProductQuery, getProducts)
-  .post(validateProductCreate, createProduct);
+  .post(protect, checkPermission("products", "Product List", "create"), validateProductCreate, createProduct);
 
 router.route("/:id")
   .get(getProductById);

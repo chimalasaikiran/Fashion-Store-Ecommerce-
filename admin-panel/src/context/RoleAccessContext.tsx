@@ -21,10 +21,14 @@ export interface RolePermissions {
 }
 
 export interface RoleData {
+  _id?: string;
   name: string;
   description: string;
   permissions: RolePermissions;
+  status: 'Active' | 'Inactive';
   isCustom?: boolean;
+  createdBy?: string;
+  createdAt?: string;
 }
 
 export interface AuditLog {
@@ -35,19 +39,40 @@ export interface AuditLog {
   details: string;
 }
 
+export interface AdminUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: RoleData;
+  status: 'Active' | 'Inactive';
+  lastLogin: string | null;
+  createdAt: string;
+}
+
 interface RoleAccessContextType {
   roles: RoleData[];
   activeRole: string;
+  currentRoleData: RoleData | undefined;
   auditLogs: AuditLog[];
+  admins: AdminUser[];
+  loading: boolean;
+  rolesLoading: boolean;
+  rolesError: string | null;
   setActiveRole: (roleName: string) => void;
-  updateRolePermissions: (roleName: string, permissions: RolePermissions) => void;
-  createRole: (roleName: string, description: string, copyFromRole?: string) => void;
-  editRoleName: (oldName: string, newName: string, description: string) => void;
-  duplicateRole: (roleName: string, newRoleName: string) => void;
-  deleteRole: (roleName: string) => void;
-  resetPermissions: (roleName: string) => void;
+  updateRolePermissions: (roleName: string, permissions: RolePermissions) => Promise<boolean>;
+  createRole: (roleName: string, description: string, copyFromRole?: string) => Promise<boolean>;
+  editRoleName: (oldName: string, newName: string, description: string) => Promise<boolean>;
+  duplicateRole: (roleName: string, newRoleName: string) => Promise<boolean>;
+  deleteRole: (roleName: string) => Promise<boolean>;
+  resetPermissions: (roleName: string) => Promise<boolean>;
   hasPermission: (moduleName: string, subpageName: string, action?: keyof PermissionActions) => boolean;
   logAction: (action: string, details: string) => void;
+  fetchRoles: () => Promise<void>;
+  fetchAdmins: () => Promise<void>;
+  fetchAuditLogs: () => Promise<void>;
+  createAdminUser: (adminData: any) => Promise<{ success: boolean; message?: string }>;
+  updateAdminUser: (id: string, adminData: any) => Promise<{ success: boolean; message?: string }>;
+  deleteAdminUser: (id: string) => Promise<{ success: boolean; message?: string }>;
 }
 
 const RoleAccessContext = createContext<RoleAccessContextType | undefined>(undefined);
@@ -62,6 +87,10 @@ const createEmptyPermissions = (allEnabled = false): PermissionActions => ({
 });
 
 export const MODULES_CONFIG = {
+  dashboard: {
+    label: 'Dashboard Module',
+    subpages: ['Dashboard View']
+  },
   products: {
     label: 'Products Module',
     subpages: [
@@ -116,6 +145,18 @@ export const MODULES_CONFIG = {
       'Credit Notes',
       'Status Notifications'
     ]
+  },
+  customers: {
+    label: 'Customers Module',
+    subpages: ['User List', 'User Details', 'Activity Log', 'Notification Preferences']
+  },
+  settings: {
+    label: 'Settings Module',
+    subpages: ['General Settings']
+  },
+  roles: {
+    label: 'Roles & Access Module',
+    subpages: ['Role & Access Management']
   }
 };
 
@@ -162,16 +203,20 @@ const getDefaultRolePermissions = (roleName: string): RolePermissions => {
   if (roleName === 'Super Admin' || roleName === 'Admin') {
     Object.keys(MODULES_CONFIG).forEach((mod) => enableAllInModule(mod));
   } else if (roleName === 'Product Manager') {
+    permissions.dashboard.enabled = true;
+    enableSubpage('Dashboard View', { view: true });
+
     permissions.products.enabled = true;
     enableSubpage('Category List', { view: true, create: true, edit: true, export: true });
     enableSubpage('Product List', { view: true, create: true, edit: true, export: true });
     enableSubpage('Product Detail', { view: true, create: true, edit: true, export: true });
     enableSubpage('Product Show / Hide', { view: true, create: true, edit: true, export: true });
     enableSubpage('Bulk Product Visibility', { view: true, create: true, edit: true, export: true });
-  } else if (roleName === 'Inventory Manager') {
-    permissions.products.enabled = true;
     enableSubpage('Inventory Management', { view: true, create: true, edit: true, export: true });
   } else if (roleName === 'Order Manager') {
+    permissions.dashboard.enabled = true;
+    enableSubpage('Dashboard View', { view: true });
+
     permissions.orders.enabled = true;
     enableSubpage('Order List', { view: true, create: true, edit: true, approve: true, export: true });
     enableSubpage('Order Details', { view: true, create: true, edit: true, approve: true, export: true });
@@ -179,193 +224,314 @@ const getDefaultRolePermissions = (roleName: string): RolePermissions => {
     enableSubpage('Processing Orders', { view: true, create: true, edit: true, approve: true, export: true });
     enableSubpage('Delivered Orders', { view: true, create: true, edit: true, approve: true, export: true });
     enableSubpage('Cancelled Orders', { view: true, create: true, edit: true, approve: true, export: true });
-  } else if (roleName === 'Fulfillment Manager') {
-    permissions.orders.enabled = true;
-    enableSubpage('Shipped Orders', { view: true, create: true, edit: true, approve: true });
-  } else if (roleName === 'Logistics Manager') {
-    permissions.shipments.enabled = true;
-    enableSubpage('Shipment Creation', { view: true, create: true, edit: true, approve: true });
-    enableSubpage('Track Shipments', { view: true, create: true, edit: true, approve: true });
-  } else if (roleName === 'Support Team') {
+  } else if (roleName === 'Customer Support') {
+    permissions.dashboard.enabled = true;
+    enableSubpage('Dashboard View', { view: true });
+
     permissions.tickets.enabled = true;
     enableSubpage('Ticket Dashboard', { view: true, create: true, edit: true, approve: true });
     enableSubpage('Ticket Details', { view: true, create: true, edit: true, approve: true });
     enableSubpage('Ticket Closure', { view: true, create: true, edit: true, approve: true });
-  } else if (roleName === 'Support Manager') {
-    permissions.orders.enabled = true;
-    permissions.shipments.enabled = true;
-    permissions.tickets.enabled = true;
-    enableSubpage('Returned Orders', { view: true, create: true, edit: true, approve: true });
-    enableSubpage('Return Requests', { view: true, create: true, edit: true, approve: true });
-    enableSubpage('Ticket Escalation', { view: true, create: true, edit: true, approve: true });
-  } else if (roleName === 'Finance Manager') {
-    permissions.orders.enabled = true;
-    permissions.shipments.enabled = true;
-    enableSubpage('Refund Management', { view: true, create: true, edit: true, approve: true });
-    enableSubpage('Refund Processing', { view: true, create: true, edit: true, approve: true });
-  } else if (roleName === 'Finance Team') {
-    permissions.payments.enabled = true;
-    enableSubpage('Payment Logs', { view: true, create: true, edit: true, export: true });
-    enableSubpage('Transaction Details', { view: true, create: true, edit: true, export: true });
-    enableSubpage('Invoice Management', { view: true, create: true, edit: true, export: true });
-    enableSubpage('Credit Notes', { view: true, create: true, edit: true, export: true });
-  } else if (roleName === 'Operations Manager') {
-    permissions.shipments.enabled = true;
-    enableSubpage('Replacement Orders', { view: true, create: true, edit: true, approve: true });
-  } else if (roleName === 'System Admin') {
-    Object.keys(MODULES_CONFIG).forEach((mod) => enableAllInModule(mod));
-    enableSubpage('Status Notifications', { view: true, create: true, edit: true, approve: true });
   }
 
   return permissions;
 };
 
-const DEFAULT_ROLES: RoleData[] = [
-  { name: 'Super Admin', description: 'Complete system access, controls all pages and configurations.', permissions: getDefaultRolePermissions('Super Admin') },
-  { name: 'Admin', description: 'Full access to operations, orders, tickets, and user configuration.', permissions: getDefaultRolePermissions('Admin') },
-  { name: 'Product Manager', description: 'Manages categories, products, visibility controls.', permissions: getDefaultRolePermissions('Product Manager') },
-  { name: 'Inventory Manager', description: 'Monitors product inventory, movements, and alerts.', permissions: getDefaultRolePermissions('Inventory Manager') },
-  { name: 'Order Manager', description: 'Handles order listing, detailed views, processing operations.', permissions: getDefaultRolePermissions('Order Manager') },
-  { name: 'Fulfillment Manager', description: 'Dispatches products, manages shipment status, and coordinates logs.', permissions: getDefaultRolePermissions('Fulfillment Manager') },
-  { name: 'Logistics Manager', description: 'Creates and tracks shipments, operates delivery schedules.', permissions: getDefaultRolePermissions('Logistics Manager') },
-  { name: 'Support Team', description: 'Monitors customer feedback and grievance ticket logs.', permissions: getDefaultRolePermissions('Support Team') },
-  { name: 'Support Manager', description: 'Escalates tickets, logs return orders and shipment complaints.', permissions: getDefaultRolePermissions('Support Manager') },
-  { name: 'Finance Manager', description: 'Approves refunds, registers invoices, logs transactions.', permissions: getDefaultRolePermissions('Finance Manager') },
-  { name: 'Finance Team', description: 'Monitors credit notes, payment logs, invoice templates.', permissions: getDefaultRolePermissions('Finance Team') },
-  { name: 'Operations Manager', description: 'Manages replacement orders, customer profiles, operations activity.', permissions: getDefaultRolePermissions('Operations Manager') },
-  { name: 'System Admin', description: 'Oversees notifications configurations, error logs, and system statuses.', permissions: getDefaultRolePermissions('System Admin') },
-];
+const API_URL = 'http://localhost:5000/api';
 
-export const RoleAccessProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [roles, setRoles] = useState<RoleData[]>(() => {
-    const saved = localStorage.getItem('rbac_roles');
-    return saved ? JSON.parse(saved) : DEFAULT_ROLES;
-  });
+export const RoleAccessProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: boolean }> = ({ children, isLoggedIn }) => {
+  const [roles, setRoles] = useState<RoleData[]>([]);
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [rolesLoading, setRolesLoading] = useState<boolean>(false);
+  const [rolesError, setRolesError] = useState<string | null>(null);
 
+  // Read active role from logged in user profile
   const [activeRole, setActiveRoleState] = useState<string>(() => {
-    return localStorage.getItem('rbac_active_role') || 'Super Admin';
-  });
-
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
-    const saved = localStorage.getItem('rbac_audit_logs');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: '1',
-        timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
-        user: 'System Admin',
-        action: 'Initialize RBAC',
-        details: 'Initial configuration loaded with default ecommerce module permissions.'
+    const userStr = localStorage.getItem('adminUser');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        return user.role?.name || 'Super Admin';
+      } catch (e) {
+        return 'Super Admin';
       }
-    ];
+    }
+    return 'Super Admin';
   });
 
+  // Sync activeRole with localStorage when loggedIn state changes
   useEffect(() => {
-    localStorage.setItem('rbac_roles', JSON.stringify(roles));
-  }, [roles]);
+    const loggedIn = isLoggedIn ?? (localStorage.getItem('isLoggedIn') === 'true');
+    if (loggedIn) {
+      const userStr = localStorage.getItem('adminUser');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user.role?.name) {
+            setActiveRoleState(user.role.name);
+          }
+        } catch (e) {
+          console.error("Error parsing adminUser from localStorage:", e);
+        }
+      }
+    } else {
+      setActiveRoleState('Super Admin');
+    }
+  }, [isLoggedIn]);
+
+
+  const getHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
+  const fetchRoles = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    setRolesLoading(true);
+    setRolesError(null);
+    try {
+      const res = await fetch(`${API_URL}/roles`, {
+        headers: getHeaders()
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch roles: ${res.statusText}`);
+      }
+      const data = await res.json();
+      if (data.success) {
+        setRoles(data.data);
+      } else {
+        throw new Error(data.message || 'Failed to fetch roles');
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch roles from database:', err);
+      setRolesError(err.message || 'Failed to fetch roles');
+    } finally {
+      setRolesLoading(false);
+    }
+  };
+
+  const fetchAdmins = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/admins`, {
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAdmins(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin users:', err);
+    }
+  };
+
+  const fetchAuditLogs = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/audit-logs`, {
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        const formatted = data.data.map((log: any) => ({
+          id: log._id,
+          timestamp: log.timestamp,
+          user: log.user,
+          action: log.action,
+          details: log.details
+        }));
+        setAuditLogs(formatted);
+      }
+    } catch (err) {
+      console.error('Failed to fetch audit logs:', err);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem('rbac_active_role', activeRole);
-  }, [activeRole]);
-
-  useEffect(() => {
-    localStorage.setItem('rbac_audit_logs', JSON.stringify(auditLogs));
-  }, [auditLogs]);
+    const loadAllData = async () => {
+      setLoading(true);
+      await Promise.all([fetchRoles(), fetchAdmins(), fetchAuditLogs()]);
+      setLoading(false);
+    };
+    
+    // Check if logged in before making API calls
+    const loggedIn = isLoggedIn ?? (localStorage.getItem('isLoggedIn') === 'true');
+    if (loggedIn) {
+      loadAllData();
+    } else {
+      setRoles([]);
+      setAdmins([]);
+      setAuditLogs([]);
+      setLoading(false);
+    }
+  }, [isLoggedIn, activeRole]); // Reload if logged in state or acting role changes (for simulation)
 
   const logAction = (action: string, details: string) => {
-    const newLog: AuditLog = {
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      user: 'Super Admin',
-      action,
-      details,
-    };
-    setAuditLogs((prev) => [newLog, ...prev]);
+    // Audit logs are now written on the backend upon changes,
+    // but we can support local simulated log triggers if needed.
+    console.log(`Action logged: ${action} - ${details}`);
   };
 
   const setActiveRole = (roleName: string) => {
     setActiveRoleState(roleName);
-    logAction('Switch Simulated Role', `Changed active acting role to: ${roleName}`);
   };
 
-  const updateRolePermissions = (roleName: string, updatedPermissions: RolePermissions) => {
-    setRoles((prev) =>
-      prev.map((role) =>
-        role.name === roleName ? { ...role, permissions: updatedPermissions } : role
-      )
-    );
-    logAction('Modify Permissions', `Updated permissions matrix for role: ${roleName}`);
+  const updateRolePermissions = async (roleName: string, updatedPermissions: RolePermissions): Promise<boolean> => {
+    const role = roles.find((r) => r.name === roleName);
+    if (!role || !role._id) return false;
+
+    try {
+      const res = await fetch(`${API_URL}/roles/${role._id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ permissions: updatedPermissions })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRoles((prev) => prev.map((r) => r.name === roleName ? data.data : r));
+        await fetchAuditLogs();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to update role permissions:', err);
+      return false;
+    }
   };
 
-  const createRole = (roleName: string, description: string, copyFromRole?: string) => {
-    const permissions = copyFromRole
-      ? JSON.parse(JSON.stringify(roles.find((r) => r.name === copyFromRole)?.permissions || getDefaultRolePermissions('Super Admin')))
+  const createRole = async (roleName: string, description: string, copyFromRole?: string): Promise<boolean> => {
+    const copySource = copyFromRole ? roles.find((r) => r.name === copyFromRole) : null;
+    const permissions = copySource
+      ? JSON.parse(JSON.stringify(copySource.permissions))
       : getDefaultRolePermissions('Super Admin');
 
-    const newRole: RoleData = {
-      name: roleName,
-      description,
-      permissions,
-      isCustom: true,
-    };
-
-    setRoles((prev) => [...prev, newRole]);
-    logAction('Create Role', `Created new security role: ${roleName} ${copyFromRole ? `(copied from ${copyFromRole})` : ''}`);
-  };
-
-  const editRoleName = (oldName: string, newName: string, description: string) => {
-    setRoles((prev) =>
-      prev.map((role) =>
-        role.name === oldName
-          ? { ...role, name: newName, description }
-          : role
-      )
-    );
-    if (activeRole === oldName) {
-      setActiveRoleState(newName);
+    try {
+      const res = await fetch(`${API_URL}/roles`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ name: roleName, description, permissions })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchRoles();
+        await fetchAuditLogs();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to create role:', err);
+      return false;
     }
-    logAction('Edit Role Details', `Renamed role ${oldName} to ${newName} and updated description.`);
   };
 
-  const duplicateRole = (roleName: string, newRoleName: string) => {
+  const editRoleName = async (oldName: string, newName: string, description: string): Promise<boolean> => {
+    const role = roles.find((r) => r.name === oldName);
+    if (!role || !role._id) return false;
+
+    try {
+      const res = await fetch(`${API_URL}/roles/${role._id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ name: newName, description })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRoles((prev) => prev.map((r) => r.name === oldName ? data.data : r));
+        if (activeRole === oldName) {
+          setActiveRoleState(newName);
+        }
+        await fetchAuditLogs();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to edit role details:', err);
+      return false;
+    }
+  };
+
+  const duplicateRole = async (roleName: string, newRoleName: string): Promise<boolean> => {
     const sourceRole = roles.find((r) => r.name === roleName);
-    if (!sourceRole) return;
+    if (!sourceRole) return false;
 
-    const duplicated: RoleData = {
-      name: newRoleName,
-      description: `Duplicate of ${roleName}. ${sourceRole.description}`,
-      permissions: JSON.parse(JSON.stringify(sourceRole.permissions)),
-      isCustom: true,
-    };
-
-    setRoles((prev) => [...prev, duplicated]);
-    logAction('Duplicate Role', `Duplicated role: ${roleName} as: ${newRoleName}`);
-  };
-
-  const deleteRole = (roleName: string) => {
-    setRoles((prev) => prev.filter((r) => r.name !== roleName));
-    if (activeRole === roleName) {
-      setActiveRoleState('Super Admin');
+    try {
+      const res = await fetch(`${API_URL}/roles`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          name: newRoleName,
+          description: `Duplicate of ${roleName}. ${sourceRole.description}`,
+          permissions: sourceRole.permissions
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchRoles();
+        await fetchAuditLogs();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to duplicate role:', err);
+      return false;
     }
-    logAction('Delete Role', `Deleted security role: ${roleName}`);
   };
 
-  const resetPermissions = (roleName: string) => {
-    const defaults = getDefaultRolePermissions(roleName);
-    setRoles((prev) =>
-      prev.map((role) =>
-        role.name === roleName ? { ...role, permissions: defaults } : role
-      )
-    );
-    logAction('Reset Permissions', `Reverted permissions for ${roleName} to default config.`);
+  const deleteRole = async (roleName: string): Promise<boolean> => {
+    const role = roles.find((r) => r.name === roleName);
+    if (!role || !role._id) return false;
+
+    try {
+      const res = await fetch(`${API_URL}/roles/${role._id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRoles((prev) => prev.filter((r) => r.name !== roleName));
+        if (activeRole === roleName) {
+          setActiveRoleState('Super Admin');
+        }
+        await fetchAuditLogs();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to delete role:', err);
+      return false;
+    }
   };
+
+  const resetPermissions = async (roleName: string): Promise<boolean> => {
+    const defaults = getDefaultRolePermissions(roleName);
+    return await updateRolePermissions(roleName, defaults);
+  };
+
+  const currentRoleData = roles.find((r) => r.name === activeRole) || (() => {
+    const userStr = localStorage.getItem('adminUser');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.role && user.role.name === activeRole) {
+        return user.role;
+      }
+    }
+    return undefined;
+  })();
 
   const hasPermission = (moduleName: string, subpageName: string, action: keyof PermissionActions = 'view'): boolean => {
-    const activeRoleData = roles.find((r) => r.name === activeRole);
-    if (!activeRoleData) return false;
+    if (!currentRoleData) return false;
 
     if (activeRole === 'Super Admin') return true;
 
-    const modulePerm = activeRoleData.permissions[moduleName];
+    const modulePerm = currentRoleData.permissions[moduleName];
     if (!modulePerm || !modulePerm.enabled) return false;
 
     const subpageActions = modulePerm.subpages[subpageName];
@@ -374,12 +540,77 @@ export const RoleAccessProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return subpageActions[action] === true;
   };
 
+  // Admin Users Management APIs
+  const createAdminUser = async (adminData: any) => {
+    try {
+      const res = await fetch(`${API_URL}/admins`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(adminData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchAdmins();
+        await fetchAuditLogs();
+        return { success: true };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      console.error('Failed to create admin:', err);
+      return { success: false, message: 'Server connection failed' };
+    }
+  };
+
+  const updateAdminUser = async (id: string, adminData: any) => {
+    try {
+      const res = await fetch(`${API_URL}/admins/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(adminData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchAdmins();
+        await fetchAuditLogs();
+        return { success: true };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      console.error('Failed to update admin:', err);
+      return { success: false, message: 'Server connection failed' };
+    }
+  };
+
+  const deleteAdminUser = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/admins/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchAdmins();
+        await fetchAuditLogs();
+        return { success: true };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      console.error('Failed to delete admin:', err);
+      return { success: false, message: 'Server connection failed' };
+    }
+  };
+
   return (
     <RoleAccessContext.Provider
       value={{
         roles,
         activeRole,
+        currentRoleData,
         auditLogs,
+        admins,
+        loading,
+        rolesLoading,
+        rolesError,
         setActiveRole,
         updateRolePermissions,
         createRole,
@@ -388,7 +619,13 @@ export const RoleAccessProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         deleteRole,
         resetPermissions,
         hasPermission,
-        logAction
+        logAction,
+        fetchRoles,
+        fetchAdmins,
+        fetchAuditLogs,
+        createAdminUser,
+        updateAdminUser,
+        deleteAdminUser
       }}
     >
       {children}
@@ -403,4 +640,3 @@ export const useRoleAccess = () => {
   }
   return context;
 };
-

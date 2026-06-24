@@ -9,9 +9,8 @@ interface RouteGuardProps {
 }
 
 export default function RouteGuard({ module, subpage, children }: RouteGuardProps) {
-  const { hasPermission, roles, activeRole } = useRoleAccess();
+  const { hasPermission, currentRoleData, activeRole } = useRoleAccess();
 
-  const currentRoleData = roles.find((r) => r.name === activeRole);
   const isModuleEnabled = currentRoleData?.permissions[module]?.enabled ?? false;
 
   // If the module itself is disabled at the top level, access is denied

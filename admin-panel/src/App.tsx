@@ -104,11 +104,13 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
     setIsLoggedIn(false);
   };
 
   return (
-    <RoleAccessProvider>
+    <RoleAccessProvider isLoggedIn={isLoggedIn}>
       <UsersProvider>
         <ProductsProvider>
           <OrdersProvider>
@@ -131,31 +133,45 @@ function App() {
                       >
                         {/* Nested routes rendered inside DashboardLayout Outlet */}
                         <Route index element={<Dashboard />} />
-                        <Route path="users" element={<Users />}>
+                        <Route path="users" element={
+                          <RouteGuard module="customers" subpage="User List">
+                            <Users />
+                          </RouteGuard>
+                        }>
                           <Route index element={
-                            <Suspense fallback={<SuspenseLoader />}>
-                              <UserList />
-                            </Suspense>
+                            <RouteGuard module="customers" subpage="User List">
+                              <Suspense fallback={<SuspenseLoader />}>
+                                <UserList />
+                              </Suspense>
+                            </RouteGuard>
                           } />
                           <Route path="details" element={
-                            <Suspense fallback={<SuspenseLoader />}>
-                              <UserDetails />
-                            </Suspense>
+                            <RouteGuard module="customers" subpage="User Details">
+                              <Suspense fallback={<SuspenseLoader />}>
+                                <UserDetails />
+                              </Suspense>
+                            </RouteGuard>
                           } />
                           <Route path="details/:id" element={
-                            <Suspense fallback={<SuspenseLoader />}>
-                              <UserDetails />
-                            </Suspense>
+                            <RouteGuard module="customers" subpage="User Details">
+                              <Suspense fallback={<SuspenseLoader />}>
+                                <UserDetails />
+                              </Suspense>
+                            </RouteGuard>
                           } />
                           <Route path="activity" element={
-                            <Suspense fallback={<SuspenseLoader />}>
-                              <UserActivityLog />
-                            </Suspense>
+                            <RouteGuard module="customers" subpage="Activity Log">
+                              <Suspense fallback={<SuspenseLoader />}>
+                                <UserActivityLog />
+                              </Suspense>
+                            </RouteGuard>
                           } />
                           <Route path="notifications" element={
-                            <Suspense fallback={<SuspenseLoader />}>
-                              <UserNotificationPreferences />
-                            </Suspense>
+                            <RouteGuard module="customers" subpage="Notification Preferences">
+                              <Suspense fallback={<SuspenseLoader />}>
+                                <UserNotificationPreferences />
+                              </Suspense>
+                            </RouteGuard>
                           } />
                         </Route>
                         <Route path="roles" element={
@@ -329,7 +345,11 @@ function App() {
                             </RouteGuard>
                           } />
                         </Route>
-                        <Route path="settings" element={<Settings />} />
+                        <Route path="settings" element={
+                          <RouteGuard module="settings" subpage="General Settings">
+                            <Settings />
+                          </RouteGuard>
+                        } />
                         <Route path="help" element={<HelpCenter />} />
                       </Route>
                       <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />

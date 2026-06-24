@@ -6,6 +6,9 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const roleRoutes = require("./src/modules/role/role.routes");
+const adminRoutes = require("./src/modules/admin/admin.routes");
+const auditRoutes = require("./src/modules/audit/audit.routes");
 
 
 connectDB();
@@ -24,6 +27,9 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/roles", roleRoutes);
+app.use("/api/admins", adminRoutes);
+app.use("/api/audit-logs", auditRoutes);
 
 
 app.get("/", (req, res) => {

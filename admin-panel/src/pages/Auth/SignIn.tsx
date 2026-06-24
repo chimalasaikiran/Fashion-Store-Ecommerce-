@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import fashionLogo from '../../assets/fashion_logo.png';
 import googleIcon from '../../assets/google_icon.svg';
 import captchaRefresh from '../../assets/captcha_refresh.svg';
@@ -25,6 +25,11 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
     setCaptcha(result);
   };
 
+  // Automatically refresh CAPTCHA on component mount / page load
+  useEffect(() => {
+    handleRefreshCaptcha();
+  }, []);
+
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -49,15 +54,35 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
       return;
     }
 
-    // Simulate login
+    // Real login API call
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess('Successfully signed in to Fashion Store Admin Panel!');
-      setTimeout(() => {
-        onSignInSuccess();
-      }, 800);
-    }, 1500);
+    fetch('http://localhost:5000/api/admins/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          localStorage.setItem('adminToken', data.data.token);
+          localStorage.setItem('adminUser', JSON.stringify(data.data.admin));
+          setSuccess('Successfully signed in to Fashion Store Admin Panel!');
+          setTimeout(() => {
+            setLoading(false);
+            onSignInSuccess();
+          }, 800);
+        } else {
+          setLoading(false);
+          setError(data.message || 'Invalid email or password.');
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.error('Login Error:', err);
+        setError('Unable to connect to the backend server. Please verify it is running on port 5000.');
+      });
   };
 
   return (

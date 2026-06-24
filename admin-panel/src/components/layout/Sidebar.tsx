@@ -25,9 +25,7 @@ interface NavLinkItem {
 export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { hasPermission, roles, activeRole } = useRoleAccess();
-
-  const currentRoleData = roles.find((r) => r.name === activeRole);
+  const { hasPermission, currentRoleData, activeRole } = useRoleAccess();
 
   const [isUsersOpen, setIsUsersOpen] = useState(() => {
     return location.pathname.startsWith('/dashboard/users');
@@ -87,11 +85,21 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
       case 'Shipments': return 'shipments';
       case 'Tickets': return 'tickets';
       case 'Payments': return 'payments';
+      case 'Users': return 'customers';
+      case 'Settings': return 'settings';
+      case 'Role & Access Management': return 'roles';
+      case 'Dashboard': return 'dashboard';
       default: return '';
     }
   };
 
   const getSubpageForLinkName = (moduleName: string, name: string): string => {
+    if (moduleName === 'customers') {
+      if (name === 'User List') return 'User List';
+      if (name === 'User Details') return 'User Details';
+      if (name === 'Activity Log') return 'Activity Log';
+      if (name === 'Notification Preferences') return 'Notification Preferences';
+    }
     if (moduleName === 'products') {
       if (name === 'Category List') return 'Category List';
       if (name === 'Product List') return 'Product List';
@@ -216,13 +224,8 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
 
   // Dynamic Filtering based on active permissions
   const filteredNavLinks = navLinks.map(link => {
-    if (link.name === 'Role & Access Management') {
-      const allowed = activeRole === 'Super Admin' || activeRole === 'Admin' || activeRole === 'System Admin';
-      return allowed ? link : null;
-    }
-
     const modKey = getModuleForLink(link.name);
-    if (!modKey) return link; // Dashboard, Users, Settings always visible by default
+    if (!modKey) return link;
 
     const isModEnabled = activeRole === 'Super Admin' || (currentRoleData?.permissions[modKey]?.enabled ?? false);
     if (!isModEnabled) return null;
@@ -250,6 +253,17 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
         ...link,
         subLinks: filteredSub
       };
+    }
+
+    // For single links, verify view permission at subpage/feature level
+    if (link.name === 'Role & Access Management') {
+      return activeRole === 'Super Admin' || hasPermission('roles', 'Role & Access Management', 'view') ? link : null;
+    }
+    if (link.name === 'Settings') {
+      return activeRole === 'Super Admin' || hasPermission('settings', 'General Settings', 'view') ? link : null;
+    }
+    if (link.name === 'Dashboard') {
+      return activeRole === 'Super Admin' || hasPermission('dashboard', 'Dashboard View', 'view') ? link : null;
     }
 
     return link;

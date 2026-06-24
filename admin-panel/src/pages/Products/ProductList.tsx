@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts, type Product } from './ProductsContext';
 import { formatCurrency } from '../../data/mockDb';
+import { useRoleAccess } from '../../context/RoleAccessContext';
 
 export default function ProductList() {
   const navigate = useNavigate();
@@ -15,6 +16,13 @@ export default function ProductList() {
     bulkUpdateVisibility,
     bulkDeleteProducts
   } = useProducts();
+  const { hasPermission, activeRole } = useRoleAccess();
+
+  const canCreate = activeRole === 'Super Admin' || hasPermission('products', 'Product List', 'create');
+  const canEdit = activeRole === 'Super Admin' || hasPermission('products', 'Product List', 'edit');
+  const canDelete = activeRole === 'Super Admin' || hasPermission('products', 'Product List', 'delete');
+  const canToggleVisibility = activeRole === 'Super Admin' || hasPermission('products', 'Product Show / Hide', 'edit');
+  const canBulkToggle = activeRole === 'Super Admin' || hasPermission('products', 'Bulk Product Visibility', 'edit');
 
   // State Management
   const [isLoading, setIsLoading] = useState(true);
@@ -324,26 +332,28 @@ export default function ProductList() {
             <span>Export</span>
           </button>
           
-          <button
-            onClick={() => {
-              setFormName('');
-              setFormSku('');
-              setFormPrice(0);
-              setFormCost(0);
-              setFormStock(0);
-              setFormReorder(10);
-              setFormImage('');
-              setFormDesc('');
-              setFormError('');
-              setIsAddModalOpen(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#00522E] hover:bg-[#003B21] text-white rounded-lg text-sm font-bold shadow-xs hover:shadow-md cursor-pointer transition-all"
-          >
-            <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7-7H5" />
-            </svg>
-            <span>Add Product</span>
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => {
+                setFormName('');
+                setFormSku('');
+                setFormPrice(0);
+                setFormCost(0);
+                setFormStock(0);
+                setFormReorder(10);
+                setFormImage('');
+                setFormDesc('');
+                setFormError('');
+                setIsAddModalOpen(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#00522E] hover:bg-[#003B21] text-white rounded-lg text-sm font-bold shadow-xs hover:shadow-md cursor-pointer transition-all"
+            >
+              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7-7H5" />
+              </svg>
+              <span>Add Product</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -519,24 +529,30 @@ export default function ProductList() {
               {selectedProductIds.length} item{selectedProductIds.length > 1 ? 's' : ''} selected
             </span>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setBulkConfirmAction('live')}
-                className="px-3.5 py-1.5 bg-white hover:bg-[#F6F6F6] text-[#00522E] border border-[#BEC9BE] rounded-lg text-xs font-bold cursor-pointer transition-all"
-              >
-                Set Live (Show)
-              </button>
-              <button
-                onClick={() => setBulkConfirmAction('draft')}
-                className="px-3.5 py-1.5 bg-white hover:bg-[#F6F6F6] text-amber-700 border border-[#BEC9BE] rounded-lg text-xs font-bold cursor-pointer transition-all"
-              >
-                Set Draft (Hide)
-              </button>
-              <button
-                onClick={() => setBulkConfirmAction('delete')}
-                className="px-3.5 py-1.5 bg-[#BA1A1A] hover:bg-[#930006] text-white rounded-lg text-xs font-bold cursor-pointer transition-all"
-              >
-                Delete Selected
-              </button>
+              {canBulkToggle && (
+                <>
+                  <button
+                    onClick={() => setBulkConfirmAction('live')}
+                    className="px-3.5 py-1.5 bg-white hover:bg-[#F6F6F6] text-[#00522E] border border-[#BEC9BE] rounded-lg text-xs font-bold cursor-pointer transition-all"
+                  >
+                    Set Live (Show)
+                  </button>
+                  <button
+                    onClick={() => setBulkConfirmAction('draft')}
+                    className="px-3.5 py-1.5 bg-white hover:bg-[#F6F6F6] text-amber-700 border border-[#BEC9BE] rounded-lg text-xs font-bold cursor-pointer transition-all"
+                  >
+                    Set Draft (Hide)
+                  </button>
+                </>
+              )}
+              {canDelete && (
+                <button
+                  onClick={() => setBulkConfirmAction('delete')}
+                  className="px-3.5 py-1.5 bg-[#BA1A1A] hover:bg-[#930006] text-white rounded-lg text-xs font-bold cursor-pointer transition-all"
+                >
+                  Delete Selected
+                </button>
+              )}
               <button
                 onClick={() => setSelectedProductIds([])}
                 className="text-xs font-bold text-[#6F7A70] hover:text-[#111E16] ml-2"
@@ -753,7 +769,10 @@ export default function ProductList() {
                       <td className="py-4 px-4 whitespace-nowrap text-center">
                         <button
                           onClick={() => toggleProductVisibility(product.id)}
-                          className="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
+                          disabled={!canToggleVisibility}
+                          className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${
+                            !canToggleVisibility ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                          }`}
                           style={{ backgroundColor: product.status === 'Live' ? '#00522E' : '#BEC9BE' }}
                         >
                           <span
@@ -785,28 +804,32 @@ export default function ProductList() {
                             </svg>
                           </button>
                           
-                          <button
-                            onClick={() => {
-                              setEditingProduct(product);
-                              setIsEditModalOpen(true);
-                            }}
-                            title="Edit Product"
-                            className="p-1.5 text-[#6F7A70] hover:text-[#00522E] hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer"
-                          >
-                            <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={() => {
+                                setEditingProduct(product);
+                                setIsEditModalOpen(true);
+                              }}
+                              title="Edit Product"
+                              className="p-1.5 text-[#6F7A70] hover:text-[#00522E] hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer"
+                            >
+                              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                          )}
 
-                          <button
-                            onClick={() => setDeleteConfirmId(product.id)}
-                            title="Delete Product"
-                            className="p-1.5 text-[#6F7A70] hover:text-[#BA1A1A] hover:bg-red-50 rounded-lg transition-all cursor-pointer"
-                          >
-                            <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          {canDelete && (
+                            <button
+                              onClick={() => setDeleteConfirmId(product.id)}
+                              title="Delete Product"
+                              className="p-1.5 text-[#6F7A70] hover:text-[#BA1A1A] hover:bg-red-50 rounded-lg transition-all cursor-pointer"
+                            >
+                              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

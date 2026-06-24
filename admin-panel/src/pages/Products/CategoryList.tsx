@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useProducts, type Category } from './ProductsContext';
+import { useRoleAccess } from '../../context/RoleAccessContext';
 
 export default function CategoryList() {
   const { categories, products, addCategory, updateCategory, deleteCategory } = useProducts();
+  const { hasPermission, activeRole } = useRoleAccess();
+
+  const canCreate = activeRole === 'Super Admin' || hasPermission('products', 'Category List', 'create');
+  const canEdit = activeRole === 'Super Admin' || hasPermission('products', 'Category List', 'edit');
+  const canDelete = activeRole === 'Super Admin' || hasPermission('products', 'Category List', 'delete');
 
   // State Management
   const [isLoading, setIsLoading] = useState(true);
@@ -147,21 +153,23 @@ export default function CategoryList() {
         </div>
         
         <div>
-          <button
-            onClick={() => {
-              setFormName('');
-              setFormDesc('');
-              setFormStatus('Active');
-              setFormError('');
-              setIsAddModalOpen(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#00522E] hover:bg-[#003B21] text-white rounded-lg text-sm font-bold shadow-xs hover:shadow-md cursor-pointer transition-all"
-          >
-            <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7-7H5" />
-            </svg>
-            <span>Add Category</span>
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => {
+                setFormName('');
+                setFormDesc('');
+                setFormStatus('Active');
+                setFormError('');
+                setIsAddModalOpen(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#00522E] hover:bg-[#003B21] text-white rounded-lg text-sm font-bold shadow-xs hover:shadow-md cursor-pointer transition-all"
+            >
+              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7-7H5" />
+              </svg>
+              <span>Add Category</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -363,8 +371,11 @@ export default function CategoryList() {
                       <td className="py-4 px-4 whitespace-nowrap">
                         <button
                           onClick={() => handleToggleStatus(category)}
-                          title={`Click to ${category.status === 'Active' ? 'disable' : 'enable'}`}
-                          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-bold border transition-colors cursor-pointer ${statusBg}`}
+                          disabled={!canEdit}
+                          title={canEdit ? `Click to ${category.status === 'Active' ? 'disable' : 'enable'}` : 'No permission to edit status'}
+                          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-bold border transition-colors ${
+                            canEdit ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+                          } ${statusBg}`}
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
                           {category.status}
@@ -380,28 +391,32 @@ export default function CategoryList() {
                       {/* Actions */}
                       <td className="py-4 px-6 whitespace-nowrap text-right text-xs font-bold">
                         <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => {
-                              setEditingCategory(category);
-                              setIsEditModalOpen(true);
-                            }}
-                            title="Edit Category"
-                            className="p-1.5 text-[#6F7A70] hover:text-[#00522E] hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer"
-                          >
-                            <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={() => {
+                                setEditingCategory(category);
+                                setIsEditModalOpen(true);
+                              }}
+                              title="Edit Category"
+                              className="p-1.5 text-[#6F7A70] hover:text-[#00522E] hover:bg-[#F6F6F6] rounded-lg transition-all cursor-pointer"
+                            >
+                              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                          )}
 
-                          <button
-                            onClick={() => setDeleteConfirmId(category.id)}
-                            title="Delete Category"
-                            className="p-1.5 text-[#6F7A70] hover:text-[#BA1A1A] hover:bg-red-50 rounded-lg transition-all cursor-pointer"
-                          >
-                            <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          {canDelete && (
+                            <button
+                              onClick={() => setDeleteConfirmId(category.id)}
+                              title="Delete Category"
+                              className="p-1.5 text-[#6F7A70] hover:text-[#BA1A1A] hover:bg-red-50 rounded-lg transition-all cursor-pointer"
+                            >
+                              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

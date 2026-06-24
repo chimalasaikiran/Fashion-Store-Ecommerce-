@@ -19,6 +19,18 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role?: { name: string } } | null>(null);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('adminUser');
+    if (userStr) {
+      try {
+        setCurrentUser(JSON.parse(userStr));
+      } catch (e) {
+        console.error("Error parsing adminUser from localStorage:", e);
+      }
+    }
+  }, []);
 
   const totalNotifications = notifications.length;
   const activeTicketsCount = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
@@ -102,7 +114,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
 
         <div className="w-[1px] h-8 bg-[#E0E0E0] my-1 hidden sm:block"></div>
 
-        {/* User Profile Info with Dynamic Role Switcher */}
+        {/* User Profile Info with Simplified Menu */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -111,9 +123,9 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
             aria-expanded={isMenuOpen}
           >
             <div className="flex flex-col text-right hidden sm:flex">
-              <span className="text-xs font-bold text-[#242424]">Admin User</span>
+              <span className="text-xs font-bold text-[#242424]">{currentUser?.name || 'Admin User'}</span>
               <span className="text-[9px] font-bold text-[#00522E] tracking-widest uppercase mt-0.5">
-                {activeRole}
+                {currentUser?.role?.name || activeRole}
               </span>
             </div>
             <img
@@ -134,80 +146,16 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
                   className="w-12 h-12 rounded-xl object-cover ring-2 ring-[#F8B057]"
                 />
                 <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-bold text-[#242424] truncate">Admin User</span>
-                  <span className="text-xs text-[#797979] truncate">admin@fashionstore.com</span>
+                  <span className="text-sm font-bold text-[#242424] truncate">{currentUser?.name || 'Admin User'}</span>
+                  <span className="text-xs text-[#797979] truncate">{currentUser?.email || 'admin@fashionstore.com'}</span>
                   <span className="inline-flex self-start mt-1.5 items-center px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-[#E2F2E3] text-[#00522E] border border-[#00522E]/20">
-                    {activeRole}
+                    {currentUser?.role?.name || activeRole}
                   </span>
                 </div>
               </div>
 
-              {/* Role Select Section */}
-              <div className="p-3">
-                <span className="text-[9px] font-bold text-[#797979] uppercase tracking-wider px-2 block mb-1.5">
-                  Switch Acting Role ({roles.length})
-                </span>
-                <div className="max-h-52 overflow-y-auto space-y-0.5 pr-1">
-                  {roles.map((r) => {
-                    const isActive = r.name === activeRole;
-                    return (
-                      <button
-                        key={r.name}
-                        onClick={() => {
-                          setActiveRole(r.name);
-                          setIsMenuOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all duration-150 cursor-pointer ${
-                          isActive
-                            ? 'bg-[#E2F2E3] text-[#00522E]'
-                            : 'hover:bg-[#F6F6F6] text-[#797979] hover:text-[#401900]'
-                        }`}
-                      >
-                        <div className="flex flex-col pr-2">
-                          <span className={`text-xs font-bold ${isActive ? 'text-[#00522E]' : 'text-[#242424]'}`}>
-                            {r.name}
-                          </span>
-                          <span className="text-[9px] opacity-80 leading-normal mt-0.5 line-clamp-1">
-                            {r.description}
-                          </span>
-                        </div>
-                        {isActive && (
-                          <svg className="w-4 h-4 text-[#00522E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Quick Links / Actions */}
+              {/* Actions Section */}
               <div className="p-2 space-y-0.5 bg-[#F6F6F6]/50">
-                <button
-                  onClick={() => {
-                    navigate('/dashboard/roles');
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[#797979] hover:text-[#00522E] hover:bg-white rounded-lg transition-all cursor-pointer"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                  </svg>
-                  <span>Manage Roles & Permissions</span>
-                </button>
-                <button
-                  onClick={() => {
-                    navigate('/dashboard/settings');
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[#797979] hover:text-[#401900] hover:bg-white rounded-lg transition-all cursor-pointer"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>System Settings</span>
-                </button>
                 <button
                   onClick={() => {
                     if (onLogout) {
@@ -252,8 +200,11 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
                       className="w-12 h-12 rounded-xl object-cover ring-2 ring-[#F8B057]"
                     />
                     <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-bold text-[#242424]">Admin User</span>
-                      <span className="text-xs text-[#797979]">admin@fashionstore.com</span>
+                      <span className="text-sm font-bold text-[#242424]">{currentUser?.name || 'Admin User'}</span>
+                      <span className="text-xs text-[#797979]">{currentUser?.email || 'admin@fashionstore.com'}</span>
+                      <span className="inline-flex self-start mt-1 items-center px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-[#E2F2E3] text-[#00522E] border border-[#00522E]/20 mt-1">
+                        {currentUser?.role?.name || activeRole}
+                      </span>
                     </div>
                   </div>
                   <button
@@ -266,74 +217,8 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
                   </button>
                 </div>
 
-                {/* Role List Container */}
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-                  <span className="text-[10px] font-bold text-[#797979] uppercase tracking-wider px-2 block mb-1">
-                    Choose Acting Role
-                  </span>
-                  <div className="space-y-1.5">
-                    {roles.map((r) => {
-                      const isActive = r.name === activeRole;
-                      return (
-                        <button
-                          key={r.name}
-                          onClick={() => {
-                            setActiveRole(r.name);
-                            setIsMenuOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-left transition-all duration-150 cursor-pointer ${
-                            isActive
-                              ? 'bg-[#E2F2E3] text-[#00522E]'
-                              : 'hover:bg-[#F6F6F6] active:bg-[#F6F6F6] text-[#797979]'
-                          }`}
-                        >
-                          <div className="flex flex-col pr-4">
-                            <span className={`text-sm font-bold ${isActive ? 'text-[#00522E]' : 'text-[#242424]'}`}>
-                              {r.name}
-                            </span>
-                            <span className="text-[11px] opacity-80 leading-normal mt-0.5">
-                              {r.description}
-                            </span>
-                          </div>
-                          {isActive && (
-                            <svg className="w-5 h-5 text-[#00522E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 {/* Bottom Actions */}
                 <div className="p-4 bg-[#F6F6F6] border-t border-gray-100 flex flex-col gap-2 flex-shrink-0">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => {
-                        navigate('/dashboard/roles');
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex items-center justify-center gap-2 py-3 bg-white text-xs font-bold text-[#797979] hover:text-[#00522E] border border-[#E0E0E0] rounded-xl transition-all cursor-pointer"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                      </svg>
-                      <span>Manage Roles</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigate('/dashboard/settings');
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex items-center justify-center gap-2 py-3 bg-white text-xs font-bold text-[#797979] hover:text-[#401900] border border-[#E0E0E0] rounded-xl transition-all cursor-pointer"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span>Settings</span>
-                    </button>
-                  </div>
                   <button
                     onClick={() => {
                       if (onLogout) {
