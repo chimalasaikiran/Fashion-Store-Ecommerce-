@@ -51,7 +51,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
     return location.pathname.startsWith('/dashboard/payments');
   });
 
-  // Keep dropdown open if user navigating in users, products, orders, shipments, tickets, or payments subpages
+  
   useEffect(() => {
     if (location.pathname.startsWith('/dashboard/users')) {
       setIsUsersOpen(true);
@@ -222,7 +222,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
     },
   ];
 
-  // Dynamic Filtering based on active permissions
+  
   const filteredNavLinks = navLinks.map(link => {
     const modKey = getModuleForLink(link.name);
     if (!modKey) return link;
@@ -255,7 +255,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
       };
     }
 
-    // For single links, verify view permission at subpage/feature level
+    
     if (link.name === 'Role & Access Management') {
       return activeRole === 'Super Admin' || hasPermission('roles', 'Role & Access Management', 'view') ? link : null;
     }
@@ -367,7 +367,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
 
   return (
     <>
-      {/* Desktop Sidebar (Permanent Drawer) */}
+      {}
       <aside className="hidden lg:flex w-[240px] flex-shrink-0 flex-col justify-between bg-white border-r border-[#E0E0E0] h-full select-none py-6 overflow-y-auto">
         <div className="flex flex-col gap-8 px-6">
           <header className="flex flex-col gap-1">
@@ -412,7 +412,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
         </div>
       </aside>
 
-      {/* Mobile Drawer (Overlay) */}
+      {}
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 transition-opacity lg:hidden" onClick={() => setIsSidebarOpen(false)}>
           <aside

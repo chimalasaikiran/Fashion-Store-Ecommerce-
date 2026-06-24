@@ -30,22 +30,22 @@ export default function Roles() {
     deleteAdminUser
   } = useRoleAccess();
 
-  // Selected Tab: permissions or admins
+  
   const [activeTab, setActiveTab] = useState<'permissions' | 'admins'>('permissions');
 
-  // Selected Role in Left Panel (Defaults to the first role or Super Admin)
+  
   const [selectedRoleName, setSelectedRoleName] = useState<string>('Super Admin');
   
-  // Search Filters
+  
   const [searchRoleQuery, setSearchRoleQuery] = useState('');
   const [searchPermissionQuery, setSearchPermissionQuery] = useState('');
   const [searchAdminQuery, setSearchAdminQuery] = useState('');
 
-  // Draft Permissions (Permissions in editing state, committed only on save)
+  
   const [draftPermissions, setDraftPermissions] = useState<RolePermissions>({});
   const [isDirty, setIsDirty] = useState(false);
 
-  // Accordion Expand/Collapse State for Modules
+  
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
     products: true,
     orders: true,
@@ -54,7 +54,7 @@ export default function Roles() {
     payments: true,
   });
 
-  // Modal Dialogs States
+  
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -63,33 +63,33 @@ export default function Roles() {
   const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
   const [pendingRoleSwitch, setPendingRoleSwitch] = useState<string | null>(null);
 
-  // Admin Modals States
+  
   const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
   const [isEditAdminModalOpen, setIsEditAdminModalOpen] = useState(false);
   const [isDeleteAdminModalOpen, setIsDeleteAdminModalOpen] = useState(false);
 
-  // Form Fields States
+  
   const [createForm, setCreateForm] = useState({ name: '', description: '', copyFrom: '' });
   const [editForm, setEditForm] = useState({ name: '', description: '' });
 
-  // Admin Form Fields States
+  
   const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '', role: '', status: 'Active' });
   const [editingAdmin, setEditingAdmin] = useState<any>(null);
   const [deleteAdminId, setDeleteAdminId] = useState<string>('');
 
-  // Custom Toast State
+  
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   const selectedRole = roles.find((r) => r.name === selectedRoleName) || roles[0];
   const activeRoles = roles.filter((r) => r.status === 'Active');
 
-  // Show Toast Helper
+  
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Sync Draft State with Selected Role's saved permissions
+  
   useEffect(() => {
     if (selectedRole) {
       setDraftPermissions(JSON.parse(JSON.stringify(selectedRole.permissions || {})));
@@ -97,7 +97,7 @@ export default function Roles() {
     }
   }, [selectedRoleName, roles]);
 
-  // Handle Switch Role with dirty check
+  
   const handleSelectRole = (roleName: string) => {
     if (roleName === selectedRoleName) return;
     if (isDirty) {
@@ -116,7 +116,7 @@ export default function Roles() {
     setIsDiscardModalOpen(false);
   };
 
-  // Check if draft permissions match original permissions
+  
   const handlePermissionChange = (moduleKey: string, subpage: string, action: keyof PermissionActions, checked: boolean) => {
     const updated = { ...draftPermissions };
     if (!updated[moduleKey]) return;
@@ -130,7 +130,7 @@ export default function Roles() {
     setIsDirty(true);
   };
 
-  // Toggle Entire Module Access
+  
   const handleModuleToggle = (moduleKey: string, checked: boolean) => {
     const updated = { ...draftPermissions };
     if (!updated[moduleKey]) return;
@@ -144,7 +144,7 @@ export default function Roles() {
     setIsDirty(true);
   };
 
-  // Module Level "Select All" permission actions
+  
   const handleSelectAllModule = (moduleKey: string, checked: boolean) => {
     const updated = { ...draftPermissions };
     if (!updated[moduleKey]) return;
@@ -165,7 +165,7 @@ export default function Roles() {
     setIsDirty(true);
   };
 
-  // Filtered Lists
+  
   const filteredRoles = roles.filter((role) =>
     role.name.toLowerCase().includes(searchRoleQuery.toLowerCase()) ||
     role.description.toLowerCase().includes(searchRoleQuery.toLowerCase())
@@ -177,7 +177,7 @@ export default function Roles() {
     admin.role.name.toLowerCase().includes(searchAdminQuery.toLowerCase())
   );
 
-  // Actions Trigger Handlers
+  
   const handleSavePermissions = async () => {
     if (selectedRoleName === 'Super Admin') {
       showToast('Super Admin role must retain all system permissions.', 'error');
@@ -283,7 +283,7 @@ export default function Roles() {
     }
   };
 
-  // Admin account CRUD handlers
+  
   const handleCreateAdminSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adminForm.name.trim() || !adminForm.email.trim() || !adminForm.password) {
@@ -376,7 +376,7 @@ export default function Roles() {
 
   return (
     <div className="space-y-6 select-none relative pb-12">
-      {/* Toast Alerts */}
+      {}
       {toast && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div
@@ -388,7 +388,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* Page Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#242424] flex items-center gap-2">
@@ -400,7 +400,7 @@ export default function Roles() {
         </div>
       </div>
 
-      {/* Tab Switcher */}
+      {}
       <div className="flex border-b border-[#E0E0E0] select-none">
         <button
           onClick={() => setActiveTab('permissions')}
@@ -415,7 +415,7 @@ export default function Roles() {
         <button
           onClick={() => {
             setActiveTab('admins');
-            // Do not auto-populate default role to force explicit selection and allow validation
+            
           }}
           className={`px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'admins'
@@ -427,11 +427,11 @@ export default function Roles() {
         </button>
       </div>
 
-      {/* TAB 1: PERMISSIONS MATRIX */}
+      {}
       {activeTab === 'permissions' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* LEFT PANEL: Roles List (col-span 4) */}
+          {}
           <div className="lg:col-span-4 bg-white border border-[#E0E0E0] rounded-2xl p-4 shadow-sm flex flex-col gap-4 animate-fade-in">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#242424] uppercase tracking-wider">Access Roles ({roles.length})</h3>
@@ -446,7 +446,7 @@ export default function Roles() {
               </button>
             </div>
 
-            {/* Search Roles */}
+            {}
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#797979]">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -462,7 +462,7 @@ export default function Roles() {
               />
             </div>
 
-            {/* Roles List */}
+            {}
             <div className="flex flex-col gap-1 max-h-[480px] overflow-y-auto pr-1">
               {filteredRoles.map((role) => {
                 const isActiveSim = activeRole === role.name;
@@ -505,11 +505,11 @@ export default function Roles() {
             </div>
           </div>
 
-          {/* RIGHT PANEL: Permission Matrix (col-span 8) */}
+          {}
           <div className="lg:col-span-8 space-y-6 animate-fade-in">
             <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 shadow-sm space-y-6">
               
-              {/* Header controls for selected role */}
+              {}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E0E0E0] pb-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -545,7 +545,7 @@ export default function Roles() {
                   <p className="text-xs text-[#797979] max-w-lg">{selectedRole?.description}</p>
                 </div>
 
-                {/* Actions: Save, Reset, Duplicate */}
+                {}
                 <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
                   <button
                     onClick={handleDuplicateClick}
@@ -573,7 +573,7 @@ export default function Roles() {
                 </div>
               </div>
 
-              {/* Permission Search and Filter */}
+              {}
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#797979]">
                   <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -589,14 +589,14 @@ export default function Roles() {
                 />
               </div>
 
-              {/* ACCORDION MODULES CONTAINER */}
+              {}
               <div className="space-y-4">
                 {Object.entries(MODULES_CONFIG).map(([moduleKey, config]) => {
                   const isExpanded = expandedModules[moduleKey];
                   const draftMod = draftPermissions[moduleKey];
                   if (!draftMod) return null;
 
-                  // Filter subpages based on query
+                  
                   const filteredSubpages = config.subpages.filter((sub) =>
                     sub.toLowerCase().includes(searchPermissionQuery.toLowerCase()) ||
                     config.label.toLowerCase().includes(searchPermissionQuery.toLowerCase())
@@ -612,7 +612,7 @@ export default function Roles() {
                   return (
                     <div key={moduleKey} className="border border-[#E0E0E0] rounded-xl overflow-hidden shadow-xs">
                       
-                      {/* Module Title Accordion Header */}
+                      {}
                       <div className="bg-[#F6F6F6] px-4 py-3 flex items-center justify-between border-b border-[#E0E0E0]">
                         <div className="flex items-center gap-3">
                           <button
@@ -633,7 +633,7 @@ export default function Roles() {
                         </div>
 
                         <div className="flex items-center gap-4">
-                          {/* Select All */}
+                          {}
                           {draftMod.enabled && (
                             <label className="flex items-center gap-1.5 text-xs text-[#797979] font-medium cursor-pointer">
                               <input
@@ -647,7 +647,7 @@ export default function Roles() {
                             </label>
                           )}
 
-                          {/* Module Enable/Disable Toggle */}
+                          {}
                           <label className="flex items-center gap-1.5 text-xs text-[#242424] font-bold cursor-pointer">
                             <input
                               type="checkbox"
@@ -661,7 +661,7 @@ export default function Roles() {
                         </div>
                       </div>
 
-                      {/* Accordion Content Table */}
+                      {}
                       {isExpanded && (
                         <div className="w-full overflow-x-auto">
                           <table className="w-full border-collapse text-left text-xs min-w-[700px]">
@@ -705,7 +705,7 @@ export default function Roles() {
                                       isModuleActive ? 'text-[#242424]' : 'text-gray-400 bg-gray-50/50'
                                     }`}
                                   >
-                                    {/* Subpage Name Label */}
+                                    {}
                                     <td className="py-3 px-4 font-bold">
                                       <div className="flex flex-col">
                                         <span>{sub}</span>
@@ -715,7 +715,7 @@ export default function Roles() {
                                       </div>
                                     </td>
                                     
-                                    {/* Checkboxes */}
+                                    {}
                                     {renderCheckbox('view')}
                                     {renderCheckbox('create')}
                                     {renderCheckbox('edit')}
@@ -735,7 +735,7 @@ export default function Roles() {
               </div>
             </div>
 
-            {/* AUDIT LOGS EXPANDABLE BOX */}
+            {}
             <div className="bg-white border border-[#E0E0E0] rounded-2xl p-4 shadow-sm space-y-3">
               <div className="flex items-center justify-between border-b border-[#E0E0E0] pb-2">
                 <span className="text-xs font-bold text-[#242424] uppercase tracking-wider flex items-center gap-1.5">
@@ -766,10 +766,10 @@ export default function Roles() {
         </div>
       )}
 
-      {/* TAB 2: ADMIN ACCOUNTS & ASSIGNMENTS */}
+      {}
       {activeTab === 'admins' && (
         <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 shadow-sm space-y-6 animate-fade-in">
-          {/* Header */}
+          {}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E0E0E0] pb-4">
             <div>
               <h3 className="text-base sm:text-lg font-bold text-[#242424]">Admin User Roles & Accounts</h3>
@@ -789,7 +789,7 @@ export default function Roles() {
             </button>
           </div>
 
-          {/* Search bar */}
+          {}
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#797979]">
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -805,7 +805,7 @@ export default function Roles() {
             />
           </div>
 
-          {/* Table */}
+          {}
           <div className="w-full overflow-x-auto border border-[#E0E0E0] rounded-xl shadow-xs">
             <table className="w-full border-collapse text-left text-xs min-w-[700px]">
               <thead>
@@ -855,7 +855,7 @@ export default function Roles() {
                             setAdminForm({
                               name: admin.name,
                               email: admin.email,
-                              password: '', // Leave blank to not change password
+                              password: '', 
                               role: admin.role?._id || '',
                               status: admin.status
                             });
@@ -889,9 +889,9 @@ export default function Roles() {
         </div>
       )}
 
-      {/* CONFIRMATION MODALS */}
+      {}
       
-      {/* 1. SAVE CONFIRM */}
+      {}
       {isSaveModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl">
@@ -924,7 +924,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 2. RESET CONFIRM */}
+      {}
       {isResetModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl">
@@ -957,7 +957,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 3. DELETE CONFIRM */}
+      {}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl">
@@ -990,7 +990,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 4. DISCARD CHANGES CONFIRM */}
+      {}
       {isDiscardModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl">
@@ -1026,7 +1026,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 5. CREATE ROLE MODAL */}
+      {}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-md w-full shadow-xl space-y-4">
@@ -1101,7 +1101,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 6. EDIT ROLE DETAILS MODAL */}
+      {}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-md w-full shadow-xl space-y-4">
@@ -1158,7 +1158,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 7. REGISTER ADMIN USER MODAL */}
+      {}
       {isCreateAdminModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-md w-full shadow-xl space-y-4">
@@ -1268,7 +1268,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 8. EDIT ADMIN USER MODAL */}
+      {}
       {isEditAdminModalOpen && editingAdmin && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-md w-full shadow-xl space-y-4">
@@ -1381,7 +1381,7 @@ export default function Roles() {
         </div>
       )}
 
-      {/* 9. CONFIRM DELETE ADMIN USER */}
+      {}
       {isDeleteAdminModalOpen && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-[#E0E0E0] rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl">

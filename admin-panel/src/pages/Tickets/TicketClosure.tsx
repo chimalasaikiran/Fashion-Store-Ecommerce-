@@ -4,25 +4,25 @@ import { useTickets, type Ticket } from './TicketsContext';
 export default function TicketClosure() {
   const { tickets, closeTicket, reopenTicket } = useTickets();
 
-  // Loading and Alert states
+  
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'info' | 'error'>('success');
 
-  // Interactive Close Ticket Form states
+  
   const [targetTicketId, setTargetTicketId] = useState('');
   const [resolutionCategory, setResolutionCategory] = useState('Bug Fix Deployed');
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [sendNotification, setSendNotification] = useState(true);
 
-  // CSAT simulation states
+  
   const [csatRating, setCsatRating] = useState(5);
   const [csatComment, setCsatComment] = useState('');
 
-  // Selected ticket for details modal
+  
   const [viewingArchiveTicket, setViewingArchiveTicket] = useState<Ticket | null>(null);
   
-  // Re-open confirmation modal
+  
   const [confirmReopenTicketId, setConfirmReopenTicketId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function TicketClosure() {
       showToast('Resolution dispatch confirmation email sent to customer.', 'info');
     }
 
-    // Reset Form
+    
     setTargetTicketId('');
     setResolutionNotes('');
     setCsatComment('');
@@ -71,11 +71,11 @@ export default function TicketClosure() {
     setConfirmReopenTicketId(null);
   };
 
-  // Filter lists
+  
   const activeTickets = tickets.filter(t => t.status !== 'Closed' && t.status !== 'Resolved');
   const closedArchive = tickets.filter(t => t.status === 'Closed' || t.status === 'Resolved');
 
-  // Compute CSAT metrics
+  
   const csatWithRatings = closedArchive.filter(t => t.feedbackRating !== undefined);
   const averageCsat = csatWithRatings.length > 0 
     ? (csatWithRatings.reduce((sum, t) => sum + (t.feedbackRating || 0), 0) / csatWithRatings.length).toFixed(1)
@@ -83,7 +83,7 @@ export default function TicketClosure() {
 
   return (
     <div className="space-y-6 relative pb-12 select-none">
-      {/* Toast Notification */}
+      {}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div className={`w-3 h-3 rounded-full ${
@@ -93,7 +93,7 @@ export default function TicketClosure() {
         </div>
       )}
 
-      {/* Reopen Confirmation Modal */}
+      {}
       {confirmReopenTicketId && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-sm w-full animate-scale-in">
@@ -119,7 +119,7 @@ export default function TicketClosure() {
         </div>
       )}
 
-      {/* Resolution Details Modal */}
+      {}
       {viewingArchiveTicket && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-md w-full animate-scale-in space-y-4">
@@ -180,7 +180,7 @@ export default function TicketClosure() {
         </div>
       )}
 
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16] flex items-center gap-2">
@@ -192,7 +192,7 @@ export default function TicketClosure() {
         </div>
       </div>
 
-      {/* Resolution Stats Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs flex flex-col justify-between min-h-[110px]">
           <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Customer CSAT Average</span>
@@ -221,9 +221,9 @@ export default function TicketClosure() {
         </div>
       </div>
 
-      {/* Workspace Area */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Closed Tickets Archive */}
+        {}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-xs overflow-hidden">
             <div className="bg-[#E8F8E9]/20 border-b border-[#BEC9BE]/40 p-4">
@@ -308,7 +308,7 @@ export default function TicketClosure() {
           </div>
         </div>
 
-        {/* Right Column: Interactive Closure Tool */}
+        {}
         <div className="space-y-6">
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
@@ -319,7 +319,7 @@ export default function TicketClosure() {
             </div>
 
             <form onSubmit={handleCloseSubmit} className="space-y-4">
-              {/* Select Ticket */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Select Active Ticket</label>
                 <select
@@ -334,7 +334,7 @@ export default function TicketClosure() {
                 </select>
               </div>
 
-              {/* Resolution Category */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Resolution Category</label>
                 <select
@@ -350,7 +350,7 @@ export default function TicketClosure() {
                 </select>
               </div>
 
-              {/* Resolution Summary */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Resolution Summary Notes</label>
                 <textarea
@@ -362,7 +362,7 @@ export default function TicketClosure() {
                 />
               </div>
 
-              {/* Survey Simulation */}
+              {}
               <div className="pt-2 border-t border-gray-100">
                 <span className="block text-[10px] font-bold text-[#6F7A70] uppercase mb-1.5">Mock Customer Survey Rating</span>
                 <div className="flex items-center gap-3">
@@ -395,7 +395,7 @@ export default function TicketClosure() {
                 />
               </div>
 
-              {/* Notification Switch */}
+              {}
               <div className="flex items-center justify-between py-1">
                 <span className="text-xs font-bold text-[#6F7A70]">Send Resolution Notification</span>
                 <button

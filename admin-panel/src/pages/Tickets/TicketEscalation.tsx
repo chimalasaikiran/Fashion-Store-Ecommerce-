@@ -4,24 +4,24 @@ import { useTickets, type Ticket } from './TicketsContext';
 export default function TicketEscalation() {
   const { tickets, agents, escalateTicket, assignTicket, updateStatus } = useTickets();
 
-  // Loading and alerts
+  
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'info' | 'error'>('success');
 
-  // Escalation Form states
+  
   const [targetTicketId, setTargetTicketId] = useState('');
   const [escalationReason, setEscalationReason] = useState('');
   const [escalateToDept, setEscalateToDept] = useState('Tier-2 Technical Support');
 
-  // Selected ticket states for action modals
+  
   const [selectedTicketForReassign, setSelectedTicketForReassign] = useState<Ticket | null>(null);
   const [reassignAgent, setReassignAgent] = useState('');
 
   const [selectedTicketForNote, setSelectedTicketForNote] = useState<Ticket | null>(null);
   const [escalationNoteText, setEscalationNoteText] = useState('');
 
-  // Rules mockup config toggle
+  
   const [autoRulesActive, setAutoRulesActive] = useState(true);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function TicketEscalation() {
     escalateTicket(targetTicketId, escalationReason.trim(), escalateToDept);
     showToast(`Ticket ${targetTicketId} successfully escalated to ${escalateToDept}.`, 'success');
     
-    // Reset
+    
     setTargetTicketId('');
     setEscalationReason('');
   };
@@ -62,8 +62,8 @@ export default function TicketEscalation() {
 
   const handleAddNoteAction = () => {
     if (!selectedTicketForNote || !escalationNoteText.trim()) return;
-    // We can simulate adding escalation notes by updating timeline or writing internal notes
-    // In our context:
+    
+    
     showToast(`Escalation note added to ${selectedTicketForNote.id}.`, 'success');
     setSelectedTicketForNote(null);
     setEscalationNoteText('');
@@ -78,17 +78,17 @@ export default function TicketEscalation() {
     showToast(`Supervisor notification alert dispatched for ticket ${t.id}.`, 'info');
   };
 
-  // Filter escalated tickets
+  
   const escalatedQueue = tickets.filter(t => t.status === 'Escalated' || t.priority === 'CRITICAL');
   const nonEscalatedTickets = tickets.filter(t => t.status !== 'Escalated' && t.status !== 'Closed');
 
-  // SLA statistics
+  
   const activeBreaches = tickets.filter(t => t.slaStatus === 'Breached' && t.status !== 'Closed' && t.status !== 'Resolved');
   const slaWarning = tickets.filter(t => t.slaStatus === 'Warning' && t.status !== 'Closed' && t.status !== 'Resolved');
 
   return (
     <div className="space-y-6 relative pb-12 select-none">
-      {/* Toast Notification */}
+      {}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div className={`w-3 h-3 rounded-full ${
@@ -98,7 +98,7 @@ export default function TicketEscalation() {
         </div>
       )}
 
-      {/* Reassign Agent Modal */}
+      {}
       {selectedTicketForReassign && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-sm w-full animate-scale-in">
@@ -133,7 +133,7 @@ export default function TicketEscalation() {
         </div>
       )}
 
-      {/* Add Notes Modal */}
+      {}
       {selectedTicketForNote && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-md w-full animate-scale-in">
@@ -167,7 +167,7 @@ export default function TicketEscalation() {
         </div>
       )}
 
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16] flex items-center gap-2">
@@ -179,7 +179,7 @@ export default function TicketEscalation() {
         </div>
       </div>
 
-      {/* SLA Breach Alert Banner */}
+      {}
       {(activeBreaches.length > 0 || slaWarning.length > 0) && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -204,9 +204,9 @@ export default function TicketEscalation() {
         </div>
       )}
 
-      {/* Main Workspace */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Grid: Escalation Queue */}
+        {}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-xs overflow-hidden">
             <div className="bg-[#E8F8E9]/20 border-b border-[#BEC9BE]/40 p-4">
@@ -277,7 +277,7 @@ export default function TicketEscalation() {
 
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            {/* Reassign */}
+                            {}
                             <button
                               onClick={() => {
                                 setSelectedTicketForReassign(t);
@@ -289,7 +289,7 @@ export default function TicketEscalation() {
                               Reassign
                             </button>
 
-                            {/* Add log notes */}
+                            {}
                             <button
                               onClick={() => {
                                 setSelectedTicketForNote(t);
@@ -300,7 +300,7 @@ export default function TicketEscalation() {
                               Add Note
                             </button>
 
-                            {/* Notify */}
+                            {}
                             <button
                               onClick={() => handleNotificationAction(t)}
                               title="Send Warning Alert Notification"
@@ -311,7 +311,7 @@ export default function TicketEscalation() {
                               </svg>
                             </button>
 
-                            {/* Resolve */}
+                            {}
                             <button
                               onClick={() => handleResolveAction(t.id)}
                               title="Resolve & Remove from Queue"
@@ -330,9 +330,9 @@ export default function TicketEscalation() {
           </div>
         </div>
 
-        {/* Right Grid: Escalation tool & Auto rules panel */}
+        {}
         <div className="space-y-6">
-          {/* Manual Escalation Form Card */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
               <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -342,7 +342,7 @@ export default function TicketEscalation() {
             </div>
 
             <form onSubmit={handleEscalateSubmit} className="space-y-4">
-              {/* Select Ticket */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Select Active Ticket</label>
                 <select
@@ -357,7 +357,7 @@ export default function TicketEscalation() {
                 </select>
               </div>
 
-              {/* Escalate to department */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Escalation Target Dept</label>
                 <select
@@ -372,7 +372,7 @@ export default function TicketEscalation() {
                 </select>
               </div>
 
-              {/* Reason */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Escalation Reason Notes</label>
                 <textarea
@@ -394,7 +394,7 @@ export default function TicketEscalation() {
             </form>
           </div>
 
-          {/* Automatic Escalation Engine config Panel */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div className="flex items-center gap-2">
@@ -404,7 +404,7 @@ export default function TicketEscalation() {
                 <h4 className="text-sm font-bold text-[#111E16]">Auto-Escalation Engine</h4>
               </div>
 
-              {/* Toggle switch */}
+              {}
               <button
                 type="button"
                 onClick={() => {
@@ -423,9 +423,9 @@ export default function TicketEscalation() {
               </button>
             </div>
 
-            {/* Rules list */}
+            {}
             <div className="space-y-3.5">
-              {/* Rule 1 */}
+              {}
               <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-gray-800">SLA Critical Auto-Route</span>
@@ -440,7 +440,7 @@ export default function TicketEscalation() {
                 </p>
               </div>
 
-              {/* Rule 2 */}
+              {}
               <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-gray-800">Fraud Protection Audit</span>
@@ -455,7 +455,7 @@ export default function TicketEscalation() {
                 </p>
               </div>
 
-              {/* Rule 3 */}
+              {}
               <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-gray-800">SLA Breach Warning Warning</span>

@@ -17,23 +17,23 @@ export default function TicketDetails() {
     uploadAttachment 
   } = useTickets();
 
-  // Selected Ticket state
+  
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
-  // Editor states
+  
   const [activeTab, setActiveTab] = useState<'reply' | 'note'>('reply');
   const [editorText, setEditorText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'info' | 'error'>('success');
   const [isTimelineOpen, setIsTimelineOpen] = useState(true);
 
-  // File upload simulation state
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll ref for chat
+  
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Resolve ID from parameters or fall back to the first active ticket
+  
   useEffect(() => {
     let resolvedTicket: Ticket | undefined;
     if (id) {
@@ -42,14 +42,14 @@ export default function TicketDetails() {
     }
     
     if (!resolvedTicket && tickets.length > 0) {
-      // default to first ticket
+      
       resolvedTicket = tickets[0];
     }
 
     setSelectedTicket(resolvedTicket || null);
   }, [id, tickets]);
 
-  // Scroll to bottom when messages update
+  
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [selectedTicket?.messages, selectedTicket?.notes]);
@@ -118,7 +118,7 @@ export default function TicketDetails() {
 
   return (
     <div className="space-y-6 relative pb-12 select-none">
-      {/* Toast Notification */}
+      {}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div className={`w-3 h-3 rounded-full ${
@@ -128,7 +128,7 @@ export default function TicketDetails() {
         </div>
       )}
 
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
@@ -153,7 +153,7 @@ export default function TicketDetails() {
           </div>
         </div>
 
-        {/* Action Shortcuts */}
+        {}
         <div className="flex items-center gap-2">
           {selectedTicket.status !== 'Escalated' && selectedTicket.status !== 'Closed' && (
             <button
@@ -181,7 +181,7 @@ export default function TicketDetails() {
         </div>
       </div>
 
-      {/* Ticket Selection Dropdown if navigating generically */}
+      {}
       {!id && (
         <div className="bg-[#E8F8E9]/30 border border-[#BEC9BE]/40 p-4 rounded-xl flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -203,19 +203,19 @@ export default function TicketDetails() {
         </div>
       )}
 
-      {/* Main Workspace: 2-column layout */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Conversation and Notes editor */}
+        {}
         <div className="lg:col-span-2 space-y-6 flex flex-col">
-          {/* Chat Window */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl overflow-hidden shadow-xs flex flex-col h-[500px]">
-            {/* Thread Header */}
+            {}
             <div className="bg-[#E8F8E9]/20 border-b border-[#BEC9BE]/40 p-4 flex items-center justify-between">
               <span className="text-xs font-bold text-[#6F7A70] uppercase tracking-wider">Conversation Log & Activity</span>
               <span className="text-xs text-[#6F7A70] font-mono">SLA Due: {selectedTicket.slaDue}</span>
             </div>
 
-            {/* Chat Messages scroll area */}
+            {}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50">
               {selectedTicket.messages.map((msg) => {
                 const isAgent = msg.sender === 'Agent';
@@ -234,14 +234,14 @@ export default function TicketDetails() {
 
                 return (
                   <div key={msg.id} className={`flex gap-3 max-w-[85%] ${isAgent ? 'ml-auto flex-row-reverse' : ''}`}>
-                    {/* Avatar */}
+                    {}
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${
                       isAgent ? 'bg-[#00522E] text-white' : 'bg-[#DCECDE] text-[#00522E]'
                     }`}>
                       {isAgent ? 'AG' : msg.avatar || 'CU'}
                     </div>
 
-                    {/* Speech Bubble */}
+                    {}
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-bold text-[#111E16]">{msg.senderName}</span>
@@ -259,7 +259,7 @@ export default function TicketDetails() {
                 );
               })}
 
-              {/* Internal Notes in separate list style or directly in-line */}
+              {}
               {selectedTicket.notes.length > 0 && (
                 <div className="border-t border-[#BEC9BE]/30 pt-6 mt-6">
                   <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block mb-4">Internal Team Notes</span>
@@ -284,9 +284,9 @@ export default function TicketDetails() {
               <div ref={chatEndRef} />
             </div>
 
-            {/* Messaging Composer Panel */}
+            {}
             <form onSubmit={handleSendMessage} className="border-t border-[#BEC9BE]/50 p-4 bg-white space-y-4">
-              {/* Selector Tabs */}
+              {}
               <div className="flex items-center justify-between">
                 <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
                   <button
@@ -334,7 +334,7 @@ export default function TicketDetails() {
                 </div>
               </div>
 
-              {/* Input Area */}
+              {}
               <div className="relative">
                 <textarea
                   rows={3}
@@ -349,7 +349,7 @@ export default function TicketDetails() {
                 />
               </div>
 
-              {/* Composer Footer */}
+              {}
               <div className="flex items-center justify-end">
                 <button
                   type="submit"
@@ -367,22 +367,22 @@ export default function TicketDetails() {
           </div>
         </div>
 
-        {/* Right Column: Sidebar info panel */}
+        {}
         <div className="space-y-6">
-          {/* Metadata Manager Card */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-4">
             <h4 className="text-sm font-bold text-[#111E16] border-b border-gray-100 pb-3">Ticket Information</h4>
 
             <div className="space-y-4">
-              {/* Category */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Category</label>
                 <select
                   value={selectedTicket.category}
                   onChange={() => {
-                    // Update in database
-                    // For now, update inline selection locally & write a mock event log
-                    // In a production app, this modifies context:
+                    
+                    
+                    
                     showToast('Ticket category updated.', 'success');
                   }}
                   className="w-full bg-[#F6F6F6] text-xs font-bold text-[#111E16] rounded-lg px-3 py-2 border border-[#BEC9BE]/60 cursor-pointer focus:border-[#00522E]"
@@ -391,7 +391,7 @@ export default function TicketDetails() {
                 </select>
               </div>
 
-              {/* Priority */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Priority</label>
                 <select
@@ -409,7 +409,7 @@ export default function TicketDetails() {
                 </select>
               </div>
 
-              {/* Assigned Agent */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Assigned Agent</label>
                 <select
@@ -425,7 +425,7 @@ export default function TicketDetails() {
                 </select>
               </div>
 
-              {/* Status */}
+              {}
               <div>
                 <label className="block text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider mb-1.5">Status</label>
                 <select
@@ -445,7 +445,7 @@ export default function TicketDetails() {
               </div>
             </div>
 
-            {/* Dates info */}
+            {}
             <div className="pt-3 border-t border-gray-100 grid grid-cols-2 gap-4 text-xs">
               <div>
                 <span className="block text-[9px] font-bold text-[#6F7A70] uppercase">Created Date</span>
@@ -458,7 +458,7 @@ export default function TicketDetails() {
             </div>
           </div>
 
-          {/* Customer Metadata Card */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-3">
             <h4 className="text-sm font-bold text-[#111E16] border-b border-gray-100 pb-2">Customer Information</h4>
             <div className="space-y-2 text-xs">
@@ -477,7 +477,7 @@ export default function TicketDetails() {
             </div>
           </div>
 
-          {/* Attachments Card */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-4">
             <h4 className="text-sm font-bold text-[#111E16] border-b border-gray-100 pb-2">Files & Attachments ({selectedTicket.attachments.length})</h4>
             {selectedTicket.attachments.length === 0 ? (
@@ -504,7 +504,7 @@ export default function TicketDetails() {
             )}
           </div>
 
-          {/* Activity Timeline Card */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-4">
             <button
               onClick={() => setIsTimelineOpen(!isTimelineOpen)}
@@ -520,7 +520,7 @@ export default function TicketDetails() {
               <div className="space-y-4 pt-2">
                 {selectedTicket.timeline.map((act) => (
                   <div key={act.id} className="relative pl-5 border-l-2 border-[#DCECDE] pb-2 last:pb-0">
-                    {/* Node Dot */}
+                    {}
                     <div className="absolute -left-[6px] top-1.5 w-[10px] h-[10px] rounded-full bg-[#00522E]"></div>
                     <div className="text-xs">
                       <span className="font-bold text-[#111E16] block">{act.action}</span>

@@ -10,28 +10,28 @@ export default function CategoryList() {
   const canEdit = activeRole === 'Super Admin' || hasPermission('products', 'Category List', 'edit');
   const canDelete = activeRole === 'Super Admin' || hasPermission('products', 'Category List', 'delete');
 
-  // State Management
+  
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Disabled'>('All');
   
-  // Pagination
+  
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Modals & Dialogs
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  // Form states for Add/Edit
+  
   const [formName, setFormName] = useState('');
   const [formDesc, setFormDesc] = useState('');
   const [formStatus, setFormStatus] = useState<Category['status']>('Active');
   const [formError, setFormError] = useState('');
 
-  // Simulate skeleton loader on mount
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -39,7 +39,7 @@ export default function CategoryList() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Sync edit form when editingCategory changes
+  
   useEffect(() => {
     if (editingCategory) {
       setFormName(editingCategory.name);
@@ -48,15 +48,15 @@ export default function CategoryList() {
     }
   }, [editingCategory]);
 
-  // Derived Category-wise product counts
+  
   const getProductCount = (categoryName: string) => {
     return products.filter(p => p.category.toLowerCase() === categoryName.toLowerCase()).length;
   };
 
-  // Filter out Archived categories
+  
   const activeCategories = categories.filter(c => c.status !== 'Archived');
 
-  // Handle Search & Filter logic
+  
   const filteredCategories = activeCategories.filter((category) => {
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
@@ -68,20 +68,20 @@ export default function CategoryList() {
     return matchesSearch && matchesStatus;
   });
 
-  // Handle Pagination logic
+  
   const totalItems = filteredCategories.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCategories = filteredCategories.slice(startIndex, startIndex + itemsPerPage);
 
-  // Auto adjust page if current page exceeds total pages
+  
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
   }, [totalPages, currentPage]);
 
-  // Form Submission Validation
+  
   const validateForm = () => {
     if (!formName.trim()) {
       setFormError('Category name is required.');
@@ -101,7 +101,7 @@ export default function CategoryList() {
       status: formStatus
     });
 
-    // Reset Form
+    
     setFormName('');
     setFormDesc('');
     setFormStatus('Active');
@@ -134,14 +134,14 @@ export default function CategoryList() {
     updateCategory(category.id, { status: nextStatus });
   };
 
-  // Stats derived
+  
   const totalCategoryCount = activeCategories.length;
   const activeCategoryCount = activeCategories.filter(c => c.status === 'Active').length;
   const disabledCategoryCount = activeCategories.filter(c => c.status === 'Disabled').length;
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16]">
@@ -173,7 +173,7 @@ export default function CategoryList() {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs">
           <div className="flex items-center justify-between">
@@ -221,10 +221,10 @@ export default function CategoryList() {
         </div>
       </div>
 
-      {/* Table Controls */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-t-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          {/* Text Search */}
+          {}
           <div className="relative w-full sm:w-64">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#6F7A70]">
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -243,7 +243,7 @@ export default function CategoryList() {
             />
           </div>
 
-          {/* Status Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={statusFilter}
@@ -270,7 +270,7 @@ export default function CategoryList() {
         </div>
       </div>
 
-      {/* Main Table */}
+      {}
       <div className="bg-white border-x border-b border-[#BEC9BE] rounded-b-xl shadow-xs overflow-hidden relative min-h-[300px]">
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse text-left text-sm min-w-[700px]">
@@ -481,7 +481,7 @@ export default function CategoryList() {
         </div>
       </div>
 
-      {/* ADD CATEGORY MODAL */}
+      {}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-md shadow-xl animate-scale-up overflow-hidden">
@@ -559,7 +559,7 @@ export default function CategoryList() {
         </div>
       )}
 
-      {/* EDIT CATEGORY MODAL */}
+      {}
       {isEditModalOpen && editingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-md shadow-xl animate-scale-up overflow-hidden">
@@ -643,7 +643,7 @@ export default function CategoryList() {
         </div>
       )}
 
-      {/* DELETE CONFIRMATION DIALOG */}
+      {}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-sm shadow-xl animate-scale-up overflow-hidden p-6 text-center space-y-4">

@@ -117,7 +117,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // LocalStorage Sync
+  
   useEffect(() => {
     localStorage.setItem('products_catalog', JSON.stringify(products));
   }, [products]);
@@ -134,7 +134,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('products_activities', JSON.stringify(activities));
   }, [activities]);
 
-  // Toast System
+  
   const addToast = (message: string, type: Toast['type'] = 'success') => {
     const id = `toast-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     setToasts(prev => [...prev, { id, type, message }]);
@@ -145,7 +145,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
-  // Activity Log helper
+  
   const logActivity = (productId: string, productName: string, action: string, user: string = 'Admin User') => {
     const newAct: ProductActivity = {
       id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -158,7 +158,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setActivities(prev => [newAct, ...prev]);
   };
 
-  // Products CRUD
+  
   const addProduct = (productData: Omit<Product, 'id' | 'createdDate' | 'updatedDate'>) => {
     const newId = `prd-${Math.floor(8200 + Math.random() * 800)}`;
     const today = new Date().toISOString().split('T')[0];
@@ -172,7 +172,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setProducts(prev => [newProduct, ...prev]);
     logActivity(newId, newProduct.name, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
     
-    // Log initial stock if it is loaded
+    
     if (newProduct.stock > 0) {
       const newMov: InventoryMovement = {
         id: `mov-${Date.now()}`,
@@ -285,7 +285,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     addToast(`Successfully deleted ${ids.length} products.`, 'info');
   };
 
-  // Categories CRUD
+  
   const addCategory = (categoryData: Omit<Category, 'id' | 'createdDate' | 'updatedDate'>) => {
     const newId = `cat-${Math.floor(100 + Math.random() * 900)}`;
     const today = new Date().toISOString().split('T')[0];
@@ -334,7 +334,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  // Inventory Management
+  
   const adjustStock = (productId: string, change: number, type: 'In' | 'Out' | 'Adjustment', reason: string) => {
     const p = products.find(prod => prod.id === productId);
     if (!p) return;

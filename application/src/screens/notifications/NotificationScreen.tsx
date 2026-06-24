@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path, Circle } from "react-native-svg";
 import { Colors } from "../../constants/Colors";
+import { useNotifications } from "../../context/NotificationContext";
 
 
 const BROWN_DARK = Colors.primary; 
@@ -192,26 +193,18 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 export default function NotificationScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [notifications, setNotifications] = useState<NotificationItem[]>(
-    INITIAL_NOTIFICATIONS
-  );
-
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const { notifications, unreadCount, markAllAsRead, toggleRead } = useNotifications();
 
   const handleBack = () => {
     router.back();
   };
 
   const handleMarkAllAsRead = (category: "today" | "yesterday") => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.category === category ? { ...n, isRead: true } : n))
-    );
+    markAllAsRead(category);
   };
 
   const handleToggleRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: !n.isRead } : n))
-    );
+    toggleRead(id);
   };
 
   const renderIcon = (type: string, isRead: boolean) => {

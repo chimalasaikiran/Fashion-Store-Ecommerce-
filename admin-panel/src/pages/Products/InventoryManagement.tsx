@@ -4,14 +4,14 @@ import { useProducts, type Product } from './ProductsContext';
 export default function InventoryManagement() {
   const { products, categories, movements, adjustStock } = useProducts();
 
-  // State Management
+  
   const [activeTab, setActiveTab] = useState<'status' | 'movements'>('status');
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [alertFilter, setAlertFilter] = useState<'All' | 'Low Stock' | 'Out of Stock' | 'Good'>('All');
 
-  // Adjust stock modal states
+  
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [stockType, setStockType] = useState<'In' | 'Out' | 'Adjustment'>('In');
@@ -19,7 +19,7 @@ export default function InventoryManagement() {
   const [stockReason, setStockReason] = useState('Periodic inventory audit');
   const [formError, setFormError] = useState('');
 
-  // Simulate skeleton loader on mount
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -27,7 +27,7 @@ export default function InventoryManagement() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Filter products for inventory table
+  
   const filteredProducts = products.filter(product => {
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
@@ -48,7 +48,7 @@ export default function InventoryManagement() {
     return matchesSearch && matchesCategory && matchesAlert;
   });
 
-  // Filter movements for log search
+  
   const filteredMovements = movements.filter(mov => {
     const query = searchQuery.toLowerCase();
     return (
@@ -58,7 +58,7 @@ export default function InventoryManagement() {
     );
   });
 
-  // Adjust Stock Form Submission
+  
   const handleAdjustSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduct) return;
@@ -70,14 +70,14 @@ export default function InventoryManagement() {
 
     adjustStock(selectedProduct.id, stockVal, stockType, stockReason);
     
-    // Reset state
+    
     setStockVal(1);
     setStockReason('Periodic inventory audit');
     setSelectedProduct(null);
     setIsAdjustModalOpen(false);
   };
 
-  // Export Inventory Report to CSV
+  
   const handleExportCSV = () => {
     const headers = ['SKU', 'Product Name', 'Category', 'Available Quantity', 'Reserved Quantity', 'Reorder Alert Level', 'Stock Safety Alert'];
     const rows = products.map(p => {
@@ -108,14 +108,14 @@ export default function InventoryManagement() {
     document.body.removeChild(link);
   };
 
-  // Derived stock overview counters
+  
   const totalAvailableQty = products.reduce((acc, curr) => acc + curr.stock, 0);
   const totalReservedQty = products.reduce((acc, curr) => acc + curr.reserved, 0);
   const totalReorderAlertCount = products.filter(p => p.stock <= p.reorderLevel).length;
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16]">
@@ -139,7 +139,7 @@ export default function InventoryManagement() {
         </div>
       </div>
 
-      {/* Inventory Overview Grid */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs">
           <div className="flex items-center justify-between">
@@ -187,7 +187,7 @@ export default function InventoryManagement() {
         </div>
       </div>
 
-      {/* Tabs navigation panel */}
+      {}
       <div className="flex border-b border-[#BEC9BE]/40 select-none">
         <button
           onClick={() => setActiveTab('status')}
@@ -203,10 +203,10 @@ export default function InventoryManagement() {
         </button>
       </div>
 
-      {/* Filters Area */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-t-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          {/* Search */}
+          {}
           <div className="relative w-full sm:w-64">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#6F7A70]">
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -224,7 +224,7 @@ export default function InventoryManagement() {
 
           {activeTab === 'status' && (
             <>
-              {/* Category */}
+              {}
               <div className="relative w-full sm:w-auto">
                 <select
                   value={categoryFilter}
@@ -243,7 +243,7 @@ export default function InventoryManagement() {
                 </div>
               </div>
 
-              {/* Alert type */}
+              {}
               <div className="relative w-full sm:w-auto">
                 <select
                   value={alertFilter}
@@ -266,10 +266,10 @@ export default function InventoryManagement() {
         </div>
       </div>
 
-      {/* Main Panel Content Canvas */}
+      {}
       <div className="bg-white border-x border-b border-[#BEC9BE] rounded-b-xl shadow-xs overflow-hidden relative min-h-[300px]">
         {activeTab === 'status' ? (
-          /* TAB 1: STOCK STATUS TABLE */
+          
           <div className="w-full overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm min-w-[900px]">
               <thead>
@@ -352,7 +352,7 @@ export default function InventoryManagement() {
             </table>
           </div>
         ) : (
-          /* TAB 2: HISTORICAL MOVEMENT LOGS TABLE */
+          
           <div className="w-full overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm min-w-[900px]">
               <thead>
@@ -429,7 +429,7 @@ export default function InventoryManagement() {
         )}
       </div>
 
-      {/* ADJUST STOCK DIALOG MODAL */}
+      {}
       {isAdjustModalOpen && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-sm shadow-xl animate-scale-up overflow-hidden">

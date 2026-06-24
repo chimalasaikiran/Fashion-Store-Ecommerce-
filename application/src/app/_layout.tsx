@@ -8,11 +8,21 @@ import { CartProvider } from "../context/CartContext";
 import { WishlistProvider } from "../context/WishlistContext";
 import { PaymentProvider } from "../context/PaymentContext";
 import { ProfileProvider } from "../context/ProfileContext";
-import { OrderProvider } from "../context/OrderContext";
+import { OrderProvider, useOrders } from "../context/OrderContext";
 import { WalletProvider } from "../context/WalletContext";
+import { NotificationProvider } from "../context/NotificationContext";
 
 
 SplashScreen.preventAutoHideAsync();
+
+function NotificationWrapper({ children }: { children: React.ReactNode }) {
+  const { fetchOrders, orders } = useOrders();
+  return (
+    <NotificationProvider fetchOrders={fetchOrders} orders={orders}>
+      {children}
+    </NotificationProvider>
+  );
+}
 
 export default function RootLayout() {
   const [appReady, setAppReady] = useState(false);
@@ -43,21 +53,23 @@ export default function RootLayout() {
       <ProfileProvider>
         <WalletProvider>
           <OrderProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <PaymentProvider>
-                  <View style={{ flex: 1, backgroundColor: "#3D1800" }}>
-                    {}
-                    <Stack screenOptions={{ headerShown: false }} />
+            <NotificationWrapper>
+              <CartProvider>
+                <WishlistProvider>
+                  <PaymentProvider>
+                    <View style={{ flex: 1, backgroundColor: "#3D1800" }}>
+                      {/* App Stack */}
+                      <Stack screenOptions={{ headerShown: false }} />
 
-                    {}
-                    {showCustomSplash && (
-                      <AppSplashScreen onFinish={handleSplashFinish} />
-                    )}
-                  </View>
-                </PaymentProvider>
-              </WishlistProvider>
-            </CartProvider>
+                      {/* Splash overlay */}
+                      {showCustomSplash && (
+                        <AppSplashScreen onFinish={handleSplashFinish} />
+                      )}
+                    </View>
+                  </PaymentProvider>
+                </WishlistProvider>
+              </CartProvider>
+            </NotificationWrapper>
           </OrderProvider>
         </WalletProvider>
       </ProfileProvider>

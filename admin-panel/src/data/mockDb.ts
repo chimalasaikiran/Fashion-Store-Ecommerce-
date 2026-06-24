@@ -1,4 +1,4 @@
-// Indian Currency Formatter
+
 export const formatCurrency = (val: number): string => {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -7,7 +7,7 @@ export const formatCurrency = (val: number): string => {
   }).format(val);
 };
 
-// Courier Partners
+
 export const COURIERS = [
   'Delhivery',
   'Blue Dart',
@@ -16,7 +16,7 @@ export const COURIERS = [
   'Professional Couriers'
 ];
 
-// Product Categories
+
 export const CATEGORIES_CONFIG = [
   { id: 'cat-101', name: 'Accessories', description: 'Bags, belts, scarves, and style embellishments.', status: 'Active', createdDate: '2025-01-10', updatedDate: '2025-01-10' },
   { id: 'cat-102', name: 'Footwear', description: 'Designer shoes, premium sneakers, and boots.', status: 'Active', createdDate: '2025-01-12', updatedDate: '2025-01-12' },
@@ -26,7 +26,7 @@ export const CATEGORIES_CONFIG = [
   { id: 'cat-106', name: 'Swimwear', description: 'Summer beachwear and swim accessories.', status: 'Disabled', createdDate: '2025-05-01', updatedDate: '2025-05-15' }
 ];
 
-// Product Catalog
+
 export const PRODUCTS_CONFIG = [
   {
     id: 'prd-8201',
@@ -209,7 +209,7 @@ export const PRODUCTS_CONFIG = [
   }
 ];
 
-// Product Movements History
+
 export const PRODUCT_MOVEMENTS = [
   { id: 'mov-1', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', sku: 'ACC-SLK-01', type: 'In', changeQuantity: 50, resultingQuantity: 50, timestamp: '2025-02-15T09:00:00Z', reason: 'Initial inventory load', user: 'System Admin' },
   { id: 'mov-2', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', sku: 'ACC-SLK-01', type: 'Out', changeQuantity: -5, resultingQuantity: 45, timestamp: '2025-06-10T14:30:00Z', reason: 'Order fulfillment #ORD-8291-B', user: 'System Agent' },
@@ -217,7 +217,7 @@ export const PRODUCT_MOVEMENTS = [
   { id: 'mov-4', productId: 'prd-8205', productName: 'Designer Leather Sneakers', sku: 'FTW-LSN-05', type: 'Out', changeQuantity: -2, resultingQuantity: 3, timestamp: '2025-06-22T11:00:00Z', reason: 'Damaged item written off', user: 'Ekta Chowdary' }
 ];
 
-// Product Audit Log
+
 export const PRODUCT_ACTIVITIES = [
   { id: 'act-1', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', action: 'Product created and set to live', timestamp: '2025-02-15T09:00:00Z', user: 'System Admin' },
   { id: 'act-2', productId: 'prd-8201', productName: 'Elegant Silk Pashmina Scarf', action: 'Updated product price from ₹8,999 to ₹9,999', timestamp: '2025-06-10T14:30:00Z', user: 'System Admin' },
@@ -225,7 +225,7 @@ export const PRODUCT_ACTIVITIES = [
   { id: 'act-4', productId: 'prd-8205', productName: 'Designer Leather Sneakers', action: 'Inventory adjusted (-2 stock written off)', timestamp: '2025-06-22T11:00:00Z', user: 'Ekta Chowdary' }
 ];
 
-// User Management Database
+
 export const USERS = [
   {
     id: '92831',
@@ -361,7 +361,7 @@ export const USERS = [
   }
 ];
 
-// User Activity Logs
+
 export const USER_ACTIVITIES = [
   { id: 'act-1', userId: '92831', userName: 'Sneha Reddy', action: 'Logged into admin panel', timestamp: '2026-06-22T16:10:00Z', ipAddress: '192.168.1.45', device: 'Chrome / Windows', status: 'Success', category: 'Auth' },
   { id: 'act-2', userId: '92834', userName: 'Rohan Naidu', action: 'Attempted login - Account Blocked', timestamp: '2026-06-22T15:34:12Z', ipAddress: '82.44.112.5', device: 'Safari / iPhone', status: 'Failed', category: 'Auth' },
@@ -370,7 +370,7 @@ export const USER_ACTIVITIES = [
   { id: 'act-5', userId: '92850', userName: 'Ekta Chowdary', action: 'Changed password security policy', timestamp: '2026-06-22T09:15:30Z', ipAddress: '95.24.120.3', device: 'Firefox / Linux', status: 'Success', category: 'Security' }
 ];
 
-// Orders Database
+
 export const ORDERS = [
   {
     id: '8291-B',
@@ -870,7 +870,7 @@ export const ORDERS = [
   }
 ];
 
-// Transactions Database
+
 export const TRANSACTIONS = [
   {
     id: 'TXN-94281',
@@ -896,7 +896,7 @@ export const TRANSACTIONS = [
     customerEmail: 'priya.reddy@yahoo.co.in',
     amount: 6999,
     tax: 1260,
-    method: 'PayPal', // Fallback mapped in context as UPI standard representation
+    method: 'PayPal', 
     methodDetail: 'Google Pay upi_txn_1029384756',
     status: 'SUCCESS',
     date: '2023-10-24T12:05:00',
@@ -928,7 +928,7 @@ export const TRANSACTIONS = [
     customerEmail: 'ekta.chowdary@gmail.com',
     amount: 185000,
     tax: 33300,
-    method: 'Crypto (BTC)', // Retained mapping type but adjusted context reference to UPI refund
+    method: 'Crypto (BTC)', 
     methodDetail: 'Razorpay UPI Refund Intent',
     status: 'REFUNDED',
     date: '2023-10-23T15:10:00',
@@ -954,7 +954,7 @@ export const TRANSACTIONS = [
   }
 ];
 
-// Invoices Database
+
 export const INVOICES = [
   {
     number: 'INV-2023-94281',
@@ -1011,7 +1011,7 @@ export const INVOICES = [
   }
 ];
 
-// Credit Notes Database
+
 export const CREDIT_NOTES = [
   {
     number: 'CN-2023-94278',
@@ -1024,7 +1024,7 @@ export const CREDIT_NOTES = [
   }
 ];
 
-// Notification Templates
+
 export const NOTIFICATION_TEMPLATES = [
   {
     id: 'temp-pay-success',
@@ -1054,7 +1054,7 @@ export const NOTIFICATION_TEMPLATES = [
   }
 ];
 
-// Status Notifications
+
 export const STATUS_NOTIFICATIONS = [
   {
     id: 'notif-1',
@@ -1088,7 +1088,7 @@ export const STATUS_NOTIFICATIONS = [
   }
 ];
 
-// Shipments Database
+
 export const SHIPMENTS = [
   {
     id: 'SH-2026-9041',
@@ -1156,7 +1156,7 @@ export const SHIPMENTS = [
   }
 ];
 
-// Return Requests Database
+
 export const RETURN_REQUESTS = [
   {
     id: 'RET-101',
@@ -1193,7 +1193,7 @@ export const RETURN_REQUESTS = [
   }
 ];
 
-// Refund Requests Database
+
 export const REFUND_REQUESTS = [
   {
     id: 'REF-201',
@@ -1225,7 +1225,7 @@ export const REFUND_REQUESTS = [
   }
 ];
 
-// Replacement Orders Database
+
 export const REPLACEMENT_ORDERS = [
   {
     id: 'REP-301',
@@ -1251,7 +1251,7 @@ export const REPLACEMENT_ORDERS = [
   }
 ];
 
-// Tickets Database
+
 export const TICKETS = [
   {
     id: '#TK-9821',
@@ -1481,7 +1481,7 @@ export const TICKETS = [
   }
 ];
 
-// Agent Names
+
 export const AGENTS = [
   'Sunita Reddy',
   'Manish Varma',
@@ -1491,7 +1491,7 @@ export const AGENTS = [
   'Pooja Reddy'
 ];
 
-// Ticket Categories
+
 export const TICKET_CATEGORIES = [
   'Payments',
   'Platform Integration',

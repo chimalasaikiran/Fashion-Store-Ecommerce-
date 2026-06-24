@@ -54,7 +54,7 @@ export default function UserNotificationPreferences() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {}
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16]">
           System Notification Preferences
@@ -76,7 +76,7 @@ export default function UserNotificationPreferences() {
       <form onSubmit={handleSave} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          {/* Column 1: EMAIL NOTIFICATIONS */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-[#BEC9BE]/40 text-[#00522E]">
               <svg className="w-5.5 h-5.5 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -144,7 +144,7 @@ export default function UserNotificationPreferences() {
             </div>
           </div>
 
-          {/* Column 2: PUSH NOTIFICATIONS */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-[#BEC9BE]/40 text-[#00522E]">
               <svg className="w-5.5 h-5.5 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -212,7 +212,7 @@ export default function UserNotificationPreferences() {
             </div>
           </div>
 
-          {/* Column 3: SMS NOTIFICATIONS */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-[#BEC9BE]/40 text-[#00522E]">
               <svg className="w-5.5 h-5.5 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">

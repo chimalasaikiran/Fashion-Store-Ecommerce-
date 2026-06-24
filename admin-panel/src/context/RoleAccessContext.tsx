@@ -247,7 +247,7 @@ export const RoleAccessProvider: React.FC<{ children: React.ReactNode; isLoggedI
   const [rolesLoading, setRolesLoading] = useState<boolean>(false);
   const [rolesError, setRolesError] = useState<string | null>(null);
 
-  // Read active role from logged in user profile
+  
   const [activeRole, setActiveRoleState] = useState<string>(() => {
     const userStr = localStorage.getItem('adminUser');
     if (userStr) {
@@ -261,7 +261,7 @@ export const RoleAccessProvider: React.FC<{ children: React.ReactNode; isLoggedI
     return 'Super Admin';
   });
 
-  // Sync activeRole with localStorage when loggedIn state changes
+  
   useEffect(() => {
     const loggedIn = isLoggedIn ?? (localStorage.getItem('isLoggedIn') === 'true');
     if (loggedIn) {
@@ -362,7 +362,7 @@ export const RoleAccessProvider: React.FC<{ children: React.ReactNode; isLoggedI
       setLoading(false);
     };
     
-    // Check if logged in before making API calls
+    
     const loggedIn = isLoggedIn ?? (localStorage.getItem('isLoggedIn') === 'true');
     if (loggedIn) {
       loadAllData();
@@ -372,11 +372,11 @@ export const RoleAccessProvider: React.FC<{ children: React.ReactNode; isLoggedI
       setAuditLogs([]);
       setLoading(false);
     }
-  }, [isLoggedIn, activeRole]); // Reload if logged in state or acting role changes (for simulation)
+  }, [isLoggedIn, activeRole]); 
 
   const logAction = (action: string, details: string) => {
-    // Audit logs are now written on the backend upon changes,
-    // but we can support local simulated log triggers if needed.
+    
+    
     console.log(`Action logged: ${action} - ${details}`);
   };
 
@@ -540,7 +540,7 @@ export const RoleAccessProvider: React.FC<{ children: React.ReactNode; isLoggedI
     return subpageActions[action] === true;
   };
 
-  // Admin Users Management APIs
+  
   const createAdminUser = async (adminData: any) => {
     try {
       const res = await fetch(`${API_URL}/admins`, {

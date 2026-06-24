@@ -33,7 +33,7 @@ class AdminService {
       throw new Error("Invalid email or password");
     }
 
-    // Update last login
+    
     admin.lastLogin = new Date();
     await admin.save();
 
@@ -58,7 +58,7 @@ class AdminService {
       throw new Error("An admin account with this email already exists");
     }
 
-    // Verify role exists
+    
     const roleExists = await Role.findById(adminData.role);
     if (!roleExists) {
       throw new Error("Assigned role does not exist");
@@ -90,7 +90,7 @@ class AdminService {
       throw new Error("Admin account not found");
     }
 
-    // If role is being changed, verify the new role exists
+    
     let roleNameBefore = adminBefore.role.name;
     let roleNameAfter = roleNameBefore;
     if (updateData.role && updateData.role.toString() !== adminBefore.role._id.toString()) {
@@ -101,7 +101,7 @@ class AdminService {
       roleNameAfter = newRole.name;
     }
 
-    // Protect last active Super Admin from deactivation or role change to prevent system lockout
+    
     if (adminBefore.role.name === "Super Admin" && (updateData.status === "Inactive" || (updateData.role && roleNameAfter !== "Super Admin"))) {
       const superAdminCount = await Admin.countDocuments({
         role: adminBefore.role._id,
@@ -117,7 +117,7 @@ class AdminService {
       runValidators: true,
     }).populate("role");
 
-    // Formulate descriptive audit details
+    
     let details = `Updated admin profile: ${admin.name}`;
     if (roleNameBefore !== roleNameAfter) {
       details = `Changed role for admin ${admin.name} from ${roleNameBefore} to ${roleNameAfter}`;
@@ -135,7 +135,7 @@ class AdminService {
       throw new Error("Admin account not found");
     }
 
-    // Protect Super Admin accounts from deletion if it's the last one
+    
     if (admin.role.name === "Super Admin") {
       const superAdminCount = await Admin.countDocuments({ role: admin.role._id });
       if (superAdminCount <= 1) {

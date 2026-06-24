@@ -23,7 +23,7 @@ export default function HelpCenter() {
   return (
     <PageWrapper title="Help Center">
       <div className="w-full max-w-4xl mx-auto space-y-8 text-left">
-        {/* Support Banner */}
+        {}
         <div className="bg-[#401900] text-white p-6 sm:p-8 rounded-xl shadow-sm relative overflow-hidden">
           <div className="absolute bg-[#F8B057] opacity-[0.05] rounded-full w-[400px] h-[400px] -top-[200px] -right-[100px] pointer-events-none" />
           <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Need assistance? We're here to help.</h3>
@@ -32,7 +32,7 @@ export default function HelpCenter() {
           </p>
         </div>
 
-        {/* FAQ Section */}
+        {}
         <section className="space-y-4">
           <h4 className="text-lg font-bold text-[#242424] border-b border-[#E0E0E0] pb-2">
             Frequently Asked Questions
@@ -57,7 +57,7 @@ export default function HelpCenter() {
           </div>
         </section>
 
-        {/* Contact Tech Support */}
+        {}
         <section className="bg-white border border-[#E0E0E0]/60 p-6 rounded-xl shadow-xs space-y-4">
           <h4 className="text-lg font-bold text-[#242424]">Direct Support channels</h4>
           <p className="text-sm text-[#797979]">

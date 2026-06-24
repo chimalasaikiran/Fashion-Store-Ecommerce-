@@ -1,0 +1,11 @@
+{
+  "experimentalServices": {
+    "fashion-store-backend": {
+      "type": "web",
+      "root": "backend",
+      "entrypoint": "server.js",
+      "routePrefix": "/",
+      "buildCommand": "npm install"
+    }
+  }
+}

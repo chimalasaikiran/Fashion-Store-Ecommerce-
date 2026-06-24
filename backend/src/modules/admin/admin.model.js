@@ -34,13 +34,21 @@ const AdminSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    blockReason: {
+      type: String,
+      default: "",
+    },
+    blockedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Encrypt password before saving
+
 AdminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
@@ -49,7 +57,7 @@ AdminSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Match entered password to hashed password in database
+
 AdminSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

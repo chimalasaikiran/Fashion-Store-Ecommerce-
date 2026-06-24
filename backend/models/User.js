@@ -48,6 +48,38 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+    blockReason: {
+      type: String,
+      default: "",
+    },
+    blockedAt: {
+      type: Date,
+      default: null,
+    },
+    notificationPreferences: {
+      email: {
+        orders: { type: Boolean, default: true },
+        shipments: { type: Boolean, default: true },
+        promotions: { type: Boolean, default: false },
+        security: { type: Boolean, default: true },
+      },
+      push: {
+        orders: { type: Boolean, default: true },
+        shipments: { type: Boolean, default: false },
+        promotions: { type: Boolean, default: false },
+        security: { type: Boolean, default: true },
+      },
+      sms: {
+        orders: { type: Boolean, default: false },
+        shipments: { type: Boolean, default: false },
+        promotions: { type: Boolean, default: false },
+        security: { type: Boolean, default: true },
+      },
+    },
   },
   {
     timestamps: true,

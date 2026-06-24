@@ -37,7 +37,6 @@ import ShippingAddressScreen from "../screens/settings/ShippingAddressScreen";
 import LoginScreen from "../screens/auth/LoginScreen";
 import SignUpScreen from "../screens/auth/SignUpScreen";
 import TopUpSuccessScreen from "../screens/wallet/TopUpSuccessScreen";
-import TrackLiveLocationScreen from "../screens/orders/TrackLiveLocationScreen";
 import TrackOrderScreen from "../screens/orders/TrackOrderScreen";
 import VerifyCodeScreen from "../screens/auth/VerifyCodeScreen";
 import WishlistScreen from "../screens/wishlist/WishlistScreen";
@@ -122,8 +121,7 @@ export default function RouteHandler() {
       return <SignUpScreen />;
     case "top-up-success":
       return <TopUpSuccessScreen />;
-    case "track-live-location":
-      return <TrackLiveLocationScreen />;
+
     case "track-order":
       return <TrackOrderScreen />;
     case "verify-code":

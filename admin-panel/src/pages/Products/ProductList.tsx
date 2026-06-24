@@ -24,7 +24,7 @@ export default function ProductList() {
   const canToggleVisibility = activeRole === 'Super Admin' || hasPermission('products', 'Product Show / Hide', 'edit');
   const canBulkToggle = activeRole === 'Super Admin' || hasPermission('products', 'Bulk Product Visibility', 'edit');
 
-  // State Management
+  
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -34,21 +34,21 @@ export default function ProductList() {
   const [sortBy, setSortBy] = useState<'name' | 'sku' | 'price' | 'stock'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  // Selection & Bulk actions
+  
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
-  // Pagination
+  
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Modals & Dialogs
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [bulkConfirmAction, setBulkConfirmAction] = useState<'live' | 'draft' | 'delete' | null>(null);
 
-  // Form states for Add/Edit
+  
   const [formName, setFormName] = useState('');
   const [formSku, setFormSku] = useState('');
   const [formCategory, setFormCategory] = useState('');
@@ -60,7 +60,7 @@ export default function ProductList() {
   const [formDesc, setFormDesc] = useState('');
   const [formError, setFormError] = useState('');
 
-  // Simulate skeleton loader on mount
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -68,7 +68,7 @@ export default function ProductList() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Sync edit form when editingProduct changes
+  
   useEffect(() => {
     if (editingProduct) {
       setFormName(editingProduct.name);
@@ -83,7 +83,7 @@ export default function ProductList() {
     }
   }, [editingProduct]);
 
-  // Set default category when modal opens
+  
   useEffect(() => {
     const activeCats = categories.filter(c => c.status === 'Active');
     if (activeCats.length > 0 && !formCategory) {
@@ -91,7 +91,7 @@ export default function ProductList() {
     }
   }, [categories, isAddModalOpen]);
 
-  // Handle Search & Filter logic
+  
   const filteredProducts = products.filter((product) => {
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
@@ -114,7 +114,7 @@ export default function ProductList() {
     return matchesSearch && matchesCategory && matchesVisibility && matchesStock;
   });
 
-  // Handle Sorting logic
+  
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     let fieldA: any = a[sortBy];
     let fieldB: any = b[sortBy];
@@ -129,13 +129,13 @@ export default function ProductList() {
     return 0;
   });
 
-  // Handle Pagination logic
+  
   const totalItems = sortedProducts.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedProducts = sortedProducts.slice(startIndex, startIndex + itemsPerPage);
 
-  // Auto adjust page if current page exceeds total pages
+  
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -169,7 +169,7 @@ export default function ProductList() {
     }
   };
 
-  // CSV Export utility
+  
   const handleExportCSV = () => {
     const headers = ['ID', 'Name', 'SKU', 'Category', 'Price', 'Cost', 'Stock', 'Reserved', 'Reorder Level', 'Status', 'Created Date'];
     const rows = filteredProducts.map(p => [
@@ -198,7 +198,7 @@ export default function ProductList() {
     document.body.removeChild(link);
   };
 
-  // Form Submissions Validation
+  
   const validateForm = () => {
     if (!formName.trim()) {
       setFormError('Product name is required.');
@@ -228,7 +228,7 @@ export default function ProductList() {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // Use default placeholder image if none provided
+    
     const imgUrl = formImage.trim() || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=200';
 
     addProduct({
@@ -250,7 +250,7 @@ export default function ProductList() {
       seoDescription: formDesc.substring(0, 150)
     });
 
-    // Reset fields
+    
     setFormName('');
     setFormSku('');
     setFormPrice(0);
@@ -302,7 +302,7 @@ export default function ProductList() {
     setBulkConfirmAction(null);
   };
 
-  // Stats Counters
+  
   const totalCount = products.length;
   const liveCount = products.filter(p => p.status === 'Live').length;
   const lowCount = products.filter(p => p.stock <= p.reorderLevel && p.stock > 0).length;
@@ -310,7 +310,7 @@ export default function ProductList() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16]">
@@ -357,7 +357,7 @@ export default function ProductList() {
         </div>
       </div>
 
-      {/* Stats Bento Grid */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs">
           <div className="flex items-center justify-between">
@@ -421,9 +421,9 @@ export default function ProductList() {
         </div>
       </div>
 
-      {/* Filter controls */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-t-xl p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-        {/* Search */}
+        {}
         <div className="space-y-1">
           <label className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase">Search Catalog</label>
           <div className="relative">
@@ -445,7 +445,7 @@ export default function ProductList() {
           </div>
         </div>
 
-        {/* Category */}
+        {}
         <div className="space-y-1">
           <label className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase">Category Filter</label>
           <div className="relative">
@@ -470,7 +470,7 @@ export default function ProductList() {
           </div>
         </div>
 
-        {/* Visibility */}
+        {}
         <div className="space-y-1">
           <label className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase">Visibility Filter</label>
           <div className="relative">
@@ -494,7 +494,7 @@ export default function ProductList() {
           </div>
         </div>
 
-        {/* Stock status */}
+        {}
         <div className="space-y-1">
           <label className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase">Stock Filter</label>
           <div className="relative">
@@ -520,9 +520,9 @@ export default function ProductList() {
         </div>
       </div>
 
-      {/* Main Table Screen */}
+      {}
       <div className="bg-white border-x border-b border-[#BEC9BE] rounded-b-xl shadow-xs overflow-hidden relative min-h-[320px]">
-        {/* Bulk Action Bar (Overlay) */}
+        {}
         {selectedProductIds.length > 0 && (
           <div className="absolute top-0 inset-x-0 h-14 bg-[#E8F8E9] z-20 flex items-center justify-between px-6 border-b border-[#BEC9BE] animate-slide-in">
             <span className="text-sm font-bold text-[#00522E]">
@@ -726,7 +726,7 @@ export default function ProductList() {
                             className="w-12 h-12 rounded-lg object-cover border border-[#BEC9BE]/60"
                             onError={(e) => {
                               // Fallback image if unsplash link fails
-                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=200';
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=200';
                             }}
                           />
                           <div>
@@ -741,31 +741,31 @@ export default function ProductList() {
                         </div>
                       </td>
 
-                      {/* SKU */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-xs font-mono font-semibold text-[#6F7A70]">
                         {product.sku}
                       </td>
 
-                      {/* Category */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2 py-0.5 rounded bg-[#E8F8E9] border border-[#BEC9BE]/40 text-[#00522E] text-xs font-semibold">
                           {product.category}
                         </span>
                       </td>
 
-                      {/* Price */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-right font-mono font-bold text-[#111E16]">
                         {formatCurrency(product.price)}
                       </td>
 
-                      {/* Stock */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-center font-mono font-bold text-[#111E16]">
                         <span className={product.stock === 0 ? 'text-[#BA1A1A]' : product.stock <= product.reorderLevel ? 'text-amber-600' : ''}>
                           {product.stock}
                         </span>
                       </td>
 
-                      {/* Visibility Toggle */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-center">
                         <button
                           onClick={() => toggleProductVisibility(product.id)}
@@ -782,7 +782,7 @@ export default function ProductList() {
                         </button>
                       </td>
 
-                      {/* Status */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-bold border ${badgeClass}`}>
                           <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
@@ -790,7 +790,7 @@ export default function ProductList() {
                         </span>
                       </td>
 
-                      {/* Actions */}
+                      {}
                       <td className="py-4 px-6 whitespace-nowrap text-right text-xs font-bold">
                         <div className="flex items-center justify-end gap-2">
                           <button
@@ -840,7 +840,7 @@ export default function ProductList() {
           </table>
         </div>
 
-        {/* Pagination bar */}
+        {}
         <div className="bg-white border-t border-[#BEC9BE] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -894,7 +894,7 @@ export default function ProductList() {
         </div>
       </div>
 
-      {/* ADD PRODUCT MODAL */}
+      {}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4 overflow-y-auto">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-lg shadow-xl animate-scale-up overflow-hidden my-8">
@@ -1050,7 +1050,7 @@ export default function ProductList() {
         </div>
       )}
 
-      {/* EDIT PRODUCT MODAL */}
+      {}
       {isEditModalOpen && editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4 overflow-y-auto">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-lg shadow-xl animate-scale-up overflow-hidden my-8">
@@ -1212,7 +1212,7 @@ export default function ProductList() {
         </div>
       )}
 
-      {/* DELETE CONFIRMATION DIALOG */}
+      {}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-sm shadow-xl animate-scale-up overflow-hidden p-6 text-center space-y-4">
@@ -1247,7 +1247,7 @@ export default function ProductList() {
         </div>
       )}
 
-      {/* BULK ACTION CONFIRMATION DIALOG */}
+      {}
       {bulkConfirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-sm shadow-xl animate-scale-up overflow-hidden p-6 text-center space-y-4">

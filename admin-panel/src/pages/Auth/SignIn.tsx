@@ -15,7 +15,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Generate a random 5-character alphanumeric CAPTCHA
+  
   const handleRefreshCaptcha = () => {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -25,7 +25,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
     setCaptcha(result);
   };
 
-  // Automatically refresh CAPTCHA on component mount / page load
+  
   useEffect(() => {
     handleRefreshCaptcha();
   }, []);
@@ -35,7 +35,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
     setError(null);
     setSuccess(null);
 
-    // Basic Validation
+    
     if (!email.trim()) {
       setError('Please enter your Email Address.');
       return;
@@ -54,7 +54,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
       return;
     }
 
-    // Real login API call
+    
     setLoading(true);
     const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
     fetch(`${API_URL}/admins/login`, {
@@ -88,11 +88,11 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
 
   return (
     <main className="min-h-screen w-full flex flex-col md:flex-row bg-[#F6F6F6] text-[#242424]">
-      {/* Left Side - Login Form Container */}
+      {}
       <section className="w-full md:w-[50%] lg:w-[45%] xl:w-[40%] flex flex-col justify-center items-center px-4 py-8 sm:px-12 md:px-8 lg:px-20 min-h-screen bg-white">
         <div className="w-full max-w-[400px] sm:max-w-[448px] space-y-6 sm:space-y-8 md:space-y-10">
           
-          {/* Logo Header */}
+          {}
           <header className="flex items-center gap-2 select-none">
             <div className="flex items-center justify-center w-8 h-8">
               <img src={fashionLogo} alt="Fashion Store Logo" className="w-15 h-15 object-contain" />
@@ -102,7 +102,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
             </h1>
           </header>
 
-          {/* Welcome Header */}
+          {}
           <div className="space-y-1 sm:space-y-2">
             <h2 className="text-xl sm:text-2xl font-semibold tracking-[-0.02em] text-[#242424]">
               Welcome back
@@ -112,7 +112,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
             </p>
           </div>
 
-          {/* Feedback Banners */}
+          {}
           {error && (
             <div className="flex items-center gap-3 bg-[#FFEBEE] border-l-4 border-[#E53935] rounded-r-lg px-4 py-3 text-xs sm:text-sm text-[#B71C1C] animate-fade-in">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,10 +131,10 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
             </div>
           )}
 
-          {/* Form */}
+          {}
           <form onSubmit={handleSignIn} className="space-y-4 sm:space-y-6">
             
-            {/* Email Address */}
+            {}
             <div className="space-y-1 sm:space-y-2">
               <label htmlFor="email" className="block text-[10px] sm:text-xs font-semibold text-[#797979] tracking-wider uppercase">
                 Email Address
@@ -152,7 +152,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
               </div>
             </div>
 
-            {/* Password */}
+            {}
             <div className="space-y-1 sm:space-y-2">
               <label htmlFor="password" className="block text-[10px] sm:text-xs font-semibold text-[#797979] tracking-wider uppercase">
                 Password
@@ -202,14 +202,14 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
               </div>
             </div>
 
-            {/* CAPTCHA / Verification Section */}
+            {}
             <div className="bg-[#F6F6F6] border border-[#E0E0E0] rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3">
               <div className="flex justify-between items-center gap-2">
                 <span className="text-[9px] sm:text-[10px] font-bold text-[#797979] tracking-wider uppercase">
                   SECURITY VERIFICATION
                 </span>
                 
-                {/* Visual CAPTCHA Box */}
+                {}
                 <div className="bg-white border border-[#E0E0E0] rounded px-2 sm:px-3 py-1 flex items-center gap-2 sm:gap-3 select-none flex-shrink-0">
                   <span className="text-base sm:text-lg font-bold italic tracking-widest text-[#401900] font-mono select-none pointer-events-none">
                     {captcha}
@@ -225,7 +225,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
                 </div>
               </div>
 
-              {/* CAPTCHA Input */}
+              {}
               <div className="relative border border-[#E0E0E0] focus-within:border-[#F8B057] focus-within:ring-1 focus-within:ring-[#F8B057] rounded-lg bg-white shadow-sm transition-all">
                 <input
                   type="text"
@@ -238,7 +238,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
               </div>
             </div>
 
-            {/* Sign In Button */}
+            {}
             <button
               type="submit"
               disabled={loading}
@@ -259,7 +259,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
               )}
             </button>
 
-            {/* OR Divider */}
+            {}
             <div className="flex items-center gap-3 sm:gap-4 py-1.5 sm:py-2 select-none">
               <div className="flex-grow border-t border-[#E0E0E0]" />
               <span className="text-[9px] sm:text-[10px] font-bold text-[#797979] tracking-widest uppercase">
@@ -268,7 +268,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
               <div className="flex-grow border-t border-[#E0E0E0]" />
             </div>
 
-            {/* Google Social Login */}
+            {}
             <button
               type="button"
               onClick={() => alert('Google authentication is configured for testing.')}
@@ -280,7 +280,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
 
           </form>
 
-          {/* Footer Link */}
+          {}
           <footer className="text-center text-xs sm:text-sm text-[#797979] pt-2">
             Please contact the administrator to create an account.
           </footer>
@@ -288,14 +288,14 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
         </div>
       </section>
 
-      {/* Right Side - Brand Showcase */}
+      {}
       <section className="hidden md:flex md:w-[50%] lg:w-[55%] xl:w-[60%] bg-[#401900] text-white flex-col justify-between p-8 md:p-12 lg:p-24 relative overflow-hidden select-none min-h-screen">
         
-        {/* Background Atmospheric Circle Decorations */}
+        {}
         <div className="absolute bg-[#F8B057] opacity-[0.05] rounded-full w-[800px] h-[800px] -top-[400px] left-[106.67px] pointer-events-none" />
         <div className="absolute bg-[#F8B057] opacity-[0.03] rounded-full w-[600px] h-[600px] top-[492.5px] -left-[150px] pointer-events-none" />
 
-        {/* Content Container */}
+        {}
         <div className="relative z-10 space-y-4 lg:space-y-6 max-w-[448px] mt-6 md:mt-10 lg:mt-0">
           <h2 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-[42px] font-extrabold leading-tight sm:leading-[40px] lg:leading-[52px] tracking-tight">
             The simplest way to manage your fashion store
@@ -305,7 +305,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
           </p>
         </div>
 
-        {/* Central Illustration Container */}
+        {}
         <div className="relative z-10 flex items-center justify-center py-6 md:py-8 lg:py-0 w-full">
           <div className="bg-white/10 border border-white/20 p-3 sm:p-4 md:p-5 rounded-[24px] shadow-2xl backdrop-blur-md max-w-full overflow-hidden flex items-center justify-center">
             <img
@@ -317,7 +317,7 @@ export default function SignIn({ onSignInSuccess }: { onSignInSuccess: () => voi
           </div>
         </div>
 
-        {/* Spacing alignment helper */}
+        {}
         <div className="hidden lg:block h-6" />
       </section>
     </main>

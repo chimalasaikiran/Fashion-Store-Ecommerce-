@@ -21,42 +21,42 @@ import { ShipmentsProvider } from './pages/Shipments/ShipmentsContext';
 import { TicketsProvider } from './pages/Tickets/TicketsContext';
 import { PaymentsProvider } from './pages/Payments/PaymentsContext';
 
-// Lazy loaded subpages for Users module
+
 const UserList = lazy(() => import('./pages/Users/UserList'));
 const UserDetails = lazy(() => import('./pages/Users/UserDetails'));
 const UserActivityLog = lazy(() => import('./pages/Users/UserActivityLog'));
 const UserNotificationPreferences = lazy(() => import('./pages/Users/UserNotificationPreferences'));
 
-// Lazy loaded subpages for Products module
+
 const ProductList = lazy(() => import('./pages/Products/ProductList'));
 const CategoryList = lazy(() => import('./pages/Products/CategoryList'));
 const ProductDetail = lazy(() => import('./pages/Products/ProductDetail'));
 const InventoryManagement = lazy(() => import('./pages/Products/InventoryManagement'));
 
-// Lazy loaded subpages for Orders module
+
 const OrderList = lazy(() => import('./pages/Orders/OrderList'));
 const OrderDetails = lazy(() => import('./pages/Orders/OrderDetails'));
 
-// Lazy loaded subpages for Shipments module
+
 const ShipmentCreation = lazy(() => import('./pages/Shipments/ShipmentCreation'));
 const TrackShipments = lazy(() => import('./pages/Shipments/TrackShipments'));
 const ReturnRequests = lazy(() => import('./pages/Shipments/ReturnRequests'));
 const RefundProcessing = lazy(() => import('./pages/Shipments/RefundProcessing'));
 const ReplacementOrders = lazy(() => import('./pages/Shipments/ReplacementOrders'));
 
-// Lazy loaded subpages for Tickets module
+
 const TicketDashboard = lazy(() => import('./pages/Tickets/TicketDashboard'));
 const TicketDetails = lazy(() => import('./pages/Tickets/TicketDetails'));
 const TicketEscalation = lazy(() => import('./pages/Tickets/TicketEscalation'));
 const TicketClosure = lazy(() => import('./pages/Tickets/TicketClosure'));
 
-// Lazy loaded subpages for Payments module
+
 const PaymentLogs = lazy(() => import('./pages/Payments/PaymentLogs'));
 const InvoiceManagement = lazy(() => import('./pages/Payments/InvoiceManagement'));
 const CreditNotes = lazy(() => import('./pages/Payments/CreditNotes'));
 const StatusNotifications = lazy(() => import('./pages/Payments/StatusNotifications'));
 
-// Simple loading indicator for Suspense
+
 const SuspenseLoader = () => (
   <div className="w-full min-h-[300px] flex items-center justify-center">
     <div className="flex flex-col items-center gap-3">
@@ -66,7 +66,7 @@ const SuspenseLoader = () => (
   </div>
 );
 
-// Clear old localStorage keys to force reload the fresh Andhra database names
+
 const DB_VERSION_KEY = 'fs_db_version_andhra_v3';
 if (typeof window !== 'undefined' && !localStorage.getItem(DB_VERSION_KEY)) {
   const keysToClear = [
@@ -111,9 +111,9 @@ function App() {
 
   return (
     <RoleAccessProvider isLoggedIn={isLoggedIn}>
-      <UsersProvider>
+      <UsersProvider isLoggedIn={isLoggedIn}>
         <ProductsProvider>
-          <OrdersProvider>
+          <OrdersProvider isLoggedIn={isLoggedIn}>
             <ShipmentsProvider>
               <TicketsProvider>
                 <PaymentsProvider>

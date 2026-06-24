@@ -27,7 +27,7 @@ class AdminController {
 
   getMe = async (req, res, next) => {
     try {
-      // req.admin is set by protect middleware
+      
       res.status(200).json({
         success: true,
         data: req.admin,

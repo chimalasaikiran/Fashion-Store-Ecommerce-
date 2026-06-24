@@ -41,7 +41,7 @@ class RoleService {
       throw new Error("Role not found");
     }
 
-    // Prevent modifying Super Admin name or status to avoid lockouts
+    
     if (roleBefore.name === "Super Admin") {
       if (updateData.name && updateData.name !== "Super Admin") {
         throw new Error("Cannot rename Super Admin role");
@@ -56,7 +56,7 @@ class RoleService {
       runValidators: true,
     });
 
-    // Determine what changed for the audit log
+    
     let details = `Updated details for role: ${role.name}`;
     if (JSON.stringify(roleBefore.permissions) !== JSON.stringify(role.permissions)) {
       details = `Updated permissions matrix for role: ${role.name}`;

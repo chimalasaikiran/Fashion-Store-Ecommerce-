@@ -17,7 +17,7 @@ const fixPassword = async () => {
     const email = "superadmin@fashionstore.com";
     const plainPassword = "fashion1234";
 
-    // 1. Find or create the Super Admin role
+    
     let superAdminRole = await Role.findOne({ name: "Super Admin" });
     if (!superAdminRole) {
       console.log("Super Admin role not found. Creating a default Super Admin role...");
@@ -30,13 +30,13 @@ const fixPassword = async () => {
       });
     }
 
-    // 2. Find if the admin already exists
+    
     let admin = await Admin.findOne({ email });
 
     if (admin) {
       console.log(`Found existing admin with email: ${email}`);
-      // Set the password to the PLAIN TEXT value.
-      // When we call admin.save(), the Mongoose pre-save hook will automatically hash it EXACTLY ONCE.
+      
+      
       admin.password = plainPassword;
       admin.role = superAdminRole._id;
       admin.status = "Active";
@@ -48,7 +48,7 @@ const fixPassword = async () => {
       admin = await Admin.create({
         name: "Super Admin User",
         email: email,
-        password: plainPassword, // Mongoose pre-save hook will hash this once!
+        password: plainPassword, 
         role: superAdminRole._id,
         status: "Active",
       });

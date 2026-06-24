@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
+const ActivityLog = require("../models/ActivityLog");
 
 
 const getOtpEmailTemplate = (name, otp) => {
@@ -101,6 +102,16 @@ const signup = async (req, res) => {
       otp,
       otpExpires,
       isVerified: false,
+    });
+
+    await ActivityLog.create({
+      userId: user._id.toString(),
+      userName: user.name,
+      action: "Created account (Pending verification)",
+      category: "Profile",
+      status: "Success",
+      ipAddress: req.ip || "127.0.0.1",
+      device: req.headers["user-agent"] || "Mobile Application",
     });
 
     console.log(`[Signup OTP for ${email}]: ${otp}`);
@@ -256,7 +267,32 @@ const login = async (req, res) => {
     
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
+      await ActivityLog.create({
+        userId: user._id.toString(),
+        userName: user.name,
+        action: "Failed login attempt (Incorrect password)",
+        category: "Auth",
+        status: "Failed",
+        ipAddress: req.ip || "127.0.0.1",
+        device: req.headers["user-agent"] || "Mobile Application",
+      });
       return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+
+    if (user.isBlocked) {
+      await ActivityLog.create({
+        userId: user._id.toString(),
+        userName: user.name,
+        action: `Blocked login attempt: "${user.blockReason || 'Suspicious account activity'}"`,
+        category: "Auth",
+        status: "Failed",
+        ipAddress: req.ip || "127.0.0.1",
+        device: req.headers["user-agent"] || "Mobile Application",
+      });
+      return res.status(403).json({
+        success: false,
+        message: `Your account has been blocked: ${user.blockReason || 'Suspicious account activity'}`,
+      });
     }
 
     
@@ -290,6 +326,17 @@ const login = async (req, res) => {
     }
 
     
+    // Log successful login
+    await ActivityLog.create({
+      userId: user._id.toString(),
+      userName: user.name,
+      action: "Logged in successfully",
+      category: "Auth",
+      status: "Success",
+      ipAddress: req.ip || "127.0.0.1",
+      device: req.headers["user-agent"] || "Mobile Application",
+    });
+
     res.json({
       success: true,
       token: generateToken(user._id),

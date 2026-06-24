@@ -103,7 +103,7 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return saved ? JSON.parse(saved) : initialReplacements;
   });
 
-  // Sync to localStorage
+  
   useEffect(() => {
     localStorage.setItem('shipments_data', JSON.stringify(shipments));
   }, [shipments]);
@@ -120,7 +120,7 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     localStorage.setItem('replacements_data', JSON.stringify(replacementOrders));
   }, [replacementOrders]);
 
-  // Actions implementations
+  
   const createShipment = (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => {
     const newId = `SH-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const newShipment: Shipment = {
@@ -231,7 +231,7 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const createReplacementOrder = (id: string) => {
     setReplacementOrders(prev => prev.map(r => {
       if (r.id === id) {
-        // Also push a record or mock it.
+        
         return { ...r, status: 'Order Created' };
       }
       return r;

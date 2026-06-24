@@ -19,9 +19,11 @@ export interface OrderItem {
   quantity: number;
   size: string;
   color: string;
-  status: "active" | "completed" | "cancelled";
+  status: string;
+  orderStatus?: string;
   date: string;
   deliveryDate: string;
+  timeline?: any[];
 }
 
 interface OrderContextType {
@@ -67,9 +69,19 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
             quantity: item.quantity,
             size: item.size,
             color: item.color,
-            status: item.status || order.status,
+            status: (() => {
+              const lowerStatus = (order.status || "").toLowerCase();
+              if (lowerStatus === "delivered" || lowerStatus === "completed") {
+                return "completed";
+              } else if (lowerStatus === "cancelled" || lowerStatus === "refunded") {
+                return "cancelled";
+              }
+              return "active";
+            })(),
+            orderStatus: order.status,
             date: order.date,
             deliveryDate: item.deliveryDate || order.deliveryDate,
+            timeline: order.timeline || [],
           });
         });
       }
@@ -100,7 +112,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     
     setOrders((prev) =>
       prev.map((order) =>
-        order.orderId === orderId ? { ...order, status: "cancelled" } : order
+        order.orderId === orderId ? { ...order, status: "cancelled", orderStatus: "Cancelled" } : order
       )
     );
     try {
@@ -114,7 +126,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     
     setOrders((prev) =>
       prev.map((order) =>
-        order.orderId === orderId ? { ...order, status: "active" } : order
+        order.orderId === orderId ? { ...order, status: "active", orderStatus: "Pending" } : order
       )
     );
     try {
@@ -184,6 +196,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         size: item.size || "M",
         color: item.color || "Black",
         status: "active",
+        orderStatus: "Pending",
         date: dateStr,
         deliveryDate: "June 15, 2026 | 03:00 PM",
       }));

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRoleAccess } from '../../context/RoleAccessContext';
 
-// Keyword index for settings search
+
 const TAB_KEYWORDS: Record<string, string[]> = {
   general: ['application name', 'app name', 'company', 'logo', 'favicon', 'timezone', 'time zone', 'language', 'currency'],
   store: ['store name', 'description', 'address', 'contact', 'phone', 'email', 'social', 'instagram', 'facebook', 'twitter', 'linkedin'],
@@ -35,15 +35,15 @@ interface SecuritySettings {
 export default function Settings() {
   const { auditLogs, logAction, roles } = useRoleAccess();
 
-  // Active navigation tab
+  
   const [activeTab, setActiveTab] = useState<string>('general');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isTabChanging, setIsTabChanging] = useState<boolean>(false);
 
-  // Toast notifications state
+  
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  // Modals state
+  
   const [confirmModal, setConfirmModal] = useState<{
     show: boolean;
     title: string;
@@ -56,10 +56,10 @@ export default function Settings() {
   const [otpCode2FA, setOtpCode2FA] = useState<string>('');
   const [otpError2FA, setOtpError2FA] = useState<string>('');
 
-  // Button loading states
+  
   const [saveLoading, setSaveLoading] = useState<Record<string, boolean>>({});
 
-  // File Upload states
+  
   const [logoFile, setLogoFile] = useState<string | null>(null);
   const [faviconFile, setFaviconFile] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState<boolean>(false);
@@ -68,7 +68,7 @@ export default function Settings() {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
 
-  // Settings State variables (persisted in localStorage)
+  
   const [general, setGeneral] = useState(() => {
     const saved = localStorage.getItem('settings_general');
     return saved ? JSON.parse(saved) : {
@@ -217,20 +217,20 @@ export default function Settings() {
     ];
   });
 
-  // State for IP restriction input
+  
   const [newIpInput, setNewIpInput] = useState<string>('');
   const [ipError, setIpError] = useState<string>('');
 
-  // Shipping zone modal/inputs
+  
   const [newZoneName, setNewZoneName] = useState<string>('');
   const [newZoneRegions, setNewZoneRegions] = useState<string>('');
   const [newZoneRate, setNewZoneRate] = useState<string>('');
 
-  // Password visibility state
+  
   const [showStripeSecret, setShowStripeSecret] = useState<boolean>(false);
   const [showRazorpaySecret, setShowRazorpaySecret] = useState<boolean>(false);
 
-  // Sync state to local storage when changed
+  
   useEffect(() => {
     localStorage.setItem('settings_general', JSON.stringify(general));
   }, [general]);
@@ -275,7 +275,7 @@ export default function Settings() {
     localStorage.setItem('settings_backups', JSON.stringify(backups));
   }, [backups]);
 
-  // Show customized toast message
+  
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
     setTimeout(() => {
@@ -283,7 +283,7 @@ export default function Settings() {
     }, 3000);
   };
 
-  // Switch navigation tabs with simulated loading transition
+  
   const handleTabClick = (tabId: string) => {
     if (tabId === activeTab) return;
     setIsTabChanging(true);
@@ -293,7 +293,7 @@ export default function Settings() {
     }, 350);
   };
 
-  // Simulate file upload progress
+  
   const handleFileUpload = (type: 'logo' | 'favicon', file: File) => {
     if (type === 'logo') {
       setLogoUploading(true);
@@ -314,9 +314,9 @@ export default function Settings() {
     }
   };
 
-  // Standard Save Event for sections
+  
   const handleSaveSection = (sectionName: string, stateData: any, logMsg: string) => {
-    // Basic Form Validations
+    
     if (sectionName === 'tax' && stateData.gstEnabled) {
       const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
       if (stateData.gstin && !gstinRegex.test(stateData.gstin)) {
@@ -340,7 +340,7 @@ export default function Settings() {
     }, 800);
   };
 
-  // Whitelist IP Handlers
+  
   const handleAddIp = () => {
     const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     if (!ipRegex.test(newIpInput)) {
@@ -376,10 +376,10 @@ export default function Settings() {
     });
   };
 
-  // 2FA Enable Process
+  
   const handleToggle2FA = (checked: boolean) => {
     if (checked) {
-      // Show OTP setup dialog
+      
       setSetup2FAModal(true);
     } else {
       setConfirmModal({
@@ -402,7 +402,7 @@ export default function Settings() {
       setOtpError2FA('Please enter a valid 6-digit verification code.');
       return;
     }
-    // Simulation success
+    
     setOtpError2FA('');
     setSecurity(prev => ({ ...prev, twoFactorEnabled: true }));
     setSetup2FAModal(false);
@@ -411,7 +411,7 @@ export default function Settings() {
     logAction('Security Policy Update', 'Activated Two-Factor Authentication (2FA) for administrators.');
   };
 
-  // Add Shipping Zone
+  
   const handleAddShippingZone = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newZoneName || !newZoneRegions || !newZoneRate) {
@@ -449,7 +449,7 @@ export default function Settings() {
     });
   };
 
-  // Database Backup Creation Simulation
+  
   const handleCreateBackup = () => {
     setSaveLoading(prev => ({ ...prev, backup: true }));
     showToast('Starting system database backup dump...', 'info');
@@ -508,7 +508,7 @@ export default function Settings() {
     });
   };
 
-  // Filter tabs based on search keyword
+  
   const getFilteredTabs = () => {
     const tabs = [
       { id: 'general', name: 'General Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
@@ -528,9 +528,9 @@ export default function Settings() {
 
     const lowerQuery = searchQuery.toLowerCase();
     return tabs.filter(tab => {
-      // Check tab name
+      
       if (tab.name.toLowerCase().includes(lowerQuery)) return true;
-      // Check keywords
+      
       const keywords = TAB_KEYWORDS[tab.id] || [];
       return keywords.some(kw => kw.toLowerCase().includes(lowerQuery));
     });
@@ -538,7 +538,7 @@ export default function Settings() {
 
   const filteredTabs = getFilteredTabs();
 
-  // If search matches some tabs, and current activeTab is not one of them, auto-select the first match
+  
   useEffect(() => {
     if (searchQuery && filteredTabs.length > 0) {
       const match = filteredTabs.find(t => t.id === activeTab);
@@ -550,7 +550,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 relative pb-12 select-none">
-      {/* Toast Notification */}
+      {}
       {toast && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div className={`w-3 h-3 rounded-full ${
@@ -560,7 +560,7 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Confirmation Modal */}
+      {}
       {confirmModal && confirmModal.show && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-sm w-full animate-scale-in">
@@ -586,7 +586,7 @@ export default function Settings() {
         </div>
       )}
 
-      {/* 2FA Setup Authenticator Modal */}
+      {}
       {setup2FAModal && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-md w-full animate-scale-in space-y-4">
@@ -596,13 +596,13 @@ export default function Settings() {
             </div>
 
             <div className="flex flex-col items-center justify-center p-4 bg-[#F6F6F6] rounded-xl border border-[#BEC9BE]/40">
-              {/* Fake QR Code Render */}
+              {}
               <div className="w-40 h-40 bg-white border-4 border-white p-2 rounded flex flex-wrap justify-between gap-1 shadow-sm relative">
-                {/* Simulated QR blocks */}
+                {}
                 <div className="w-12 h-12 border-4 border-black"></div>
                 <div className="w-12 h-12 border-4 border-black ml-auto"></div>
                 <div className="w-12 h-12 border-4 border-black mt-auto"></div>
-                {/* Center logo indicator */}
+                {}
                 <div className="absolute inset-0 m-auto w-8 h-8 bg-[#00522E] rounded-md flex items-center justify-center text-[10px] text-white font-bold">FS</div>
                 <div className="w-full flex flex-wrap gap-1.5 p-1 mt-auto">
                   <div className="w-4 h-4 bg-black"></div>
@@ -649,7 +649,7 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16] flex items-center gap-2">
@@ -661,9 +661,9 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Top Statistics Cards Grid (Equal Width, Figma Spec) */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* ACTIVE USERS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-sm transition-all duration-200 min-h-[120px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-[#00522E]/10 rounded-lg flex items-center justify-center text-[#00522E]">
@@ -683,7 +683,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* ACTIVE INTEGRATIONS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-sm transition-all duration-200 min-h-[120px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-blue-50 rounded-lg flex items-center justify-center text-blue-700">
@@ -703,7 +703,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* SECURITY ALERTS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-sm transition-all duration-200 min-h-[120px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-700">
@@ -723,7 +723,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* SYSTEM HEALTH */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-sm transition-all duration-200 min-h-[120px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-amber-50 rounded-lg flex items-center justify-center text-amber-700">
@@ -744,12 +744,12 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Main Settings Page Section Layout */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         
-        {/* Left Side Navigation & Search (Sticky panel on Desktop, stacked scrollable tabs on Mobile) */}
+        {}
         <div className="space-y-4 lg:col-span-1">
-          {/* Settings Search bar */}
+          {}
           <div className="relative">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#6F7A70]">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -775,7 +775,7 @@ export default function Settings() {
             )}
           </div>
 
-          {/* Desktop Navigation Link List */}
+          {}
           <div className="hidden lg:flex flex-col gap-1.5 bg-white border border-[#BEC9BE] rounded-xl p-3 shadow-xs">
             {filteredTabs.length === 0 ? (
               <div className="p-4 text-center text-xs text-[#6F7A70] font-semibold italic">
@@ -801,7 +801,7 @@ export default function Settings() {
             )}
           </div>
 
-          {/* Mobile/Tablet Horizontal Scrollable Tab Bar */}
+          {}
           <div className="flex lg:hidden overflow-x-auto whitespace-nowrap scrollbar-none pb-2 border-b border-[#BEC9BE]/60 gap-2">
             {filteredTabs.length === 0 ? (
               <div className="py-2 text-xs text-[#6F7A70] font-semibold italic">
@@ -825,10 +825,10 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Right Side Settings Configuration Card Panel */}
+        {}
         <div className="lg:col-span-3">
           {isTabChanging ? (
-            /* Skeleton Loading State for Premium Transitions */
+            
             <div className="bg-white border border-[#BEC9BE] rounded-xl p-6 space-y-6 shadow-xs min-h-[420px]">
               <div className="space-y-2">
                 <div className="h-6 bg-gray-100 rounded-md animate-pulse w-1/3"></div>
@@ -851,10 +851,10 @@ export default function Settings() {
               </div>
             </div>
           ) : (
-            /* Settings Panels Content */
+            
             <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-xs min-h-[420px] overflow-hidden">
               
-              {/* GENERAL SETTINGS PANEL */}
+              {}
               {activeTab === 'general' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -863,9 +863,9 @@ export default function Settings() {
                   </div>
                   <hr className="border-[#BEC9BE]/40" />
 
-                  {/* Logo and Favicon uploads */}
+                  {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Logo upload slot */}
+                    {}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-[#6F7A70] uppercase">Logo Upload</label>
                       <div className="border border-dashed border-[#BEC9BE] hover:border-[#00522E] rounded-lg p-4 flex flex-col items-center justify-center text-center bg-[#F6F6F6]/50 transition-colors">
@@ -900,7 +900,7 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    {/* Favicon upload slot */}
+                    {}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-[#6F7A70] uppercase">Favicon Upload</label>
                       <div className="border border-dashed border-[#BEC9BE] hover:border-[#00522E] rounded-lg p-4 flex flex-col items-center justify-center text-center bg-[#F6F6F6]/50 transition-colors">
@@ -936,7 +936,7 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  {/* Form fields */}
+                  {}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-[#6F7A70] uppercase">Application Name</label>
@@ -1016,7 +1016,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* STORE SETTINGS PANEL */}
+              {}
               {activeTab === 'store' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -1135,7 +1135,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* USER & ACCESS SETTINGS */}
+              {}
               {activeTab === 'users' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -1144,7 +1144,7 @@ export default function Settings() {
                   </div>
                   <hr className="border-[#BEC9BE]/40" />
 
-                  {/* Inline list of roles from RoleAccessContext */}
+                  {}
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-[#6F7A70] uppercase block">Role Access Summary</label>
                     <div className="border border-[#BEC9BE]/50 rounded-lg divide-y divide-[#BEC9BE]/30 overflow-hidden">
@@ -1244,7 +1244,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* NOTIFICATION SETTINGS */}
+              {}
               {activeTab === 'notifications' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -1254,7 +1254,7 @@ export default function Settings() {
                   <hr className="border-[#BEC9BE]/40" />
 
                   <div className="space-y-4">
-                    {/* Email channel */}
+                    {}
                     <div className="space-y-3">
                       <span className="text-xs font-bold text-[#111E16] block uppercase tracking-wider">Email Dispatch Events</span>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1297,7 +1297,7 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    {/* SMS & Push */}
+                    {}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-3">
                         <span className="text-xs font-bold text-[#111E16] block uppercase tracking-wider">SMS Dispatch Events</span>
@@ -1348,7 +1348,7 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    {/* WhatsApp */}
+                    {}
                     <div className="space-y-3 pt-2">
                       <span className="text-xs font-bold text-[#111E16] block uppercase tracking-wider">WhatsApp Business Channel</span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1399,7 +1399,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* PAYMENT SETTINGS */}
+              {}
               {activeTab === 'payments' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -1409,7 +1409,7 @@ export default function Settings() {
                   <hr className="border-[#BEC9BE]/40" />
 
                   <div className="space-y-6">
-                    {/* Razorpay Config */}
+                    {}
                     <div className="border border-[#BEC9BE]/40 rounded-xl p-4 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -1460,7 +1460,7 @@ export default function Settings() {
                       )}
                     </div>
 
-                    {/* Stripe Config */}
+                    {}
                     <div className="border border-[#BEC9BE]/40 rounded-xl p-4 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -1511,9 +1511,9 @@ export default function Settings() {
                       )}
                     </div>
 
-                    {/* UPI and Cash on Delivery */}
+                    {}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {/* UPI */}
+                      {}
                       <div className="border border-[#BEC9BE]/40 rounded-xl p-4 space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-[#111E16]">UPI Intent payments</span>
@@ -1539,7 +1539,7 @@ export default function Settings() {
                         )}
                       </div>
 
-                      {/* COD */}
+                      {}
                       <div className="border border-[#BEC9BE]/40 rounded-xl p-4 space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-[#111E16]">Cash on Delivery</span>
@@ -1586,7 +1586,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* SHIPPING SETTINGS */}
+              {}
               {activeTab === 'shipping' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -1595,7 +1595,7 @@ export default function Settings() {
                   </div>
                   <hr className="border-[#BEC9BE]/40" />
 
-                  {/* Shipping zones list */}
+                  {}
                   <div className="space-y-3">
                     <span className="text-xs font-bold text-[#111E16] block uppercase tracking-wider">Shipping Zones</span>
                     <div className="border border-[#BEC9BE]/40 rounded-xl overflow-hidden shadow-xs bg-[#F6F6F6]/20">
@@ -1629,7 +1629,7 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  {/* Add zone form */}
+                  {}
                   <form onSubmit={handleAddShippingZone} className="border border-[#BEC9BE]/40 rounded-xl p-4 bg-[#F6F6F6]/40 space-y-4">
                     <span className="text-xs font-bold text-[#111E16] block uppercase tracking-wider">Create Shipping Zone</span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1674,7 +1674,7 @@ export default function Settings() {
                     </div>
                   </form>
 
-                  {/* General Courier Rules */}
+                  {}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-[#6F7A70] uppercase">Free Shipping Threshold (₹)</label>
@@ -1747,7 +1747,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* TAX CONFIGURATION */}
+              {}
               {activeTab === 'tax' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -1850,7 +1850,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* SECURITY SETTINGS */}
+              {}
               {activeTab === 'security' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -1860,7 +1860,7 @@ export default function Settings() {
                   <hr className="border-[#BEC9BE]/40" />
 
                   <div className="space-y-6">
-                    {/* 2FA Toggle */}
+                    {}
                     <div className="flex items-center justify-between p-3 border border-[#BEC9BE]/40 rounded-xl">
                       <div>
                         <span className="text-xs font-bold text-[#111E16] block">Two-Factor Authentication (2FA)</span>
@@ -1904,7 +1904,7 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    {/* IP Whitelist Restrictions */}
+                    {}
                     <div className="space-y-3 pt-2">
                       <span className="text-xs font-bold text-[#111E16] block uppercase tracking-wider">IP Address Restriction Whitelist</span>
                       <div className="flex flex-wrap gap-2 mb-3">
@@ -1963,7 +1963,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* EMAIL & SMS TEMPLATES */}
+              {}
               {activeTab === 'templates' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1984,9 +1984,9 @@ export default function Settings() {
                   </div>
                   <hr className="border-[#BEC9BE]/40" />
 
-                  {/* Template Editor Grid */}
+                  {}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Inputs panel */}
+                    {}
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-[#6F7A70] uppercase">Subject Line Template</label>
@@ -2029,7 +2029,7 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    {/* Styled Live Preview panel */}
+                    {}
                     <div className="border border-[#BEC9BE]/40 rounded-xl overflow-hidden shadow-xs flex flex-col h-full bg-[#F6F6F6]/30">
                       <div className="bg-[#E8F8E9]/40 border-b border-[#BEC9BE]/40 px-4 py-2 flex items-center justify-between">
                         <span className="text-[10px] font-bold text-[#6F7A70] uppercase tracking-wider">Visual Template Preview</span>
@@ -2083,7 +2083,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* AUDIT LOGS */}
+              {}
               {activeTab === 'audit' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div>
@@ -2092,7 +2092,7 @@ export default function Settings() {
                   </div>
                   <hr className="border-[#BEC9BE]/40" />
 
-                  {/* Searchable and Filterable table of audit logs */}
+                  {}
                   <div className="border border-[#BEC9BE]/40 rounded-xl overflow-hidden shadow-xs">
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
@@ -2136,7 +2136,7 @@ export default function Settings() {
                 </div>
               )}
 
-              {/* BACKUP & RESTORE */}
+              {}
               {activeTab === 'backup' && (
                 <div className="p-6 space-y-6 animate-fade-in">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2161,7 +2161,7 @@ export default function Settings() {
                   </div>
                   <hr className="border-[#BEC9BE]/40" />
 
-                  {/* Backups List */}
+                  {}
                   <div className="space-y-3">
                     <span className="text-xs font-bold text-[#111E16] block uppercase tracking-wider">Stored Database Backups</span>
                     

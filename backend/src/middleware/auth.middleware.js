@@ -9,13 +9,13 @@ const protect = async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     try {
-      // Extract token from header
+      
       token = req.headers.authorization.split(" ")[1];
 
-      // Verify token
+      
       const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
 
-      // Fetch admin and populate role
+      
       req.admin = await Admin.findById(decoded.id)
         .populate("role")
         .select("-password");

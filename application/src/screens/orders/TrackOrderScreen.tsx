@@ -35,39 +35,69 @@ export default function TrackOrderScreen() {
     router.back();
   };
 
-  const handleTrackLiveLocation = () => {
-    router.push({ pathname: "/track-live-location", params: { orderId: order.orderId } });
+  const getTimelineTime = (eventId: string, defaultVal: string) => {
+    if (order && order.timeline) {
+      const evt = order.timeline.find((e: any) => e.id === eventId);
+      if (evt && evt.timestamp) return evt.timestamp;
+    }
+    return defaultVal;
   };
 
-  
+  const currentStatus = order ? (order.orderStatus || order.status) : "Pending";
+  const currentStatusLower = currentStatus.toLowerCase();
+
+  const isStepCompleted = (eventId: string, statusLowerList: string[]) => {
+    if (order && order.timeline && order.timeline.length > 0) {
+      const evt = order.timeline.find((e: any) => e.id === eventId);
+      if (evt) {
+        return evt.status === "completed";
+      }
+    }
+    return statusLowerList.includes(currentStatusLower);
+  };
+
   const timelineSteps = [
     {
-      title: "Order Placed",
-      time: order ? order.date : "08 March 2026, 10:00 AM",
+      title: "Pending",
+      time: getTimelineTime("evt-placed", order ? order.date : "Pending"),
       icon: "document-text-outline",
-      iconType: "ionicons",
+      iconType: "ionicons" as const,
       completed: true,
     },
     {
-      title: "In Progress",
-      time: "09 March 2026, 02:00 PM",
+      title: "Processing",
+      time: getTimelineTime("evt-processing", "Awaiting confirmation"),
       icon: "cube-outline",
-      iconType: "ionicons",
-      completed: true,
+      iconType: "ionicons" as const,
+      completed: isStepCompleted("evt-processing", ["processing", "dispatched", "shipped", "out for delivery", "delivered"]),
     },
     {
-      title: "On the Way",
-      time: "11 March 2026, 2:00 PM",
+      title: "Dispatched",
+      time: getTimelineTime("evt-dispatched", "Awaiting dispatch"),
+      icon: "cube-outline",
+      iconType: "ionicons" as const,
+      completed: isStepCompleted("evt-dispatched", ["dispatched", "shipped", "out for delivery", "delivered"]),
+    },
+    {
+      title: "Shipped",
+      time: getTimelineTime("evt-shipped", "Awaiting shipping"),
       icon: "truck-outline",
-      iconType: "ionicons",
-      completed: true,
+      iconType: "ionicons" as const,
+      completed: isStepCompleted("evt-shipped", ["shipped", "out for delivery", "delivered"]),
+    },
+    {
+      title: "Out for Delivery",
+      time: getTimelineTime("evt-out-for-delivery", "Awaiting delivery agent"),
+      icon: "truck-outline",
+      iconType: "ionicons" as const,
+      completed: isStepCompleted("evt-out-for-delivery", ["out for delivery", "delivered"]),
     },
     {
       title: "Delivered",
-      time: "Expected by 11 March 2026, 3:00 PM",
+      time: getTimelineTime("evt-delivered", `Expected by ${order ? order.deliveryDate : "Pending"}`),
       icon: "checkmark-circle-outline",
-      iconType: "ionicons",
-      completed: false,
+      iconType: "ionicons" as const,
+      completed: isStepCompleted("evt-delivered", ["delivered"]),
     },
   ];
 
@@ -92,7 +122,7 @@ export default function TrackOrderScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 100 },
+          { paddingBottom: Math.max(insets.bottom, 24) },
         ]}
       >
         {}
@@ -159,14 +189,14 @@ export default function TrackOrderScreen() {
                     ]}
                   >
                     {step.completed ? (
-                      <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                      <Ionicons name="checkmark" size={14} color="#FFFFFF" />
                     ) : null}
                   </View>
                   {!isLast && (
                     <View
                       style={[
                         styles.timelineConnectorLine,
-                        step.completed && timelineSteps[index + 1].completed
+                        step.completed
                           ? styles.connectorCompleted
                           : styles.connectorIncomplete,
                       ]}
@@ -208,22 +238,6 @@ export default function TrackOrderScreen() {
           })}
         </View>
       </ScrollView>
-
-      {}
-      <View
-        style={[
-          styles.bottomBar,
-          { paddingBottom: Math.max(insets.bottom, 16) },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.trackLiveLocationBtn}
-          activeOpacity={0.9}
-          onPress={handleTrackLiveLocation}
-        >
-          <Text style={styles.trackLiveLocationBtnText}>Track Live Location</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

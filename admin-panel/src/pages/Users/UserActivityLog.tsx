@@ -6,16 +6,16 @@ export default function UserActivityLog() {
   const navigate = useNavigate();
   const { activities } = useUsers();
 
-  // Search & Filter state
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
 
-  // Pagination
+  
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // Filter logic
+  
   const filteredActivities = activities.filter((act) => {
     const matchesSearch = 
       act.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -28,7 +28,7 @@ export default function UserActivityLog() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  // Pagination bounds
+  
   const totalItems = filteredActivities.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -48,7 +48,7 @@ export default function UserActivityLog() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {}
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16]">
           Security & Activity Logs
@@ -58,10 +58,10 @@ export default function UserActivityLog() {
         </p>
       </div>
 
-      {/* Filter Controls */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-t-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-          {/* Text Search */}
+          {}
           <div className="relative w-full sm:w-64">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#6F7A70]">
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -80,7 +80,7 @@ export default function UserActivityLog() {
             />
           </div>
 
-          {/* Category Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={categoryFilter}
@@ -103,7 +103,7 @@ export default function UserActivityLog() {
             </div>
           </div>
 
-          {/* Status Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={statusFilter}
@@ -130,7 +130,7 @@ export default function UserActivityLog() {
         </div>
       </div>
 
-      {/* Logs Table */}
+      {}
       <div className="bg-white border-x border-b border-[#BEC9BE] rounded-b-xl shadow-xs overflow-hidden">
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse text-left text-sm min-w-[900px]">
@@ -203,7 +203,7 @@ export default function UserActivityLog() {
           </table>
         </div>
 
-        {/* Pagination Panel */}
+        {}
         <div className="bg-white border-t border-[#BEC9BE] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}

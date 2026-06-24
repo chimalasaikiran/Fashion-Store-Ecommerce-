@@ -60,6 +60,38 @@ const OrderItemSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const AddressSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, default: "" },
+  zip: { type: String, required: true },
+  country: { type: String, required: true },
+  phone: { type: String, default: "" },
+}, { _id: false });
+
+const TimelineEventSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  title: { type: String, required: true },
+  description: { type: String, default: "" },
+  timestamp: { type: String, default: "" },
+  status: { type: String, enum: ["completed", "current", "upcoming"], default: "upcoming" }
+}, { _id: false });
+
+const OrderActivitySchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  action: { type: String, required: true },
+  user: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+}, { _id: false });
+
+const OrderNoteSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  author: { type: String, required: true },
+  content: { type: String, required: true },
+  timestamp: { type: String, required: true }
+}, { _id: false });
+
 const OrderSchema = new mongoose.Schema(
   {
     user: {
@@ -117,8 +149,26 @@ const OrderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "completed", "cancelled"],
-      default: "active",
+      enum: ["active", "completed", "cancelled", "Pending", "Processing", "Confirmed", "Packed", "Dispatched", "Shipped", "Out For Delivery", "Delivered", "Cancelled", "Refunded"],
+      default: "Pending",
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid", "Refunded", "Failed"],
+      default: "Pending",
+    },
+    deliveryStatus: {
+      type: String,
+      enum: ["Pending", "In Transit", "Delivered", "Cancelled"],
+      default: "Pending",
+    },
+    shippingAddress: {
+      type: AddressSchema,
+      required: [true, "Shipping address is required"],
+    },
+    billingAddress: {
+      type: AddressSchema,
+      required: [true, "Billing address is required"],
     },
     date: {
       type: String,
@@ -128,6 +178,18 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       required: [true, "Expected delivery date string is required"],
     },
+    timeline: {
+      type: [TimelineEventSchema],
+      default: [],
+    },
+    activityLogs: {
+      type: [OrderActivitySchema],
+      default: [],
+    },
+    notes: {
+      type: [OrderNoteSchema],
+      default: [],
+    },
   },
   {
     timestamps: true,
@@ -136,8 +198,7 @@ const OrderSchema = new mongoose.Schema(
 
 
 OrderSchema.index({ user: 1, status: 1 }); 
-OrderSchema.index({ orderId: 1 }); 
-OrderSchema.index({ transactionId: 1 }); 
 OrderSchema.index({ createdAt: -1 }); 
 
 module.exports = mongoose.model("Order", OrderSchema);
+

@@ -246,7 +246,7 @@ export const TicketsProvider: React.FC<{ children: React.ReactNode }> = ({ child
             timestamp
           };
 
-          // Auto-adjust SLA Status if status becomes Resolved or Closed
+          
           let slaVal = t.slaStatus;
           if (status === 'Resolved' || status === 'Closed') {
             slaVal = 'Resolved';
@@ -297,7 +297,7 @@ export const TicketsProvider: React.FC<{ children: React.ReactNode }> = ({ child
             ...t,
             status: 'Escalated',
             priority: 'CRITICAL',
-            slaStatus: 'Breached', // Escalation is usually triggered on breaching or immediate threat
+            slaStatus: 'Breached', 
             escalationReason: reason,
             escalatedTo: escalateTo,
             messages: [...t.messages, sysMessage],

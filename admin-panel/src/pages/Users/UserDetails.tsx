@@ -2,16 +2,27 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUsers, type User } from './UsersContext';
 import { formatCurrency } from '../../data/mockDb';
+import { useTickets } from '../Tickets/TicketsContext';
 
 export default function UserDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { users, updateUser, deleteUser } = useUsers();
+  const { users, updateUser, deleteUser, blockUser, unblockUser } = useUsers();
+  const { tickets } = useTickets();
 
   const selectedUser = users.find(u => u.id === id) || users[0] || null;
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Block Modal States
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [blockReason, setBlockReason] = useState('');
+  const [blockActionType, setBlockActionType] = useState<'block' | 'unblock'>('block');
+
+  // Real Orders fetched from Backend
+  const [userOrders, setUserOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState<boolean>(false);
 
   const [editName, setEditName] = useState(selectedUser?.name || '');
   const [editEmail, setEditEmail] = useState(selectedUser?.email || '');
@@ -28,6 +39,33 @@ export default function UserDetails() {
       setEditPhone(selectedUser.phone);
       setEditRole(selectedUser.role);
       setEditStatus(selectedUser.status);
+    }
+  }, [selectedUser]);
+
+  // Fetch real order history from backend when user changes
+  useEffect(() => {
+    if (selectedUser && selectedUser.id) {
+      const fetchOrders = async () => {
+        setLoadingOrders(true);
+        try {
+          const token = localStorage.getItem('adminToken');
+          const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
+          const res = await fetch(`${apiUrl}/users/${selectedUser.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const data = await res.json();
+          if (data.success) {
+            setUserOrders(data.data.orders || []);
+          }
+        } catch (err) {
+          console.error("Error fetching orders from backend:", err);
+        } finally {
+          setLoadingOrders(false);
+        }
+      };
+      fetchOrders();
     }
   }, [selectedUser]);
 
@@ -78,9 +116,32 @@ export default function UserDetails() {
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  const handleToggleBlock = () => {
-    const nextStatus = selectedUser.status === 'Blocked' ? 'Active' : 'Blocked';
-    updateUser(selectedUser.id, { status: nextStatus });
+  const handleBlockToggleClick = () => {
+    const isCurrentlyBlocked = selectedUser.status === 'Blocked';
+    setBlockActionType(isCurrentlyBlocked ? 'unblock' : 'block');
+    setBlockReason('');
+    setShowBlockModal(true);
+  };
+
+  const handleBlockSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!blockReason.trim()) {
+      alert("A reason is required to perform this action.");
+      return;
+    }
+
+    let success = false;
+    if (blockActionType === 'block') {
+      success = await blockUser(selectedUser.id, blockReason);
+    } else {
+      success = await unblockUser(selectedUser.id, blockReason);
+    }
+
+    if (success) {
+      setShowBlockModal(false);
+    } else {
+      alert("Failed to update account block status.");
+    }
   };
 
   const handleDeleteUser = () => {
@@ -94,11 +155,10 @@ export default function UserDetails() {
     navigate(`/dashboard/users/details/${targetId}`);
   };
 
-  const mockOrders = [
-    { id: 'ORD-8923', date: 'Jun 15, 2026', amount: selectedUser.spent * 0.4 || 12000, status: 'Completed', method: 'Razorpay UPI' },
-    { id: 'ORD-8841', date: 'May 02, 2026', amount: selectedUser.spent * 0.35 || 8990, status: 'Completed', method: 'Razorpay Cards' },
-    { id: 'ORD-8711', date: 'Dec 18, 2025', amount: selectedUser.spent * 0.25 || 4500, status: 'Refunded', method: 'Razorpay NetBanking' }
-  ].filter(() => selectedUser.orders > 0);
+  // Filter support tickets matching this user's email address
+  const userTickets = tickets.filter(
+    (t) => t.customerEmail?.toLowerCase() === selectedUser.email.toLowerCase()
+  );
 
   const avgOrderValue = selectedUser.orders > 0 ? selectedUser.spent / selectedUser.orders : 0;
 
@@ -166,6 +226,19 @@ export default function UserDetails() {
                 {selectedUser.status}
               </span>
 
+              {/* Real Block Reason Indicator */}
+              {selectedUser.status === 'Blocked' && selectedUser.blockReason && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-left w-full text-xs space-y-1">
+                  <span className="font-bold text-[#BA1A1A] block">Reason for Block:</span>
+                  <p className="text-red-800 font-medium italic">"{selectedUser.blockReason}"</p>
+                  {selectedUser.blockedAt && (
+                    <span className="text-[10px] text-red-600 block mt-1">
+                      Blocked on: {new Date(selectedUser.blockedAt).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              )}
+
               <div className="w-full pt-4 border-t border-[#BEC9BE]/40 grid grid-cols-3 gap-2">
                 <div className="text-center">
                   <span className="text-xs font-semibold text-[#6F7A70] block uppercase tracking-wider text-[10px]">Orders</span>
@@ -189,7 +262,7 @@ export default function UserDetails() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#6F7A70] font-semibold">Phone:</span>
-                <span className="text-[#111E16] font-bold">{selectedUser.phone}</span>
+                <span className="text-[#111E16] font-bold">{selectedUser.phone || "N/A"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#6F7A70] font-semibold">Role Level:</span>
@@ -203,7 +276,7 @@ export default function UserDetails() {
 
             <div className="mt-6 pt-6 border-t border-[#BEC9BE]/40 grid grid-cols-2 gap-3 select-none">
               <button
-                onClick={handleToggleBlock}
+                onClick={handleBlockToggleClick}
                 className={`w-full py-2 border rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedUser.status === 'Blocked'
                     ? 'border-[#BEC9BE] text-[#00522E] hover:bg-[#E8F8E9]'
@@ -353,12 +426,17 @@ export default function UserDetails() {
             )}
           </div>
 
+          {/* Real Order Activity Section */}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-6 shadow-xs">
             <h3 className="text-lg font-bold text-[#111E16] pb-4 border-b border-[#BEC9BE]/40">Recent Order Activity</h3>
             
-            {mockOrders.length === 0 ? (
+            {loadingOrders ? (
+              <div className="py-8 text-center text-[#6F7A70] animate-pulse">
+                Loading transaction history from server...
+              </div>
+            ) : userOrders.length === 0 ? (
               <div className="py-8 text-center text-[#6F7A70]">
-                No recent transactions found for this customer.
+                No recent transactions found for this customer in the database.
               </div>
             ) : (
               <div className="overflow-x-auto mt-4 rounded-lg border border-[#BEC9BE]/50">
@@ -373,19 +451,29 @@ export default function UserDetails() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#BEC9BE]/20">
-                    {mockOrders.map(order => (
-                      <tr key={order.id} className="hover:bg-[#E8F8E9]/10">
-                        <td className="py-3 px-4 font-mono font-bold text-[#00522E]">{order.id}</td>
-                        <td className="py-3 px-4 font-medium text-[#111E16]">{order.date}</td>
-                        <td className="py-3 px-4 text-[#6F7A70]">{order.method}</td>
+                    {userOrders.map(order => (
+                      <tr key={order._id || order.orderId} className="hover:bg-[#E8F8E9]/10">
+                        <td className="py-3 px-4 font-mono font-bold text-[#00522E]">{order.orderId}</td>
+                        <td className="py-3 px-4 font-medium text-[#111E16]">
+                          {new Date(order.createdAt || order.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </td>
+                        <td className="py-3 px-4 text-[#6F7A70]">{order.paymentMethod}</td>
                         <td className="py-3 px-4 font-mono font-bold text-right text-[#111E16]">
-                          {formatCurrency(order.amount)}
+                          {formatCurrency(order.totalAmount)}
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
-                            order.status === 'Completed' ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
+                            order.status === 'completed' || order.status === 'Completed'
+                              ? 'bg-emerald-50 text-emerald-800' 
+                              : order.status === 'cancelled' || order.status === 'cancelled'
+                              ? 'bg-red-50 text-red-800'
+                              : 'bg-amber-50 text-amber-800'
                           }`}>
-                            {order.status}
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </span>
                         </td>
                       </tr>
@@ -395,8 +483,133 @@ export default function UserDetails() {
               </div>
             )}
           </div>
+
+          {/* New Support Tickets Section */}
+          <div className="bg-white border border-[#BEC9BE] rounded-xl p-6 shadow-xs">
+            <h3 className="text-lg font-bold text-[#111E16] pb-4 border-b border-[#BEC9BE]/40">Support Grievance Tickets</h3>
+            
+            {userTickets.length === 0 ? (
+              <div className="py-8 text-center text-[#6F7A70]">
+                No active support tickets found for this user.
+              </div>
+            ) : (
+              <div className="overflow-x-auto mt-4 rounded-lg border border-[#BEC9BE]/50">
+                <table className="w-full border-collapse text-left text-sm min-w-[500px]">
+                  <thead>
+                    <tr className="bg-[#E8F8E9]/30 text-[#6F7A70] border-b border-[#BEC9BE]/40">
+                      <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider">Ticket ID</th>
+                      <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider">Subject</th>
+                      <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider text-center">Priority</th>
+                      <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider text-center">Status</th>
+                      <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider">Created Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#BEC9BE]/20">
+                    {userTickets.map(ticket => {
+                      let prioClass = '';
+                      if (ticket.priority === 'CRITICAL') prioClass = 'bg-red-100 text-red-800 border-red-200';
+                      else if (ticket.priority === 'HIGH') prioClass = 'bg-orange-100 text-orange-800 border-orange-200';
+                      else if (ticket.priority === 'MEDIUM') prioClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                      else prioClass = 'bg-gray-100 text-gray-800 border-gray-200';
+
+                      let statClass = '';
+                      if (ticket.status === 'Open') statClass = 'bg-emerald-50 text-emerald-800';
+                      else if (ticket.status === 'Resolved' || ticket.status === 'Closed') statClass = 'bg-gray-100 text-gray-800';
+                      else if (ticket.status === 'Escalated') statClass = 'bg-red-50 text-red-800';
+                      else statClass = 'bg-amber-50 text-amber-800';
+
+                      return (
+                        <tr key={ticket.id} className="hover:bg-[#E8F8E9]/10">
+                          <td className="py-3 px-4 font-mono font-bold text-[#00522E]">{ticket.id}</td>
+                          <td className="py-3 px-4 font-semibold text-[#111E16] max-w-[200px] truncate" title={ticket.subject}>
+                            {ticket.subject}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${prioClass}`}>
+                              {ticket.priority}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${statClass}`}>
+                              {ticket.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-[#6F7A70] text-xs font-medium">
+                            {ticket.createdDate}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
+
+      {/* MANDATORY BLOCK REASON MODAL */}
+      {showBlockModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
+          <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-md shadow-xl animate-scale-up overflow-hidden">
+            <div className={`px-6 py-4 border-b border-[#BEC9BE] flex items-center justify-between ${
+              blockActionType === 'block' ? 'bg-red-50 text-[#BA1A1A]' : 'bg-[#E8F8E9] text-[#00522E]'
+            }`}>
+              <h3 className="text-lg font-bold">
+                {blockActionType === 'block' ? 'Block Suspicious Account' : 'Unblock Account'}
+              </h3>
+              <button 
+                onClick={() => setShowBlockModal(false)}
+                className="text-gray-500 hover:text-black p-1 rounded-full hover:bg-black/5 transition-all cursor-pointer"
+              >
+                <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleBlockSubmit} className="p-6 space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#111E16] uppercase tracking-wider block">
+                  Mandatory Reason for Action
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder={blockActionType === 'block' 
+                    ? "Explain why this account is being disabled (e.g., suspicious transaction pattern, multiple failed logins)..."
+                    : "Explain why this account is being re-enabled..."
+                  }
+                  value={blockReason}
+                  onChange={(e) => setBlockReason(e.target.value)}
+                  className="w-full bg-[#F6F6F6] text-sm text-[#111E16] rounded-xl px-4 py-2.5 border border-[#BEC9BE] focus:border-[#00522E] focus:outline-none transition-all resize-none"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-[#BEC9BE]/40 flex items-center justify-end gap-3 select-none">
+                <button
+                  type="button"
+                  onClick={() => setShowBlockModal(false)}
+                  className="px-4 py-2 bg-white hover:bg-[#F6F6F6] border border-[#BEC9BE] text-[#111E16] rounded-lg text-sm font-semibold cursor-pointer transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`px-4 py-2 text-white rounded-lg text-sm font-bold cursor-pointer transition-all ${
+                    blockActionType === 'block' 
+                      ? 'bg-[#BA1A1A] hover:bg-[#930006]' 
+                      : 'bg-[#00522E] hover:bg-[#003B21]'
+                  }`}
+                >
+                  {blockActionType === 'block' ? 'Confirm Block' : 'Confirm Unblock'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">

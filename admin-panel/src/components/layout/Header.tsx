@@ -35,7 +35,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
   const totalNotifications = notifications.length;
   const activeTicketsCount = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
 
-  // Close dropdown on outside click
+  
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -53,7 +53,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
   return (
     <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 bg-white/80 border-b border-[#E0E0E0] shadow-xs backdrop-blur-md sticky top-0 z-30 select-none">
       <div className="flex items-center gap-4 flex-1 max-w-xl">
-        {/* Hamburger Button for mobile */}
+        {}
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="lg:hidden p-2 rounded-lg text-[#797979] hover:bg-[#F6F6F6] cursor-pointer"
@@ -64,7 +64,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
           </svg>
         </button>
 
-        {/* Search Input */}
+        {}
         <div className="relative w-full">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#797979]/70">
             <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -80,7 +80,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3 sm:gap-5 ml-4">
-        {/* Message Action */}
+        {}
         <button 
           onClick={() => navigate('/dashboard/tickets')}
           className="p-2 rounded-xl text-[#797979] hover:bg-[#F6F6F6] relative transition-colors duration-150 cursor-pointer"
@@ -96,7 +96,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
           )}
         </button>
 
-        {/* Notification Action */}
+        {}
         <button 
           onClick={() => navigate('/dashboard/payments/notifications')}
           className="p-2 rounded-xl text-[#797979] hover:bg-[#F6F6F6] relative transition-colors duration-150 cursor-pointer"
@@ -114,7 +114,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
 
         <div className="w-[1px] h-8 bg-[#E0E0E0] my-1 hidden sm:block"></div>
 
-        {/* User Profile Info with Simplified Menu */}
+        {}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -135,10 +135,10 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
             />
           </button>
 
-          {/* Desktop Dropdown */}
+          {}
           {isMenuOpen && (
             <div className="hidden sm:block absolute right-0 mt-2 w-72 bg-white border border-[#E0E0E0] rounded-2xl shadow-xl z-50 animate-fade-in divide-y divide-gray-100 overflow-hidden">
-              {/* Profile Header */}
+              {}
               <div className="p-4 flex items-center gap-3">
                 <img
                   src={adminAvatar}
@@ -154,7 +154,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
                 </div>
               </div>
 
-              {/* Actions Section */}
+              {}
               <div className="p-2 space-y-0.5 bg-[#F6F6F6]/50">
                 <button
                   onClick={() => {
@@ -176,7 +176,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
             </div>
           )}
 
-          {/* Mobile Bottom Sheet Modal */}
+          {}
           {isMenuOpen && (
             <div
               className="sm:hidden fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 animate-fade-in"
@@ -186,12 +186,12 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
                 className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-50 flex flex-col max-h-[85vh] animate-slide-up"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Drag Handle Indicator */}
+                {}
                 <div className="flex justify-center py-3 flex-shrink-0">
                   <div className="w-12 h-1.5 bg-[#E0E0E0] rounded-full"></div>
                 </div>
 
-                {/* Modal Header */}
+                {}
                 <div className="px-5 pb-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
                   <div className="flex items-center gap-3">
                     <img
@@ -217,7 +217,7 @@ export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
                   </button>
                 </div>
 
-                {/* Bottom Actions */}
+                {}
                 <div className="p-4 bg-[#F6F6F6] border-t border-gray-100 flex flex-col gap-2 flex-shrink-0">
                   <button
                     onClick={() => {

@@ -6,19 +6,19 @@ export default function TicketDashboard() {
   const { tickets, agents, categories, assignTicket, updateStatus } = useTickets();
   const navigate = useNavigate();
 
-  // Loading, Toast, Dialog states
+  
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'info' | 'error'>('success');
   const [errorState, setErrorState] = useState<string | null>(null);
 
-  // Filters state
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
 
-  // Quick Action Modal states
+  
   const [selectedTicketForAssign, setSelectedTicketForAssign] = useState<Ticket | null>(null);
   const [assignAgentSelected, setAssignAgentSelected] = useState('');
   
@@ -53,7 +53,7 @@ export default function TicketDashboard() {
     setSelectedTicketForStatus(null);
   };
 
-  // Filtered tickets
+  
   const filteredTickets = tickets.filter(t => {
     const matchesSearch = 
       t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -68,13 +68,13 @@ export default function TicketDashboard() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
   });
 
-  // KPI calculations
+  
   const totalTickets = tickets.length;
   const openTickets = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
   const escalatedTickets = tickets.filter(t => t.status === 'Escalated').length;
   const closedTickets = tickets.filter(t => t.status === 'Closed' || t.status === 'Resolved').length;
 
-  // CSS Priority and Status colors helper
+  
   const getPriorityStyles = (p: Ticket['priority']) => {
     switch (p) {
       case 'CRITICAL':
@@ -125,7 +125,7 @@ export default function TicketDashboard() {
 
   return (
     <div className="space-y-6 relative pb-12 select-none">
-      {/* Toast Notification */}
+      {}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div className={`w-3 h-3 rounded-full ${
@@ -135,7 +135,7 @@ export default function TicketDashboard() {
         </div>
       )}
 
-      {/* Assign Agent Dialog */}
+      {}
       {selectedTicketForAssign && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-sm w-full animate-scale-in">
@@ -170,7 +170,7 @@ export default function TicketDashboard() {
         </div>
       )}
 
-      {/* Change Status Dialog */}
+      {}
       {selectedTicketForStatus && (
         <div className="fixed inset-0 bg-[#242424]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl shadow-2xl p-6 max-w-sm w-full animate-scale-in">
@@ -207,7 +207,7 @@ export default function TicketDashboard() {
         </div>
       )}
 
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16] flex items-center gap-2">
@@ -240,9 +240,9 @@ export default function TicketDashboard() {
         </div>
       </div>
 
-      {/* Top Statistics Cards Grid (Equal Width, Figma Spec) */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* TOTAL TICKETS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[130px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-[#00522E]/10 rounded-lg flex items-center justify-center text-[#00522E]">
@@ -262,7 +262,7 @@ export default function TicketDashboard() {
           </div>
         </div>
 
-        {/* OPEN TICKETS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[130px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-blue-50 rounded-lg flex items-center justify-center text-blue-700">
@@ -282,7 +282,7 @@ export default function TicketDashboard() {
           </div>
         </div>
 
-        {/* ESCALATED TICKETS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[130px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-red-50 rounded-lg flex items-center justify-center text-red-700">
@@ -302,7 +302,7 @@ export default function TicketDashboard() {
           </div>
         </div>
 
-        {/* CLOSED TICKETS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[130px]">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-700">
@@ -323,9 +323,9 @@ export default function TicketDashboard() {
         </div>
       </div>
 
-      {/* Advanced Filters Panel */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        {/* Search */}
+        {}
         <div className="relative flex-1 min-w-[280px]">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#6F7A70]">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -341,9 +341,9 @@ export default function TicketDashboard() {
           />
         </div>
 
-        {/* Dropdowns */}
+        {}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Status filter */}
+          {}
           <div>
             <select
               value={statusFilter}
@@ -359,7 +359,7 @@ export default function TicketDashboard() {
             </select>
           </div>
 
-          {/* Priority filter */}
+          {}
           <div>
             <select
               value={priorityFilter}
@@ -374,7 +374,7 @@ export default function TicketDashboard() {
             </select>
           </div>
 
-          {/* Category Filter */}
+          {}
           <div>
             <select
               value={categoryFilter}
@@ -386,7 +386,7 @@ export default function TicketDashboard() {
             </select>
           </div>
 
-          {/* Reset Filters */}
+          {}
           {(searchQuery || statusFilter !== 'All' || priorityFilter !== 'All' || categoryFilter !== 'All') && (
             <button
               onClick={() => {
@@ -404,10 +404,10 @@ export default function TicketDashboard() {
         </div>
       </div>
 
-      {/* Ticket List Table */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-xl overflow-hidden shadow-xs">
         {isLoading ? (
-          /* Skeleton Loader */
+          
           <div className="p-6 space-y-4">
             <div className="h-6 bg-gray-100 rounded-lg animate-pulse w-1/4"></div>
             <div className="space-y-3 pt-4">
@@ -421,7 +421,7 @@ export default function TicketDashboard() {
             </div>
           </div>
         ) : filteredTickets.length === 0 ? (
-          /* Empty State */
+          
           <div className="p-12 text-center flex flex-col items-center justify-center">
             <div className="w-16 h-16 bg-[#F8B057]/10 text-[#401900] rounded-full flex items-center justify-center mb-4">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -531,7 +531,7 @@ export default function TicketDashboard() {
                           </svg>
                         </button>
 
-                        {/* Change Status Quick Action */}
+                        {}
                         <button
                           onClick={() => {
                             setSelectedTicketForStatus(t);

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ORDERS } from '../../data/mockDb';
+import { io } from 'socket.io-client';
 
 export interface OrderItem {
   id: string;
@@ -45,13 +45,14 @@ export interface OrderNote {
 
 export interface Order {
   id: string;
+  orderId: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   items: OrderItem[];
   totalAmount: number;
   paymentStatus: 'Paid' | 'Pending' | 'Refunded' | 'Failed';
-  orderStatus: 'Pending' | 'Processing' | 'Delivered' | 'Cancelled';
+  orderStatus: 'Pending' | 'Confirmed' | 'Packed' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Refunded' | 'Processing';
   deliveryStatus: 'Pending' | 'In Transit' | 'Delivered' | 'Cancelled';
   createdDate: string;
   shippingAddress: Address;
@@ -68,303 +69,299 @@ export interface Order {
 
 interface OrdersContextType {
   orders: Order[];
-  updateOrderStatus: (id: string, status: Order['orderStatus']) => void;
-  updatePaymentStatus: (id: string, status: Order['paymentStatus']) => void;
-  updateDeliveryStatus: (id: string, status: Order['deliveryStatus']) => void;
-  cancelOrder: (id: string) => void;
-  refundOrder: (id: string) => void;
-  addOrderNote: (id: string, author: string, content: string) => void;
-  updateOrderDetails: (id: string, updatedFields: Partial<Order>) => void;
-  deleteOrder: (id: string) => void;
-  bulkUpdateStatus: (ids: string[], status: Order['orderStatus']) => void;
-  bulkDeleteOrders: (ids: string[]) => void;
+  loading: boolean;
+  updateOrderStatus: (id: string, status: Order['orderStatus']) => Promise<void>;
+  updatePaymentStatus: (id: string, status: Order['paymentStatus']) => Promise<void>;
+  updateDeliveryStatus: (id: string, status: Order['deliveryStatus']) => Promise<void>;
+  cancelOrder: (id: string) => Promise<void>;
+  refundOrder: (id: string) => Promise<void>;
+  addOrderNote: (id: string, author: string, content: string) => Promise<void>;
+  updateOrderDetails: (id: string, updatedFields: Partial<Order>) => Promise<void>;
+  deleteOrder: (id: string) => Promise<void>;
+  bulkUpdateStatus: (ids: string[], status: Order['orderStatus']) => Promise<void>;
+  bulkDeleteOrders: (ids: string[]) => Promise<void>;
+  fetchOrders: () => Promise<void>;
 }
 
 const OrdersContext = createContext<OrdersContextType | undefined>(undefined);
 
-const initialOrders: Order[] = ORDERS as Order[];
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
+const WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com' : 'http://localhost:5000');
 
-export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('orders_data');
-    return saved ? JSON.parse(saved) : initialOrders;
-  });
+export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: boolean }> = ({ children, isLoggedIn }) => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const getHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
+  const mapOrderData = (ord: any): Order => {
+    const customerName = ord.customerName || 'Customer';
+    const customerEmail = ord.customerEmail || `${customerName.toLowerCase().replace(/\s+/g, '')}@example.com`;
+    const customerPhone = ord.phone || ord.customerPhone || '';
+    
+    return {
+      id: ord.id || ord._id,
+      orderId: ord.orderId || '#FN000000',
+      customerName,
+      customerEmail,
+      customerPhone,
+      items: Array.isArray(ord.items) ? ord.items.map((item: any) => ({
+        id: item.id || item._id,
+        name: item.name || 'Product',
+        price: Number(item.price || 0),
+        quantity: Number(item.quantity || 1),
+        size: item.size || 'M',
+        color: item.color || 'Standard',
+        image: item.image || ''
+      })) : [],
+      totalAmount: Number(ord.totalAmount || 0),
+      paymentStatus: ord.paymentStatus || 'Pending',
+      orderStatus: ord.status || 'Pending',
+      deliveryStatus: ord.deliveryStatus || 'Pending',
+      createdDate: ord.date || (ord.createdAt ? new Date(ord.createdAt).toLocaleDateString() : new Date().toLocaleDateString()),
+      shippingAddress: ord.shippingAddress || {
+        name: customerName,
+        street: '123 Apparel Blvd, Suite 400',
+        city: 'San Francisco',
+        state: 'CA',
+        zip: '94103',
+        country: 'United States',
+        phone: customerPhone
+      },
+      billingAddress: ord.billingAddress || {
+        name: customerName,
+        street: '123 Apparel Blvd, Suite 400',
+        city: 'San Francisco',
+        state: 'CA',
+        zip: '94103',
+        country: 'United States',
+        phone: customerPhone
+      },
+      paymentDetails: {
+        method: ord.paymentMethod || 'Wallet',
+        transactionId: ord.transactionId || '',
+        date: ord.date || ''
+      },
+      timeline: Array.isArray(ord.timeline) ? ord.timeline : [],
+      activityLogs: Array.isArray(ord.activityLogs) ? ord.activityLogs : [],
+      notes: Array.isArray(ord.notes) ? ord.notes : []
+    };
+  };
+
+  const fetchOrders = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/orders/admin`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        // Map backend document to frontend fields using unified helper
+        const mappedOrders = data.orders.map(mapOrderData);
+        setOrders(mappedOrders);
+      }
+    } catch (err) {
+      console.error('Error fetching orders from database:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem('orders_data', JSON.stringify(orders));
-  }, [orders]);
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
+    if (loggedIn) {
+      fetchOrders();
+    }
+  }, [isLoggedIn]);
 
-  const updateOrderStatus = (id: string, orderStatus: Order['orderStatus']) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ord.id === id) {
-          const updatedTimeline = ord.timeline.map(event => {
-            if (event.title === 'Processing Order') {
-              return {
-                ...event,
-                status: (orderStatus === 'Processing' ? 'current' : orderStatus === 'Delivered' ? 'completed' : 'upcoming') as 'completed' | 'current' | 'upcoming',
-                timestamp: event.timestamp || (orderStatus === 'Processing' ? new Date().toLocaleString() : '')
-              };
-            }
-            if (event.title === 'Shipped') {
-              return {
-                ...event,
-                status: (orderStatus === 'Delivered' ? 'completed' : 'upcoming') as 'completed' | 'current' | 'upcoming',
-                timestamp: event.timestamp || (orderStatus === 'Delivered' ? new Date().toLocaleString() : '')
-              };
-            }
-            if (event.title === 'Delivered') {
-              return {
-                ...event,
-                status: (orderStatus === 'Delivered' ? 'completed' : 'upcoming') as 'completed' | 'current' | 'upcoming',
-                timestamp: event.timestamp || (orderStatus === 'Delivered' ? new Date().toLocaleString() : '')
-              };
-            }
-            return event;
-          });
+  // Real-time updates via Socket.io
+  useEffect(() => {
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
+    if (!loggedIn) return;
 
-          // Log action
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: `Order Status changed to ${orderStatus}`,
-            user: 'Admin',
-            timestamp: new Date().toISOString()
-          };
+    const socket = io(WS_URL);
 
-          return {
-            ...ord,
-            orderStatus,
-            deliveryStatus: orderStatus === 'Delivered' ? 'Delivered' : orderStatus === 'Cancelled' ? 'Cancelled' : ord.deliveryStatus,
-            timeline: updatedTimeline,
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+    socket.on('connect', () => {
+      console.log('Connected to order socket server.');
+    });
+
+    socket.on('order_created', (newOrder: any) => {
+      console.log('Socket: New order placed!', newOrder);
+      const mapped = mapOrderData(newOrder);
+      setOrders(prev => [mapped, ...prev]);
+      
+      // Play a subtle notification chime to wow the user
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-500.wav');
+      audio.play().catch(() => {});
+    });
+
+    socket.on('order_updated', (updatedOrder: any) => {
+      console.log('Socket: Order updated!', updatedOrder);
+      const mapped = mapOrderData(updatedOrder);
+      setOrders(prev => prev.map(o => o.id === mapped.id ? mapped : o));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [isLoggedIn]);
+
+  const updateOrderStatus = async (id: string, status: Order['orderStatus']) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/${id}/status`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders(); // Full reload to refresh timeline/activity logs
+      }
+    } catch (err) {
+      console.error('Error updating order status:', err);
+    }
   };
 
-  const updatePaymentStatus = (id: string, paymentStatus: Order['paymentStatus']) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ord.id === id) {
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: `Payment Status changed to ${paymentStatus}`,
-            user: 'Admin',
-            timestamp: new Date().toISOString()
-          };
-
-          const newTimeline = ord.timeline.map(event => {
-            if (event.title === 'Payment Confirmed') {
-              return {
-                ...event,
-                status: (paymentStatus === 'Paid' ? 'completed' : 'current') as 'completed' | 'current' | 'upcoming',
-                timestamp: paymentStatus === 'Paid' ? new Date().toLocaleString() : ''
-              };
-            }
-            return event;
-          });
-
-          return {
-            ...ord,
-            paymentStatus,
-            timeline: newTimeline,
-            paymentDetails: {
-              ...ord.paymentDetails,
-              transactionId: ord.paymentDetails.transactionId || (paymentStatus === 'Paid' ? `txn_${Date.now()}` : ''),
-              date: ord.paymentDetails.date || (paymentStatus === 'Paid' ? new Date().toLocaleString() : '')
-            },
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+  const updatePaymentStatus = async (id: string, status: Order['paymentStatus']) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/${id}/payment`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ paymentStatus: status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders();
+      }
+    } catch (err) {
+      console.error('Error updating payment status:', err);
+    }
   };
 
-  const updateDeliveryStatus = (id: string, deliveryStatus: Order['deliveryStatus']) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ord.id === id) {
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: `Delivery Status changed to ${deliveryStatus}`,
-            user: 'Admin',
-            timestamp: new Date().toISOString()
-          };
-
-          const newTimeline = ord.timeline.map(event => {
-            if (event.title === 'Shipped' && (deliveryStatus === 'In Transit' || deliveryStatus === 'Delivered')) {
-              return { ...event, status: 'completed' as const, timestamp: event.timestamp || new Date().toLocaleString() };
-            }
-            if (event.title === 'Delivered' && deliveryStatus === 'Delivered') {
-              return { ...event, status: 'completed' as const, timestamp: event.timestamp || new Date().toLocaleString() };
-            }
-            return event;
-          });
-
-          return {
-            ...ord,
-            deliveryStatus,
-            orderStatus: deliveryStatus === 'Delivered' ? 'Delivered' : ord.orderStatus,
-            timeline: newTimeline,
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+  const updateDeliveryStatus = async (id: string, status: Order['deliveryStatus']) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/${id}/delivery`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ deliveryStatus: status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders();
+      }
+    } catch (err) {
+      console.error('Error updating delivery status:', err);
+    }
   };
 
-  const cancelOrder = (id: string) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ord.id === id) {
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: 'Order Cancelled',
-            user: 'Admin',
-            timestamp: new Date().toISOString()
-          };
-
-          // Cancel the timeline
-          const cancelledTimeline = ord.timeline.map(event => {
-            if (event.status === 'current' || event.status === 'upcoming') {
-              return { ...event, title: event.title + ' (Cancelled)', status: 'upcoming' as const };
-            }
-            return event;
-          });
-
-          return {
-            ...ord,
-            orderStatus: 'Cancelled' as const,
-            deliveryStatus: 'Cancelled' as const,
-            paymentStatus: ord.paymentStatus === 'Pending' ? ('Failed' as const) : ord.paymentStatus,
-            timeline: cancelledTimeline,
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+  const cancelOrder = async (id: string) => {
+    await updateOrderStatus(id, 'Cancelled');
   };
 
-  const refundOrder = (id: string) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ord.id === id) {
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: 'Order Refunded',
-            user: 'Admin',
-            timestamp: new Date().toISOString()
-          };
-
-          return {
-            ...ord,
-            paymentStatus: 'Refunded' as const,
-            orderStatus: 'Cancelled' as const,
-            deliveryStatus: 'Cancelled' as const,
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+  const refundOrder = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/${id}/refund`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders();
+      }
+    } catch (err) {
+      console.error('Error refunding order:', err);
+    }
   };
 
-  const addOrderNote = (id: string, author: string, content: string) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ord.id === id) {
-          const newNote: OrderNote = {
-            id: `note-${Date.now()}`,
-            author,
-            content,
-            timestamp: new Date().toLocaleDateString('en-US', {
-              month: 'short',
-              day: '2-digit',
-              year: 'numeric'
-            }) + ', ' + new Date().toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          };
-
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: 'Added comment note to order',
-            user: author,
-            timestamp: new Date().toISOString()
-          };
-
-          return {
-            ...ord,
-            notes: [...ord.notes, newNote],
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+  const addOrderNote = async (id: string, author: string, content: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/${id}/notes`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ content })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders();
+      }
+    } catch (err) {
+      console.error('Error adding order note:', err);
+    }
   };
 
-  const updateOrderDetails = (id: string, updatedFields: Partial<Order>) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ord.id === id) {
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: 'Updated order shipping details',
-            user: 'Admin',
-            timestamp: new Date().toISOString()
-          };
-          return {
-            ...ord,
-            ...updatedFields,
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+  const updateOrderDetails = async (id: string, updatedFields: Partial<Order>) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/${id}/details`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(updatedFields)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders();
+      }
+    } catch (err) {
+      console.error('Error updating order details:', err);
+    }
   };
 
-  const deleteOrder = (id: string) => {
-    setOrders(prev => prev.filter(ord => ord.id !== id));
+  const deleteOrder = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders(prev => prev.filter(o => o.id !== id));
+      }
+    } catch (err) {
+      console.error('Error deleting order:', err);
+    }
   };
 
-  const bulkUpdateStatus = (ids: string[], status: Order['orderStatus']) => {
-    setOrders(prev =>
-      prev.map(ord => {
-        if (ids.includes(ord.id)) {
-          const newActivity: OrderActivity = {
-            id: `act-${Date.now()}`,
-            action: `Bulk changed Order Status to ${status}`,
-            user: 'Admin',
-            timestamp: new Date().toISOString()
-          };
-          return {
-            ...ord,
-            orderStatus: status,
-            deliveryStatus: status === 'Delivered' ? 'Delivered' : status === 'Cancelled' ? 'Cancelled' : ord.deliveryStatus,
-            activityLogs: [newActivity, ...ord.activityLogs]
-          };
-        }
-        return ord;
-      })
-    );
+  const bulkUpdateStatus = async (ids: string[], status: Order['orderStatus']) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/bulk-status`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ ids, status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders();
+      }
+    } catch (err) {
+      console.error('Error bulk updating order status:', err);
+    }
   };
 
-  const bulkDeleteOrders = (ids: string[]) => {
-    setOrders(prev => prev.filter(ord => !ids.includes(ord.id)));
+  const bulkDeleteOrders = async (ids: string[]) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/bulk-delete`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ ids })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders(prev => prev.filter(o => !ids.includes(o.id)));
+      }
+    } catch (err) {
+      console.error('Error bulk deleting orders:', err);
+    }
   };
 
   return (
     <OrdersContext.Provider
       value={{
         orders,
+        loading,
         updateOrderStatus,
         updatePaymentStatus,
         updateDeliveryStatus,
@@ -374,7 +371,8 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateOrderDetails,
         deleteOrder,
         bulkUpdateStatus,
-        bulkDeleteOrders
+        bulkDeleteOrders,
+        fetchOrders
       }}
     >
       {children}

@@ -145,7 +145,13 @@ export default function OrderDetails() {
   let ordStatusClass = '';
   if (order.orderStatus === 'Delivered') ordStatusClass = 'bg-[#EDFEEF] text-[#00522E] border-emerald-200';
   else if (order.orderStatus === 'Processing') ordStatusClass = 'bg-[#00522E]/10 text-[#00522E] border-emerald-200';
+  else if (order.orderStatus === 'Dispatched') ordStatusClass = 'bg-purple-50 text-purple-800 border-purple-200';
+  else if (order.orderStatus === 'Shipped') ordStatusClass = 'bg-orange-50 text-orange-800 border-orange-200';
+  else if (order.orderStatus === 'Out For Delivery') ordStatusClass = 'bg-sky-50 text-sky-800 border-sky-200';
   else if (order.orderStatus === 'Pending') ordStatusClass = 'bg-amber-50 text-amber-800 border-amber-200';
+  else if (order.orderStatus === 'Refunded') ordStatusClass = 'bg-blue-50 text-blue-800 border-blue-200';
+  else if (order.orderStatus === 'Confirmed') ordStatusClass = 'bg-blue-50 text-blue-800 border-blue-200'; // Legacy
+  else if (order.orderStatus === 'Packed') ordStatusClass = 'bg-indigo-50 text-indigo-800 border-indigo-200'; // Legacy
   else ordStatusClass = 'bg-red-50 text-[#BA1A1A] border-red-200';
 
   const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -411,8 +417,12 @@ export default function OrderDetails() {
                   >
                     <option value="Pending">PENDING</option>
                     <option value="Processing">PROCESSING</option>
+                    <option value="Dispatched">DISPATCHED</option>
+                    <option value="Shipped">SHIPPED</option>
+                    <option value="Out For Delivery">OUT FOR DELIVERY</option>
                     <option value="Delivered">DELIVERED</option>
                     <option value="Cancelled">CANCELLED</option>
+                    <option value="Refunded">REFUNDED</option>
                   </select>
                 </div>
 

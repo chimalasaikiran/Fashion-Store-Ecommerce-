@@ -92,7 +92,7 @@ const createEmptyPermissions = (allEnabled = false) => ({
 const getRolePermissions = (roleName) => {
   const permissions = {};
 
-  // Initialize all to false
+  
   Object.keys(MODULES_CONFIG).forEach((moduleKey) => {
     permissions[moduleKey] = {
       enabled: false,
@@ -175,7 +175,7 @@ const seedDatabase = async () => {
     await mongoose.connect(mongoUri);
     console.log("Connected successfully.");
 
-    // 1. Seed Roles
+    
     const rolesToSeed = [
       { name: "Super Admin", description: "Complete system access, controls all pages and configurations.", isCustom: false },
       { name: "Admin", description: "Full access to operations, orders, tickets, and user configuration.", isCustom: false },
@@ -209,17 +209,17 @@ const seedDatabase = async () => {
       roleMap[role.name] = role._id;
     }
 
-    // 2. Seed Default Accounts
+    
     console.log("Seeding default accounts...");
     
-    // Default Super Admin
+    
     const adminEmail = "admin@fashionstore.com";
     let admin = await Admin.findOne({ email: adminEmail });
     if (!admin) {
       admin = await Admin.create({
         name: "Super Admin User",
         email: adminEmail,
-        password: "AdminPassword123!", // Will be hashed by mongoose pre-save hook
+        password: "AdminPassword123!", 
         role: roleMap["Super Admin"],
         status: "Active",
       });
@@ -230,14 +230,14 @@ const seedDatabase = async () => {
       console.log(`Verified Super Admin role mapping for: ${adminEmail}`);
     }
 
-    // Default Product Manager
+    
     const managerEmail = "manager@fashionstore.com";
     let manager = await Admin.findOne({ email: managerEmail });
     if (!manager) {
       manager = await Admin.create({
         name: "Product Manager User",
         email: managerEmail,
-        password: "ManagerPassword123!", // Will be hashed by mongoose pre-save hook
+        password: "ManagerPassword123!", 
         role: roleMap["Product Manager"],
         status: "Active",
       });
@@ -248,7 +248,7 @@ const seedDatabase = async () => {
       console.log(`Verified Product Manager role mapping for: ${managerEmail}`);
     }
 
-    // Log to audit log
+    
     const auditExists = await AuditLog.findOne({ action: "Initialize RBAC" });
     if (!auditExists) {
       await AuditLog.create({
@@ -266,7 +266,7 @@ const seedDatabase = async () => {
   }
 };
 
-// Run the script if executed directly
+
 if (require.main === module) {
   seedDatabase();
 }

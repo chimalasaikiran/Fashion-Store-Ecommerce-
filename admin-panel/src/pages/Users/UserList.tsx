@@ -15,7 +15,7 @@ export default function UserList() {
     bulkDelete 
   } = useUsers();
 
-  // State Management
+  
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Blocked' | 'Pending'>('All');
@@ -23,21 +23,21 @@ export default function UserList() {
   const [sortBy, setSortBy] = useState<'name' | 'orders' | 'spent' | 'createdDate'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   
-  // Selection & Bulk actions
+  
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   
-  // Pagination
+  
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Modals & Dialogs
+  
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [bulkConfirmAction, setBulkConfirmAction] = useState<'activate' | 'deactivate' | 'delete' | null>(null);
 
-  // Form states for Add/Edit
+  
   const [formName, setFormName] = useState('');
   const [formEmail, setFormEmail] = useState('');
   const [formPhone, setFormPhone] = useState('');
@@ -45,7 +45,7 @@ export default function UserList() {
   const [formStatus, setFormStatus] = useState<User['status']>('Active');
   const [formError, setFormError] = useState('');
 
-  // Simulate skeleton loader on mount
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -53,7 +53,7 @@ export default function UserList() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Sync edit form when editingUser changes
+  
   useEffect(() => {
     if (editingUser) {
       setFormName(editingUser.name);
@@ -64,7 +64,7 @@ export default function UserList() {
     }
   }, [editingUser]);
 
-  // Handle Search & Filter logic
+  
   const filteredUsers = users.filter((user) => {
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
@@ -79,7 +79,7 @@ export default function UserList() {
     return matchesSearch && matchesStatus && matchesRole;
   });
 
-  // Handle Sorting logic
+  
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     let fieldA: any = a[sortBy];
     let fieldB: any = b[sortBy];
@@ -97,13 +97,13 @@ export default function UserList() {
     return 0;
   });
 
-  // Handle Pagination logic
+  
   const totalItems = sortedUsers.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedUsers = sortedUsers.slice(startIndex, startIndex + itemsPerPage);
 
-  // Auto adjust page if current page exceeds total pages
+  
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -137,7 +137,7 @@ export default function UserList() {
     }
   };
 
-  // CSV Export utility
+  
   const handleExportCSV = () => {
     const headers = ['ID', 'Name', 'Email', 'Phone', 'Orders', 'Spent', 'Status', 'Role', 'Created Date'];
     const rows = filteredUsers.map(u => [
@@ -164,7 +164,7 @@ export default function UserList() {
     document.body.removeChild(link);
   };
 
-  // Form Submission
+  
   const validateForm = () => {
     if (!formName.trim()) {
       setFormError('Name is required');
@@ -194,7 +194,7 @@ export default function UserList() {
       status: formStatus
     });
 
-    // Reset Form
+    
     setFormName('');
     setFormEmail('');
     setFormPhone('');
@@ -239,19 +239,25 @@ export default function UserList() {
     setBulkConfirmAction(null);
   };
 
-  // Derived Stats based on base 24580 / 22410 / 412 / 1240 values scaled with mutations
+  
   const activeCount = users.filter(u => u.status === 'Active').length;
   const blockedCount = users.filter(u => u.status === 'Blocked').length;
   const totalCount = users.length;
 
-  const totalStat = 24580 + (totalCount - 12);
-  const activeStat = 22410 + (activeCount - 8);
-  const blockedStat = 412 + (blockedCount - 2);
-  const newStat = 1240 + (users.filter(u => u.createdDate.includes('2026')).length - 2);
+  const totalStat = totalCount;
+  const activeStat = activeCount;
+  const blockedStat = blockedCount;
+  
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const newStat = users.filter(u => {
+    const date = new Date(u.createdDate);
+    return !isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+  }).length;
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16] flex items-center gap-2">
@@ -293,9 +299,9 @@ export default function UserList() {
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {/* TOTAL CUSTOMERS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-[#00522E]/10 rounded-lg flex items-center justify-center text-[#00522E]">
@@ -313,7 +319,7 @@ export default function UserList() {
           </div>
         </div>
 
-        {/* ACTIVE */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-[#00522E]/10 rounded-lg flex items-center justify-center text-[#00522E]">
@@ -329,7 +335,7 @@ export default function UserList() {
           </div>
         </div>
 
-        {/* BLOCKED */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-red-50 rounded-lg flex items-center justify-center text-[#BA1A1A]">
@@ -345,7 +351,7 @@ export default function UserList() {
           </div>
         </div>
 
-        {/* NEW THIS MONTH */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200">
           <div className="flex items-center justify-between">
             <div className="p-2.5 bg-[#00522E]/10 rounded-lg flex items-center justify-center text-[#00522E]">
@@ -362,10 +368,10 @@ export default function UserList() {
         </div>
       </div>
 
-      {/* Table Controls (Search & Filters) */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-t-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-          {/* Text Search */}
+          {}
           <div className="relative w-full sm:w-64">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#6F7A70]">
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -384,7 +390,7 @@ export default function UserList() {
             />
           </div>
 
-          {/* Status Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={statusFilter}
@@ -406,7 +412,7 @@ export default function UserList() {
             </div>
           </div>
 
-          {/* Role Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={roleFilter}
@@ -434,9 +440,9 @@ export default function UserList() {
         </div>
       </div>
 
-      {/* Main Table Panel */}
+      {}
       <div className="bg-white border-x border-b border-[#BEC9BE] rounded-b-xl shadow-xs overflow-hidden relative min-h-[300px]">
-        {/* Bulk Action Bar (Overlay) */}
+        {}
         {selectedUserIds.length > 0 && (
           <div className="absolute top-0 inset-x-0 h-14 bg-[#E8F8E9] z-20 flex items-center justify-between px-6 border-b border-[#BEC9BE] animate-slide-in">
             <span className="text-sm font-bold text-[#00522E]">
@@ -528,7 +534,7 @@ export default function UserList() {
 
             <tbody className="divide-y divide-[#BEC9BE]/30">
               {isLoading ? (
-                // Skeleton Loader
+                
                 Array.from({ length: itemsPerPage }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="animate-pulse">
                     <td className="py-4 px-6 text-center">
@@ -570,7 +576,7 @@ export default function UserList() {
                   </tr>
                 ))
               ) : paginatedUsers.length === 0 ? (
-                // Empty State Screen
+                
                 <tr>
                   <td colSpan={9} className="py-16 text-center">
                     <div className="max-w-md mx-auto space-y-4">

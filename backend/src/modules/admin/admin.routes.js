@@ -4,13 +4,13 @@ const adminController = require("./admin.controller");
 const { protect } = require("../../middleware/auth.middleware");
 const { checkPermission } = require("../../middleware/permission.middleware");
 
-// Public route for admin login
+
 router.post("/login", adminController.login);
 
-// Protected route to get the logged-in admin's profile
+
 router.get("/me", protect, adminController.getMe);
 
-// Protected routes to manage other admin accounts (requires roles & access permissions)
+
 router.get(
   "/",
   protect,

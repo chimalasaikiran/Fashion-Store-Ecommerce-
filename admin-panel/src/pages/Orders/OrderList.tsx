@@ -16,7 +16,7 @@ export default function OrderList() {
     bulkDeleteOrders
   } = useOrders();
 
-  // State Management
+  
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<'All' | Order['orderStatus']>('All');
@@ -25,26 +25,26 @@ export default function OrderList() {
   const [sortBy, setSortBy] = useState<'id' | 'customerName' | 'items' | 'totalAmount' | 'createdDate'>('id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  // Selection & Bulk actions
+  
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
 
-  // Pagination
+  
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Modals & Dialogs
+  
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
   const [bulkConfirmAction, setBulkConfirmAction] = useState<'Processing' | 'Delivered' | 'Cancelled' | 'delete' | null>(null);
 
-  // Form states for status update
+  
   const [formOrderStatus, setFormOrderStatus] = useState<Order['orderStatus']>('Pending');
   const [formPaymentStatus, setFormPaymentStatus] = useState<Order['paymentStatus']>('Pending');
   const [formDeliveryStatus, setFormDeliveryStatus] = useState<Order['deliveryStatus']>('Pending');
 
-  // Custom Toast State
+  
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'info' | 'error'>('success');
 
@@ -54,7 +54,7 @@ export default function OrderList() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Simulate skeleton loader on mount
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -62,7 +62,7 @@ export default function OrderList() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Sync edit form when editingOrder changes
+  
   useEffect(() => {
     if (editingOrder) {
       setFormOrderStatus(editingOrder.orderStatus);
@@ -71,7 +71,7 @@ export default function OrderList() {
     }
   }, [editingOrder]);
 
-  // Handle Search & Filter logic
+  
   const filteredOrders = orders.filter((order) => {
     const query = searchQuery.toLowerCase();
     const matchesSearch =
@@ -83,7 +83,7 @@ export default function OrderList() {
     const matchesOrderStatus = orderStatusFilter === 'All' || order.orderStatus === orderStatusFilter;
     const matchesPaymentStatus = paymentStatusFilter === 'All' || order.paymentStatus === paymentStatusFilter;
 
-    // Date filtering (mock logic based on dates in 2023/2024/2026)
+    
     let matchesDate = true;
     if (dateFilter === 'Last 7 Days') {
       matchesDate = order.createdDate.includes('2026') || order.createdDate.includes('Jun');
@@ -94,7 +94,7 @@ export default function OrderList() {
     return matchesSearch && matchesOrderStatus && matchesPaymentStatus && matchesDate;
   });
 
-  // Handle Sorting logic
+  
   const sortedOrders = [...filteredOrders].sort((a, b) => {
     let fieldA: any = a[sortBy];
     let fieldB: any = b[sortBy];
@@ -115,13 +115,13 @@ export default function OrderList() {
     return 0;
   });
 
-  // Handle Pagination logic
+  
   const totalItems = sortedOrders.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedOrders = sortedOrders.slice(startIndex, startIndex + itemsPerPage);
 
-  // Auto adjust page if current page exceeds total pages
+  
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -155,7 +155,7 @@ export default function OrderList() {
     }
   };
 
-  // CSV Export utility
+  
   const handleExportCSV = () => {
     const headers = ['Order ID', 'Customer Name', 'Email', 'Items Count', 'Total Amount', 'Payment Status', 'Order Status', 'Delivery Status', 'Created Date'];
     const rows = filteredOrders.map(o => [
@@ -191,7 +191,7 @@ export default function OrderList() {
   };
 
 
-  // Form Submission
+  
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingOrder) return;
@@ -236,10 +236,10 @@ export default function OrderList() {
     setBulkConfirmAction(null);
   };
 
-  // Statistics Calculations (scaled based on Figma nodes data)
+  
   const totalOrdersCount = orders.length;
   const pendingOrdersCount = orders.filter(o => o.orderStatus === 'Pending').length;
-  const processingOrdersCount = orders.filter(o => o.orderStatus === 'Processing').length;
+  const processingOrdersCount = orders.filter(o => ['Processing', 'Dispatched', 'Shipped', 'Out For Delivery', 'Confirmed', 'Packed'].includes(o.orderStatus)).length;
   const deliveredOrdersCount = orders.filter(o => o.orderStatus === 'Delivered').length;
   const cancelledOrdersCount = orders.filter(o => o.orderStatus === 'Cancelled').length;
   const totalRevenue = orders
@@ -255,7 +255,7 @@ export default function OrderList() {
 
   return (
     <div className="space-y-6 select-none relative pb-12">
-      {/* Toast Notification */}
+      {}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3.5 bg-white border border-[#BEC9BE] rounded-xl shadow-xl animate-slide-in-right">
           <div className={`w-3 h-3 rounded-full ${
@@ -265,7 +265,7 @@ export default function OrderList() {
         </div>
       )}
 
-      {/* Page Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111E16] flex items-center gap-2">
@@ -289,9 +289,9 @@ export default function OrderList() {
         </div>
       </div>
 
-      {/* Top Statistics Cards (Exactly like Figma Layout) */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {/* TOTAL ORDERS */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[140px]">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-[#00522E]/10 rounded-lg flex items-center justify-center text-[#00522E]">
@@ -309,7 +309,7 @@ export default function OrderList() {
           </div>
         </div>
 
-        {/* PENDING */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[140px]">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-amber-50 rounded-lg flex items-center justify-center text-amber-700">
@@ -327,7 +327,7 @@ export default function OrderList() {
           </div>
         </div>
 
-        {/* PROCESSING */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[140px]">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-blue-50 rounded-lg flex items-center justify-center text-blue-700">
@@ -342,7 +342,7 @@ export default function OrderList() {
           </div>
         </div>
 
-        {/* DELIVERED */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[140px]">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-[#E8F8E9] rounded-lg flex items-center justify-center text-[#00522E]">
@@ -357,7 +357,7 @@ export default function OrderList() {
           </div>
         </div>
 
-        {/* CANCELLED */}
+        {}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[140px]">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-red-50 rounded-lg flex items-center justify-center text-[#BA1A1A]">
@@ -372,7 +372,7 @@ export default function OrderList() {
           </div>
         </div>
 
-        {/* REVENUE */}
+        {}
         <div className="bg-[#00522E] rounded-xl p-5 flex flex-col justify-between shadow-xl hover:shadow-2xl transition-all duration-200 text-white min-h-[140px]">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-white/10 rounded-lg flex items-center justify-center text-white">
@@ -388,10 +388,10 @@ export default function OrderList() {
         </div>
       </div>
 
-      {/* Search and Filters Bar */}
+      {}
       <div className="bg-white border border-[#BEC9BE] rounded-t-xl p-4 flex flex-col xl:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
-          {/* Text Search */}
+          {}
           <div className="relative w-full sm:w-64">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#6F7A70]">
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -410,7 +410,7 @@ export default function OrderList() {
             />
           </div>
 
-          {/* Order Status Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={orderStatusFilter}
@@ -423,8 +423,12 @@ export default function OrderList() {
               <option value="All">All Statuses</option>
               <option value="Pending">Pending</option>
               <option value="Processing">Processing</option>
+              <option value="Dispatched">Dispatched</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Out For Delivery">Out For Delivery</option>
               <option value="Delivered">Delivered</option>
               <option value="Cancelled">Cancelled</option>
+              <option value="Refunded">Refunded</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#6F7A70]">
               <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -433,7 +437,7 @@ export default function OrderList() {
             </div>
           </div>
 
-          {/* Payment Status Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={paymentStatusFilter}
@@ -456,7 +460,7 @@ export default function OrderList() {
             </div>
           </div>
 
-          {/* Date Filter */}
+          {}
           <div className="relative w-full sm:w-auto">
             <select
               value={dateFilter}
@@ -482,9 +486,9 @@ export default function OrderList() {
         </div>
       </div>
 
-      {/* Main Table Wrapper */}
+      {}
       <div className="bg-white border-x border-b border-[#BEC9BE] rounded-b-xl shadow-xs overflow-hidden relative min-h-[340px]">
-        {/* Bulk Action Bar (Overlay) */}
+        {}
         {selectedOrderIds.length > 0 && (
           <div className="absolute top-0 inset-x-0 h-14 bg-[#E8F8E9] z-20 flex items-center justify-between px-6 border-b border-[#BEC9BE] animate-slide-in">
             <span className="text-sm font-bold text-[#00522E]">
@@ -590,7 +594,7 @@ export default function OrderList() {
 
             <tbody className="divide-y divide-[#BEC9BE]/30">
               {isLoading ? (
-                // Skeletons Loader
+                
                 Array.from({ length: itemsPerPage }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="animate-pulse">
                     <td className="py-4 px-6 text-center">
@@ -626,7 +630,7 @@ export default function OrderList() {
                   </tr>
                 ))
               ) : paginatedOrders.length === 0 ? (
-                // Empty State Screen
+                
                 <tr>
                   <td colSpan={9} className="py-16 text-center">
                     <div className="max-w-md mx-auto space-y-4">
@@ -671,7 +675,13 @@ export default function OrderList() {
                   let orderBadgeClass = '';
                   if (order.orderStatus === 'Delivered') orderBadgeClass = 'bg-[#EDFEEF] text-[#00522E] border-emerald-200';
                   else if (order.orderStatus === 'Processing') orderBadgeClass = 'bg-[#00522E]/10 text-[#00522E] border-emerald-200';
+                  else if (order.orderStatus === 'Dispatched') orderBadgeClass = 'bg-purple-50 text-purple-800 border-purple-200';
+                  else if (order.orderStatus === 'Shipped') orderBadgeClass = 'bg-orange-50 text-orange-800 border-orange-200';
+                  else if (order.orderStatus === 'Out For Delivery') orderBadgeClass = 'bg-sky-50 text-sky-800 border-sky-200';
                   else if (order.orderStatus === 'Pending') orderBadgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
+                  else if (order.orderStatus === 'Refunded') orderBadgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
+                  else if (order.orderStatus === 'Confirmed') orderBadgeClass = 'bg-blue-50 text-blue-800 border-blue-200'; // Legacy
+                  else if (order.orderStatus === 'Packed') orderBadgeClass = 'bg-indigo-50 text-indigo-800 border-indigo-200'; // Legacy
                   else orderBadgeClass = 'bg-red-50 text-[#BA1A1A] border-red-200';
 
                   return (
@@ -859,7 +869,7 @@ export default function OrderList() {
         </div>
       </div>
 
-      {/* UPDATE STATUS MODAL */}
+      {}
       {isEditModalOpen && editingOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-md shadow-xl animate-scale-up overflow-hidden">
@@ -889,8 +899,12 @@ export default function OrderList() {
                 >
                   <option value="Pending">Pending</option>
                   <option value="Processing">Processing</option>
+                  <option value="Dispatched">Dispatched</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Out For Delivery">Out For Delivery</option>
                   <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
+                  <option value="Refunded">Refunded</option>
                 </select>
               </div>
 
@@ -942,7 +956,7 @@ export default function OrderList() {
         </div>
       )}
 
-      {/* CANCEL CONFIRMATION DIALOG */}
+      {}
       {cancelConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl w-full max-w-sm p-6 shadow-xl animate-scale-up text-center space-y-4">
@@ -975,7 +989,7 @@ export default function OrderList() {
         </div>
       )}
 
-      {/* DELETE CONFIRMATION DIALOG */}
+      {}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl w-full max-w-sm p-6 shadow-xl animate-scale-up text-center space-y-4">
@@ -1008,7 +1022,7 @@ export default function OrderList() {
         </div>
       )}
 
-      {/* BULK ACTION CONFIRMATION */}
+      {}
       {bulkConfirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl w-full max-w-sm p-6 shadow-xl animate-scale-up text-center space-y-4">
