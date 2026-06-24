@@ -4,7 +4,7 @@ const sendEmail = require("../utils/sendEmail");
 const ActivityLog = require("../models/ActivityLog");
 
 
-const getOtpEmailTemplate = (name, otp) => {
+const getOtpEmailTemplate = (name, email, otp) => {
   return `
     <div style="font-family: 'Outfit', 'Segoe UI', Arial, sans-serif; max-width: 550px; margin: auto; padding: 30px; border: 1px solid #eef2f5; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
       <div style="text-align: center; margin-bottom: 25px;">
@@ -14,7 +14,7 @@ const getOtpEmailTemplate = (name, otp) => {
       <div style="padding: 10px 0;">
         <p style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin-top: 0;">Hi ${name},</p>
         <p style="font-size: 15px; color: #4a4a4a; line-height: 1.6; margin-bottom: 20px;">
-          Welcome to Fashion Store! To complete your registration and verify your email address, please enter the following 6-digit verification code:
+          Welcome to Fashion Store! To complete your registration for <strong>${email}</strong> and verify your email address, please enter the following 6-digit verification code:
         </p>
         <div style="text-align: center; margin: 35px 0;">
           <div style="display: inline-block; font-size: 38px; font-weight: 800; color: #3D1800; letter-spacing: 6px; padding: 12px 30px; background-color: #FDF5EE; border-radius: 12px; border: 1.5px dashed #C27B3A; box-shadow: inset 0 2px 4px rgba(61,24,0,0.02);">
@@ -77,7 +77,7 @@ const signup = async (req, res) => {
         await sendEmail({
           email: userExists.email,
           subject: `${otp} is your Fashion Store verification code`,
-          html: getOtpEmailTemplate(userExists.name, otp),
+          html: getOtpEmailTemplate(userExists.name, userExists.email, otp),
         });
       } catch (err) {
         console.error("Nodemailer failed to send email during userExists signup retry:", err.message);
@@ -121,7 +121,7 @@ const signup = async (req, res) => {
       await sendEmail({
         email: user.email,
         subject: `${otp} is your Fashion Store verification code`,
-        html: getOtpEmailTemplate(user.name, otp),
+        html: getOtpEmailTemplate(user.name, user.email, otp),
       });
     } catch (err) {
       console.error("Nodemailer failed to send email during signup:", err.message);
@@ -229,7 +229,7 @@ const resendOtp = async (req, res) => {
       await sendEmail({
         email: user.email,
         subject: `${otp} is your Fashion Store verification code`,
-        html: getOtpEmailTemplate(user.name, otp),
+        html: getOtpEmailTemplate(user.name, user.email, otp),
       });
     } catch (err) {
       console.error("Nodemailer failed to send email during resendOtp:", err.message);
@@ -310,7 +310,7 @@ const login = async (req, res) => {
         await sendEmail({
           email: user.email,
           subject: `${otp} is your Fashion Store verification code`,
-          html: getOtpEmailTemplate(user.name, otp),
+          html: getOtpEmailTemplate(user.name, user.email, otp),
         });
       } catch (err) {
         console.error("Nodemailer failed to send email during login unverified:", err.message);
