@@ -52,7 +52,7 @@ export interface Order {
   items: OrderItem[];
   totalAmount: number;
   paymentStatus: 'Paid' | 'Pending' | 'Refunded' | 'Failed';
-  orderStatus: 'Pending' | 'Confirmed' | 'Packed' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Refunded' | 'Processing';
+  orderStatus: 'Pending' | 'Confirmed' | 'Packed' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Refunded' | 'Processing' | 'Dispatched' | 'Out For Delivery';
   deliveryStatus: 'Pending' | 'In Transit' | 'Delivered' | 'Cancelled';
   createdDate: string;
   shippingAddress: Address;
@@ -278,7 +278,7 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: 
     }
   };
 
-  const addOrderNote = async (id: string, author: string, content: string) => {
+  const addOrderNote = async (id: string, _author: string, content: string) => {
     try {
       const res = await fetch(`${API_URL}/orders/admin/${id}/notes`, {
         method: 'POST',
