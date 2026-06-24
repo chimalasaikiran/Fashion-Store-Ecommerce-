@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 export default function Header({ setIsSidebarOpen, onLogout }: HeaderProps) {
-  const { roles, activeRole, setActiveRole } = useRoleAccess();
+  const { activeRole } = useRoleAccess();
   const navigate = useNavigate();
   
   const { notifications } = usePayments();
