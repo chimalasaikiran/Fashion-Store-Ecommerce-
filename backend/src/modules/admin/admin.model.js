@@ -53,12 +53,25 @@ AdminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
+  const isBcrypt = this.password.startsWith("$2a$") || this.password.startsWith("$2b$");
+  if (isBcrypt) {
+    return next();
+  }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
 
 AdminSchema.methods.matchPassword = async function (enteredPassword) {
+  const isBcrypt = this.password.startsWith("$2a$") || this.password.startsWith("$2b$");
+  if (!isBcrypt) {
+    const isMatch = enteredPassword === this.password;
+    if (isMatch) {
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(enteredPassword, salt);
+    }
+    return isMatch;
+  }
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
