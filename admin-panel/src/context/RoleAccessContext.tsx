@@ -123,7 +123,8 @@ export const MODULES_CONFIG = {
       'Track Shipments',
       'Return Requests',
       'Refund Processing',
-      'Replacement Orders'
+      'Replacement Orders',
+      'Cancellation Requests'
     ]
   },
   tickets: {

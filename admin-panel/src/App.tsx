@@ -43,6 +43,7 @@ const TrackShipments = lazy(() => import('./pages/Shipments/TrackShipments'));
 const ReturnRequests = lazy(() => import('./pages/Shipments/ReturnRequests'));
 const RefundProcessing = lazy(() => import('./pages/Shipments/RefundProcessing'));
 const ReplacementOrders = lazy(() => import('./pages/Shipments/ReplacementOrders'));
+const CancellationRequests = lazy(() => import('./pages/Shipments/CancellationRequests'));
 
 
 const TicketDashboard = lazy(() => import('./pages/Tickets/TicketDashboard'));
@@ -273,6 +274,13 @@ function App() {
                             <RouteGuard module="shipments" subpage="Replacement Orders">
                               <Suspense fallback={<SuspenseLoader />}>
                                 <ReplacementOrders />
+                              </Suspense>
+                            </RouteGuard>
+                          } />
+                          <Route path="cancellations" element={
+                            <RouteGuard module="shipments" subpage="Cancellation Requests">
+                              <Suspense fallback={<SuspenseLoader />}>
+                                <CancellationRequests />
                               </Suspense>
                             </RouteGuard>
                           } />

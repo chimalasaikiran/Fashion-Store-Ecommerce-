@@ -116,6 +116,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
       if (name === 'Return Requests') return 'Return Requests';
       if (name === 'Refund Processing') return 'Refund Processing';
       if (name === 'Replacement Orders') return 'Replacement Orders';
+      if (name === 'Cancellation Requests') return 'Cancellation Requests';
     }
     if (moduleName === 'tickets') {
       if (name === 'Ticket Dashboard') return 'Ticket Dashboard';
@@ -188,7 +189,8 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, onLogout }: S
         { name: 'Track Shipments', path: '/dashboard/shipments/track' },
         { name: 'Return Requests', path: '/dashboard/shipments/returns' },
         { name: 'Refund Processing', path: '/dashboard/shipments/refunds' },
-        { name: 'Replacement Orders', path: '/dashboard/shipments/replacements' }
+        { name: 'Replacement Orders', path: '/dashboard/shipments/replacements' },
+        { name: 'Cancellation Requests', path: '/dashboard/shipments/cancellations' }
       ]
     },
     { 

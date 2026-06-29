@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SHIPMENTS, RETURN_REQUESTS, REFUND_REQUESTS, REPLACEMENT_ORDERS } from '../../data/mockDb';
+import { SHIPMENTS, RETURN_REQUESTS, REFUND_REQUESTS, REPLACEMENT_ORDERS, CANCELLATION_REQUESTS } from '../../data/mockDb';
 
 export interface Shipment {
   id: string;
@@ -54,11 +54,24 @@ export interface ReplacementOrder {
   trackingNumber: string;
 }
 
+export interface CancellationRequest {
+  id: string;
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  reason: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  action: 'Refund' | 'Replacement';
+  requestDate: string;
+  comments?: string;
+}
+
 interface ShipmentsContextType {
   shipments: Shipment[];
   returnRequests: ReturnRequest[];
   refundRequests: RefundRequest[];
   replacementOrders: ReplacementOrder[];
+  cancellationRequests: CancellationRequest[];
   createShipment: (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => Shipment;
   updateShipmentStatus: (id: string, status: Shipment['status'], trackingNum?: string) => void;
   generateShippingLabel: (id: string) => void;
@@ -73,6 +86,8 @@ interface ShipmentsContextType {
   rejectReplacement: (id: string) => void;
   createReplacementOrder: (id: string) => void;
   generateReplacementShipment: (id: string) => void;
+  approveCancellation: (id: string) => void;
+  rejectCancellation: (id: string) => void;
 }
 
 const ShipmentsContext = createContext<ShipmentsContextType | undefined>(undefined);
@@ -81,6 +96,7 @@ const initialShipments: Shipment[] = SHIPMENTS as Shipment[];
 const initialReturns: ReturnRequest[] = RETURN_REQUESTS as ReturnRequest[];
 const initialRefunds: RefundRequest[] = REFUND_REQUESTS as RefundRequest[];
 const initialReplacements: ReplacementOrder[] = REPLACEMENT_ORDERS as ReplacementOrder[];
+const initialCancellations: CancellationRequest[] = CANCELLATION_REQUESTS as CancellationRequest[];
 
 export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [shipments, setShipments] = useState<Shipment[]>(() => {
@@ -103,6 +119,11 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return saved ? JSON.parse(saved) : initialReplacements;
   });
 
+  const [cancellationRequests, setCancellationRequests] = useState<CancellationRequest[]>(() => {
+    const saved = localStorage.getItem('cancellations_data');
+    return saved ? JSON.parse(saved) : initialCancellations;
+  });
+
   
   useEffect(() => {
     localStorage.setItem('shipments_data', JSON.stringify(shipments));
@@ -119,6 +140,10 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     localStorage.setItem('replacements_data', JSON.stringify(replacementOrders));
   }, [replacementOrders]);
+
+  useEffect(() => {
+    localStorage.setItem('cancellations_data', JSON.stringify(cancellationRequests));
+  }, [cancellationRequests]);
 
   
   const createShipment = (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => {
@@ -276,12 +301,21 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
   };
 
+  const approveCancellation = (id: string) => {
+    setCancellationRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Approved' } : r));
+  };
+
+  const rejectCancellation = (id: string) => {
+    setCancellationRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Rejected' } : r));
+  };
+
   return (
     <ShipmentsContext.Provider value={{
       shipments,
       returnRequests,
       refundRequests,
       replacementOrders,
+      cancellationRequests,
       createShipment,
       updateShipmentStatus,
       generateShippingLabel,
@@ -295,7 +329,9 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       approveReplacement,
       rejectReplacement,
       createReplacementOrder,
-      generateReplacementShipment
+      generateReplacementShipment,
+      approveCancellation,
+      rejectCancellation
     }}>
       {children}
     </ShipmentsContext.Provider>

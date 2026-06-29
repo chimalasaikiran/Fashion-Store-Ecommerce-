@@ -1500,3 +1500,39 @@ export const TICKET_CATEGORIES = [
   'IAM Module',
   'Customer Accounts'
 ];
+
+export const CANCELLATION_REQUESTS = [
+  {
+    id: 'CAN-401',
+    orderId: '8291-B',
+    customerName: 'Sneha Reddy',
+    customerEmail: 'sneha.reddy@gmail.com',
+    reason: 'Incorrect size ordered',
+    status: 'Pending',
+    action: 'Refund',
+    requestDate: 'Jun 22, 2026',
+    comments: 'I accidentally ordered a Size L but I need a Size M. Please refund so I can reorder.'
+  },
+  {
+    id: 'CAN-402',
+    orderId: '4567-A',
+    customerName: 'Rohan Naidu',
+    customerEmail: 'rohan.n@naiduenterprise.in',
+    reason: 'Changed my mind',
+    status: 'Approved',
+    action: 'Refund',
+    requestDate: 'Jun 20, 2026',
+    comments: 'No longer need this coat.'
+  },
+  {
+    id: 'CAN-403',
+    orderId: '5566-W',
+    customerName: 'Charitha Rao',
+    customerEmail: 'charitha.r@raoclinics.in',
+    reason: 'Delivery delay',
+    status: 'Rejected',
+    action: 'Refund',
+    requestDate: 'Jun 19, 2026',
+    comments: 'It is taking too long to ship.'
+  }
+];

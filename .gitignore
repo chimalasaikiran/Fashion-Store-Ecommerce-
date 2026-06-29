@@ -57,3 +57,5 @@ backend/coverage/
 # Misc
 *.pem
 *.tsbuildinfo
+
+.vercel
