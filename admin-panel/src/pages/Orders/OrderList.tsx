@@ -658,20 +658,20 @@ export default function OrderList() {
                   </td>
                 </tr>
               ) : (
-                // Order rows
+                
                 paginatedOrders.map((order) => {
                   const isChecked = selectedOrderIds.includes(order.id);
                   const firstInitial = order.customerName.charAt(0);
                   const itemsCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
 
-                  // Payment badge styles
+                  
                   let payBadgeClass = '';
                   if (order.paymentStatus === 'Paid') payBadgeClass = 'bg-[#EDFEEF] text-[#00522E] border-emerald-200';
                   else if (order.paymentStatus === 'Pending') payBadgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
                   else if (order.paymentStatus === 'Refunded') payBadgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
                   else payBadgeClass = 'bg-red-50 text-[#BA1A1A] border-red-200';
 
-                  // Order badge styles
+                  
                   let orderBadgeClass = '';
                   if (order.orderStatus === 'Delivered') orderBadgeClass = 'bg-[#EDFEEF] text-[#00522E] border-emerald-200';
                   else if (order.orderStatus === 'Processing') orderBadgeClass = 'bg-[#00522E]/10 text-[#00522E] border-emerald-200';
@@ -680,8 +680,8 @@ export default function OrderList() {
                   else if (order.orderStatus === 'Out For Delivery') orderBadgeClass = 'bg-sky-50 text-sky-800 border-sky-200';
                   else if (order.orderStatus === 'Pending') orderBadgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
                   else if (order.orderStatus === 'Refunded') orderBadgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
-                  else if (order.orderStatus === 'Confirmed') orderBadgeClass = 'bg-blue-50 text-blue-800 border-blue-200'; // Legacy
-                  else if (order.orderStatus === 'Packed') orderBadgeClass = 'bg-indigo-50 text-indigo-800 border-indigo-200'; // Legacy
+                  else if (order.orderStatus === 'Confirmed') orderBadgeClass = 'bg-blue-50 text-blue-800 border-blue-200'; 
+                  else if (order.orderStatus === 'Packed') orderBadgeClass = 'bg-indigo-50 text-indigo-800 border-indigo-200'; 
                   else orderBadgeClass = 'bg-red-50 text-[#BA1A1A] border-red-200';
 
                   return (
@@ -698,7 +698,7 @@ export default function OrderList() {
                         />
                       </td>
 
-                      {/* Order ID */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span
                           onClick={() => navigate(`/dashboard/orders/details/${order.id}`)}
@@ -708,7 +708,7 @@ export default function OrderList() {
                         </span>
                       </td>
 
-                      {/* Customer Info */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-[#00522E] bg-[#E8F8E9] border border-[#BEC9BE]/60">
@@ -726,17 +726,17 @@ export default function OrderList() {
                         </div>
                       </td>
 
-                      {/* Product Count */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-center font-bold text-[#111E16]">
                         {itemsCount} {itemsCount > 1 ? 'items' : 'item'}
                       </td>
 
-                      {/* Total Amount */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-right font-mono font-bold text-[#111E16]">
                         {formatCurrency(order.totalAmount)}
                       </td>
 
-                      {/* Payment Status */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${payBadgeClass}`}>
                           <span className="w-1 h-1 rounded-full bg-current mr-1.5"></span>
@@ -744,7 +744,7 @@ export default function OrderList() {
                         </span>
                       </td>
 
-                      {/* Order Status */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${orderBadgeClass}`}>
                           <span className="w-1 h-1 rounded-full bg-current mr-1.5"></span>
@@ -752,12 +752,12 @@ export default function OrderList() {
                         </span>
                       </td>
 
-                      {/* Date */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-xs text-[#111E16] font-semibold">
                         {order.createdDate}
                       </td>
 
-                      {/* Actions */}
+                      {}
                       <td className="py-4 px-6 whitespace-nowrap text-right text-xs font-bold">
                         <div className="flex items-center justify-end gap-2">
                           <button
@@ -815,7 +815,7 @@ export default function OrderList() {
           </table>
         </div>
 
-        {/* Pagination Panel */}
+        {}
         <div className="bg-white border-t border-[#BEC9BE] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}

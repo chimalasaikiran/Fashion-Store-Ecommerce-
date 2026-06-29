@@ -434,7 +434,7 @@ export default function TicketDashboard() {
             </p>
           </div>
         ) : (
-          /* Data Table */
+          
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -451,12 +451,12 @@ export default function TicketDashboard() {
               <tbody className="divide-y divide-[#BEC9BE]/30 text-sm text-[#111E16]">
                 {filteredTickets.map((t) => (
                   <tr key={t.id} className="hover:bg-[#F6F6F6]/50 transition-colors">
-                    {/* ID */}
+                    {}
                     <td className="px-6 py-4 font-bold font-mono text-[#00522E]">
                       {t.id}
                     </td>
 
-                    {/* Customer */}
+                    {}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-[#DCECDE] text-[#00522E] flex items-center justify-center font-bold text-xs">
@@ -469,7 +469,7 @@ export default function TicketDashboard() {
                       </div>
                     </td>
 
-                    {/* Subject & Category */}
+                    {}
                     <td className="px-6 py-4 max-w-xs">
                       <div>
                         <span className="font-semibold block truncate">{t.subject}</span>
@@ -479,14 +479,14 @@ export default function TicketDashboard() {
                       </div>
                     </td>
 
-                    {/* Priority Badge */}
+                    {}
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getPriorityStyles(t.priority)}`}>
                         {t.priority}
                       </span>
                     </td>
 
-                    {/* Agent */}
+                    {}
                     <td className="px-6 py-4 font-semibold text-[#3F4941]">
                       {t.assignedAgent === 'Unassigned' ? (
                         <span className="text-gray-400 italic">Unassigned</span>
@@ -495,17 +495,17 @@ export default function TicketDashboard() {
                       )}
                     </td>
 
-                    {/* Status Badge */}
+                    {}
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusStyles(t.status)}`}>
                         {t.status}
                       </span>
                     </td>
 
-                    {/* Actions Menu */}
+                    {}
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {/* Quick View Details */}
+                        {}
                         <button
                           onClick={() => navigate(`/dashboard/tickets/details/${t.id.replace('#', '')}`)}
                           title="View Details"
@@ -517,7 +517,7 @@ export default function TicketDashboard() {
                           </svg>
                         </button>
 
-                        {/* Assign Agent Quick Action */}
+                        {}
                         <button
                           onClick={() => {
                             setSelectedTicketForAssign(t);

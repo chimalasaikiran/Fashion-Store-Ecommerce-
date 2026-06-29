@@ -164,7 +164,7 @@ export const UsersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: b
     category: UserActivity['category'],
     status: 'Success' | 'Failed' = 'Success'
   ) => {
-    // Backend logs activities automatically, but keeping this local hook for immediate feedback/fallback
+    
     const newAct: UserActivity = {
       id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       userId,

@@ -603,12 +603,12 @@ export default function UserList() {
                   </td>
                 </tr>
               ) : (
-                // User rows
+                
                 paginatedUsers.map((user) => {
                   const isChecked = selectedUserIds.includes(user.id);
                   const firstInitial = user.name.charAt(0);
                   
-                  // Status badge styles
+                  
                   let badgeClass = '';
                   if (user.status === 'Active') badgeClass = 'bg-emerald-50 border-emerald-200 text-emerald-800';
                   else if (user.status === 'Blocked') badgeClass = 'bg-red-50 border-red-200 text-red-800';
@@ -628,7 +628,7 @@ export default function UserList() {
                         />
                       </td>
 
-                      {/* Customer Info */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-[#00522E] bg-[#E8F8E9] border border-[#BEC9BE]/60 select-none">
@@ -646,7 +646,7 @@ export default function UserList() {
                         </div>
                       </td>
 
-                      {/* Contact */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <div className="text-xs space-y-0.5">
                           <span className="text-[#111E16] block font-medium">{user.email}</span>
@@ -654,22 +654,22 @@ export default function UserList() {
                         </div>
                       </td>
 
-                      {/* Role */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-xs font-semibold text-[#111E16]">
                         {user.role}
                       </td>
 
-                      {/* Orders */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-center font-mono font-bold text-[#111E16]">
                         {user.orders}
                       </td>
 
-                      {/* Spent */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-right font-mono font-bold text-[#00522E]">
                         {formatCurrency(user.spent)}
                       </td>
 
-                      {/* Status Badge */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${badgeClass}`}>
                           <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
@@ -677,12 +677,12 @@ export default function UserList() {
                         </span>
                       </td>
 
-                      {/* Created Date */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-xs text-[#111E16] font-medium">
                         {user.createdDate}
                       </td>
 
-                      {/* Actions */}
+                      {}
                       <td className="py-4 px-6 whitespace-nowrap text-right text-xs font-bold">
                         <div className="flex items-center justify-end gap-2">
                           <button
@@ -728,7 +728,7 @@ export default function UserList() {
           </table>
         </div>
 
-        {/* Pagination Panel */}
+        {}
         <div className="bg-white border-t border-[#BEC9BE] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -782,7 +782,7 @@ export default function UserList() {
         </div>
       </div>
 
-      {/* CREATE USER MODAL */}
+      {}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-md shadow-xl animate-scale-up overflow-hidden">
@@ -886,7 +886,7 @@ export default function UserList() {
         </div>
       )}
 
-      {/* EDIT USER MODAL */}
+      {}
       {isEditModalOpen && editingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-md shadow-xl animate-scale-up overflow-hidden">
@@ -996,7 +996,7 @@ export default function UserList() {
         </div>
       )}
 
-      {/* CONFIRM DELETE DIALOG */}
+      {}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl w-full max-w-sm shadow-xl p-6 space-y-4">
@@ -1022,7 +1022,7 @@ export default function UserList() {
         </div>
       )}
 
-      {/* CONFIRM BULK ACTION DIALOG */}
+      {}
       {bulkConfirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-xl w-full max-w-sm shadow-xl p-6 space-y-4">

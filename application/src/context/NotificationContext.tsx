@@ -88,7 +88,7 @@ export function NotificationProvider({ children, fetchOrders, orders }: {
     );
   };
 
-  // Connect to Socket.io for real-time order status updates
+  
   useEffect(() => {
     const wsUrl = getWsUrl();
     console.log("[Socket] Connecting to:", wsUrl);
@@ -101,8 +101,8 @@ export function NotificationProvider({ children, fetchOrders, orders }: {
     socket.on("order_updated", (updatedOrder: any) => {
       console.log("[Socket] Received order update:", updatedOrder.orderId, updatedOrder.status);
 
-      // Check if this order belongs to the customer
-      // We can compare against active orders in context or customer phone/name
+      
+      
       const hasMatchingOrder = orders && orders.some((o: any) => o.orderId === updatedOrder.orderId);
       
       if (hasMatchingOrder) {
@@ -110,7 +110,7 @@ export function NotificationProvider({ children, fetchOrders, orders }: {
         let description = `Your order #${updatedOrder.orderId} status has changed to ${updatedOrder.status}.`;
         let notifType: NotificationItem['type'] = "ship";
 
-        // Map status to user friendly notification descriptions
+        
         switch (updatedOrder.status) {
           case "Processing":
             title = "Order Processing";
@@ -147,7 +147,7 @@ export function NotificationProvider({ children, fetchOrders, orders }: {
             description = `A refund for order #${updatedOrder.orderId} has been successfully credited back to your account.`;
             notifType = "paypal";
             break;
-          // Legacy fallbacks
+          
           case "Confirmed":
             title = "Order Confirmed";
             description = `Great news! Your order #${updatedOrder.orderId} has been confirmed by the store.`;
@@ -160,16 +160,16 @@ export function NotificationProvider({ children, fetchOrders, orders }: {
             break;
         }
 
-        // 1. Add notification
+        
         addNotification(title, description, notifType);
 
-        // 2. Trigger rich haptic feedback for user wow-factor
+        
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 
-        // 3. Show in-app Alert Banner
+        
         Alert.alert(title, description, [{ text: "Track Order" }]);
 
-        // 4. Reload orders list instantly in context
+        
         if (fetchOrders) {
           fetchOrders().catch(err => console.log("[Socket] Error auto-refreshing orders:", err));
         }

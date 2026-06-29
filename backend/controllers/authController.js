@@ -326,7 +326,7 @@ const login = async (req, res) => {
     }
 
     
-    // Log successful login
+    
     await ActivityLog.create({
       userId: user._id.toString(),
       userName: user.name,

@@ -15,12 +15,12 @@ export default function UserDetails() {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Block Modal States
+  
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [blockReason, setBlockReason] = useState('');
   const [blockActionType, setBlockActionType] = useState<'block' | 'unblock'>('block');
 
-  // Real Orders fetched from Backend
+  
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState<boolean>(false);
 
@@ -42,7 +42,7 @@ export default function UserDetails() {
     }
   }, [selectedUser]);
 
-  // Fetch real order history from backend when user changes
+  
   useEffect(() => {
     if (selectedUser && selectedUser.id) {
       const fetchOrders = async () => {
@@ -155,7 +155,7 @@ export default function UserDetails() {
     navigate(`/dashboard/users/details/${targetId}`);
   };
 
-  // Filter support tickets matching this user's email address
+  
   const userTickets = tickets.filter(
     (t) => t.customerEmail?.toLowerCase() === selectedUser.email.toLowerCase()
   );
@@ -226,7 +226,7 @@ export default function UserDetails() {
                 {selectedUser.status}
               </span>
 
-              {/* Real Block Reason Indicator */}
+              {}
               {selectedUser.status === 'Blocked' && selectedUser.blockReason && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-left w-full text-xs space-y-1">
                   <span className="font-bold text-[#BA1A1A] block">Reason for Block:</span>
@@ -426,7 +426,7 @@ export default function UserDetails() {
             )}
           </div>
 
-          {/* Real Order Activity Section */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-6 shadow-xs">
             <h3 className="text-lg font-bold text-[#111E16] pb-4 border-b border-[#BEC9BE]/40">Recent Order Activity</h3>
             
@@ -484,7 +484,7 @@ export default function UserDetails() {
             )}
           </div>
 
-          {/* New Support Tickets Section */}
+          {}
           <div className="bg-white border border-[#BEC9BE] rounded-xl p-6 shadow-xs">
             <h3 className="text-lg font-bold text-[#111E16] pb-4 border-b border-[#BEC9BE]/40">Support Grievance Tickets</h3>
             
@@ -549,7 +549,7 @@ export default function UserDetails() {
         </div>
       </div>
 
-      {/* MANDATORY BLOCK REASON MODAL */}
+      {}
       {showBlockModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
           <div className="bg-white border border-[#BEC9BE] rounded-2xl w-full max-w-md shadow-xl animate-scale-up overflow-hidden">

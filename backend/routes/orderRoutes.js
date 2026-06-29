@@ -18,16 +18,14 @@ const {
   adminBulkUpdateStatus,
   adminBulkDelete,
 } = require("../controllers/orderController");
-const { protect } = require("../middleware/authMiddleware"); // Customer auth
+const { protect } = require("../middleware/authMiddleware"); 
 const { validateOrderCreate } = require("../middleware/orderValidation");
 
-// Admin specific auth and permission middlewares
+
 const { protect: protectAdmin } = require("../src/middleware/auth.middleware");
 const { checkPermission } = require("../src/middleware/permission.middleware");
 
-/* ==========================================
-   ADMINISTRATIVE ORDER ROUTES
-   ========================================== */
+
 
 router.get(
   "/admin",
@@ -106,9 +104,7 @@ router.post(
   adminBulkDelete
 );
 
-/* ==========================================
-   CUSTOMER ORDER ROUTES
-   ========================================== */
+
 
 router.route("/")
   .post(protect, validateOrderCreate, createOrder)

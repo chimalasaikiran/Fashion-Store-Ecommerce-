@@ -58,10 +58,10 @@ export default function RootLayout() {
                 <WishlistProvider>
                   <PaymentProvider>
                     <View style={{ flex: 1, backgroundColor: "#3D1800" }}>
-                      {/* App Stack */}
+                      {}
                       <Stack screenOptions={{ headerShown: false }} />
 
-                      {/* Splash overlay */}
+                      {}
                       {showCustomSplash && (
                         <AppSplashScreen onFinish={handleSplashFinish} />
                       )}

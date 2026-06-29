@@ -1,15 +1,15 @@
 const TRANSITIONS = {
-  "active": ["Pending", "Processing", "Cancelled"], // For backward compatibility
+  "active": ["Pending", "Processing", "Cancelled"], 
   "Pending": ["Processing", "Cancelled"],
   "Processing": ["Dispatched", "Cancelled"],
   "Dispatched": ["Shipped"],
   "Shipped": ["Out For Delivery"],
   "Out For Delivery": ["Delivered"],
-  "Delivered": ["Refunded"], // Can be refunded after delivery
+  "Delivered": ["Refunded"], 
   "Cancelled": [],
   "Refunded": [],
 
-  // Legacy states for backward compatibility
+  
   "Confirmed": ["Packed", "Processing", "Dispatched", "Cancelled"],
   "Packed": ["Shipped", "Dispatched", "Cancelled"],
 };
@@ -23,17 +23,12 @@ const STATUS_DESCRIPTIONS = {
   "Delivered": "Order successfully delivered.",
   "Cancelled": "Order has been cancelled.",
   "Refunded": "Order has been cancelled and payment refunded.",
-  // Legacy
+  
   "Confirmed": "Order has been confirmed by the store.",
   "Packed": "Order has been packed and is ready for dispatch.",
 };
 
-/**
- * Validates whether an order can transition from currentStatus to nextStatus
- * @param {string} currentStatus 
- * @param {string} nextStatus 
- * @returns {boolean}
- */
+
 const isValidTransition = (currentStatus, nextStatus) => {
   if (!currentStatus) return nextStatus === "Pending" || nextStatus === "active";
   
@@ -43,12 +38,7 @@ const isValidTransition = (currentStatus, nextStatus) => {
   return allowed.includes(nextStatus);
 };
 
-/**
- * Generates the initial timeline array for a new order
- * @param {string} dateStr Formatted date string
- * @param {boolean} isPaid Whether the payment is already cleared
- * @returns {Array}
- */
+
 const createInitialTimeline = (dateStr, isPaid = true) => {
   return [
     {
@@ -110,10 +100,7 @@ const createInitialTimeline = (dateStr, isPaid = true) => {
   ];
 };
 
-/**
- * Formats the current date and time in the store's format
- * @returns {string}
- */
+
 const formatEventDate = () => {
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -132,13 +119,7 @@ const formatEventDate = () => {
   return `${day} ${month} ${year}, ${strTime}`;
 };
 
-/**
- * Transitions an order to a new status and updates timeline & activity logs
- * @param {object} order Mongoose order model instance
- * @param {string} nextStatus Target status
- * @param {string} actor Name of the user/admin executing the change
- * @returns {object} The updated order instance
- */
+
 const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
   if (!isValidTransition(order.status, nextStatus)) {
     throw new Error(`Invalid status transition from ${order.status} to ${nextStatus}`);
@@ -146,15 +127,15 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
 
   const timestampStr = formatEventDate();
 
-  // 1. Update status
+  
   order.status = nextStatus;
 
-  // 2. Set helper statuses (delivery & payment) accordingly
+  
   if (nextStatus === "Shipped") {
     order.deliveryStatus = "In Transit";
   } else if (nextStatus === "Delivered") {
     order.deliveryStatus = "Delivered";
-    order.paymentStatus = "Paid"; // Delivered implies paid
+    order.paymentStatus = "Paid"; 
     if (order.items && Array.isArray(order.items)) {
       order.items.forEach(item => {
         item.status = "completed";
@@ -173,7 +154,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
   } else if (nextStatus === "Refunded") {
     order.paymentStatus = "Refunded";
     order.deliveryStatus = "Cancelled";
-    order.status = "Cancelled"; // Refunded orders are grouped under Cancelled in orderStatus
+    order.status = "Cancelled"; 
     if (order.items && Array.isArray(order.items)) {
       order.items.forEach(item => {
         item.status = "cancelled";
@@ -181,13 +162,13 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
     }
   }
 
-  // 3. Update timeline events
+  
   if (!order.timeline || order.timeline.length === 0) {
     order.timeline = createInitialTimeline(order.date || timestampStr, order.paymentStatus === "Paid");
   }
 
   order.timeline = order.timeline.map(event => {
-    // If nextStatus is Processing
+    
     if (nextStatus === "Processing") {
       if (event.id === "evt-confirmed") {
         return { ...event, status: "completed", timestamp: event.timestamp || timestampStr, description: "Your order has been confirmed by the store." };
@@ -200,7 +181,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
       }
     }
     
-    // If nextStatus is Dispatched
+    
     if (nextStatus === "Dispatched") {
       if (["evt-confirmed", "evt-processing"].includes(event.id)) {
         return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
@@ -213,7 +194,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
       }
     }
     
-    // If nextStatus is Shipped
+    
     if (nextStatus === "Shipped") {
       if (["evt-confirmed", "evt-processing", "evt-dispatched"].includes(event.id)) {
         return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
@@ -226,7 +207,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
       }
     }
     
-    // If nextStatus is Out For Delivery
+    
     if (nextStatus === "Out For Delivery") {
       if (["evt-confirmed", "evt-processing", "evt-dispatched", "evt-shipped"].includes(event.id)) {
         return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
@@ -239,7 +220,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
       }
     }
     
-    // If nextStatus is Delivered
+    
     if (nextStatus === "Delivered") {
       if (["evt-confirmed", "evt-processing", "evt-dispatched", "evt-shipped", "evt-out-for-delivery"].includes(event.id)) {
         return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
@@ -249,7 +230,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
       }
     }
 
-    // If nextStatus is Cancelled or Refunded
+    
     if (nextStatus === "Cancelled" || nextStatus === "Refunded") {
       if (event.status === "current" || event.status === "upcoming") {
         return {
@@ -264,7 +245,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
     return event;
   });
 
-  // Auto-complete payment event if it's paid
+  
   if (order.paymentStatus === "Paid") {
     order.timeline = order.timeline.map(event => {
       if (event.id === "evt-payment") {
@@ -279,7 +260,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
     });
   }
 
-  // If a transition is Cancelled or Refunded, append a specific timeline event for it
+  
   if (nextStatus === "Cancelled" || nextStatus === "Refunded") {
     order.timeline.push({
       id: `evt-${Date.now()}`,
@@ -290,7 +271,7 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
     });
   }
 
-  // 4. Add activity logs
+  
   order.activityLogs.unshift({
     id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     action: nextStatus === "Refunded" ? "Order Refunded & Cancelled" : `Order Status changed to ${nextStatus}`,

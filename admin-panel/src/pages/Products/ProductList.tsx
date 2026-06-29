@@ -688,7 +688,7 @@ export default function ProductList() {
                 paginatedProducts.map((product) => {
                   const isChecked = selectedProductIds.includes(product.id);
                   
-                  // Status details
+                  
                   let badgeClass = 'bg-emerald-50 border-emerald-200 text-emerald-800';
                   let statusText = 'IN STOCK';
                   
@@ -717,7 +717,7 @@ export default function ProductList() {
                         />
                       </td>
 
-                      {/* Product details */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <img
@@ -725,7 +725,7 @@ export default function ProductList() {
                             alt={product.name}
                             className="w-12 h-12 rounded-lg object-cover border border-[#BEC9BE]/60"
                             onError={(e) => {
-                              // Fallback image if unsplash link fails
+                              
                               (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=200';
                             }}
                           />

@@ -341,7 +341,7 @@ export default function CategoryList() {
                 paginatedCategories.map((category) => {
                   const prodCount = getProductCount(category.name);
                   
-                  // Status classes
+                  
                   const statusBg = category.status === 'Active'
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                     : 'bg-gray-55 border-gray-200 text-gray-600';
@@ -351,23 +351,23 @@ export default function CategoryList() {
                       key={category.id} 
                       className="hover:bg-[#E8F8E9]/20 transition-colors"
                     >
-                      {/* Name */}
+                      {}
                       <td className="py-4 px-6 font-bold text-[#111E16] whitespace-nowrap">
                         {category.name}
                         <span className="text-xs text-[#6F7A70] block font-normal">ID: {category.id}</span>
                       </td>
 
-                      {/* Description */}
+                      {}
                       <td className="py-4 px-4 text-[#6F7A70] max-w-xs truncate" title={category.description}>
                         {category.description || <span className="italic text-gray-300">No description provided</span>}
                       </td>
 
-                      {/* Count */}
+                      {}
                       <td className="py-4 px-4 text-center font-bold text-[#111E16] font-mono">
                         {prodCount}
                       </td>
 
-                      {/* Status */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <button
                           onClick={() => handleToggleStatus(category)}
@@ -382,13 +382,13 @@ export default function CategoryList() {
                         </button>
                       </td>
 
-                      {/* Dates */}
+                      {}
                       <td className="py-4 px-4 whitespace-nowrap text-xs text-[#111E16]">
                         <div>Created: <span className="font-semibold">{category.createdDate}</span></div>
                         <div className="text-[10px] text-[#6F7A70]">Updated: {category.updatedDate}</div>
                       </td>
 
-                      {/* Actions */}
+                      {}
                       <td className="py-4 px-6 whitespace-nowrap text-right text-xs font-bold">
                         <div className="flex items-center justify-end gap-2">
                           {canEdit && (
@@ -427,7 +427,7 @@ export default function CategoryList() {
           </table>
         </div>
 
-        {/* Pagination */}
+        {}
         <div className="bg-white border-t border-[#BEC9BE] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}

@@ -161,7 +161,7 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: 
       const res = await fetch(`${API_URL}/orders/admin`, { headers: getHeaders() });
       const data = await res.json();
       if (data.success) {
-        // Map backend document to frontend fields using unified helper
+        
         const mappedOrders = data.orders.map(mapOrderData);
         setOrders(mappedOrders);
       }
@@ -179,7 +179,7 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: 
     }
   }, [isLoggedIn]);
 
-  // Real-time updates via Socket.io
+  
   useEffect(() => {
     const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
     if (!loggedIn) return;
@@ -195,7 +195,7 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: 
       const mapped = mapOrderData(newOrder);
       setOrders(prev => [mapped, ...prev]);
       
-      // Play a subtle notification chime to wow the user
+      
       const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-500.wav');
       audio.play().catch(() => {});
     });
@@ -220,7 +220,7 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: 
       });
       const data = await res.json();
       if (data.success) {
-        await fetchOrders(); // Full reload to refresh timeline/activity logs
+        await fetchOrders(); 
       }
     } catch (err) {
       console.error('Error updating order status:', err);

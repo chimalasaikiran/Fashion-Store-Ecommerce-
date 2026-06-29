@@ -76,7 +76,7 @@ const serializeOrder = (order) => {
   const obj = order.toObject ? order.toObject() : order;
   obj.id = obj._id.toString();
 
-  // Normalize legacy lowercase/custom statuses to matching admin/mobile states
+  
   if (obj.status === "active") {
     obj.status = "Pending";
   } else if (obj.status === "completed") {
@@ -85,7 +85,7 @@ const serializeOrder = (order) => {
     obj.status = "Cancelled";
   }
 
-  // Populate fallback shipping address for legacy database records
+  
   if (!obj.shippingAddress) {
     obj.shippingAddress = {
       name: obj.customerName || "Customer",
@@ -98,7 +98,7 @@ const serializeOrder = (order) => {
     };
   }
 
-  // Populate fallback billing address for legacy database records
+  
   if (!obj.billingAddress) {
     obj.billingAddress = {
       name: obj.customerName || "Customer",
@@ -111,13 +111,13 @@ const serializeOrder = (order) => {
     };
   }
 
-  // Populate fallback timeline array for legacy database records
+  
   if (!obj.timeline || obj.timeline.length === 0) {
     const timeStr = obj.date || "N/A";
     const isPaid = obj.paymentStatus === "Paid";
     obj.timeline = createInitialTimeline(timeStr, isPaid);
     
-    // Catch up the fallback timeline to match the current status of the order
+    
     obj.timeline = obj.timeline.map(event => {
       if (obj.status === "Processing") {
         if (["evt-confirmed", "evt-processing"].includes(event.id)) {
@@ -250,7 +250,7 @@ const createOrder = async (req, res) => {
 
     const serialized = serializeOrder(order);
 
-    // Emit live WebSocket notification to admin dashboard
+    
     if (global.io) {
       global.io.emit("order_created", serialized);
     }
@@ -340,7 +340,7 @@ const cancelOrder = async (req, res) => {
     
     const serialized = serializeOrder(updatedOrder);
 
-    // Emit live WebSocket notification for real-time mobile/admin sync
+    
     if (global.io) {
       global.io.emit("order_updated", serialized);
     }
@@ -372,7 +372,7 @@ const reorder = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Reset status to Pending for customer reordering
+    
     order.status = "Pending";
     order.paymentStatus = order.paymentMethod === "Wallet" ? "Paid" : "Pending";
     order.deliveryStatus = "Pending";
@@ -412,16 +412,14 @@ const reorder = async (req, res) => {
   }
 };
 
-/* ==========================================
-   ADMIN PANEL CONTROLLERS
-   ========================================== */
+
 
 const adminGetAllOrders = async (req, res) => {
   try {
     const { searchQuery, orderStatus, paymentStatus, sortBy, sortOrder } = req.query;
     const query = {};
 
-    // 1. Search Query (ID, Customer Name, Phone, Email)
+    
     if (searchQuery) {
       const regex = new RegExp(searchQuery, "i");
       query.$or = [
@@ -431,7 +429,7 @@ const adminGetAllOrders = async (req, res) => {
       ];
     }
 
-    // 2. Filters
+    
     if (orderStatus && orderStatus !== "All") {
       query.status = orderStatus;
     }
@@ -439,7 +437,7 @@ const adminGetAllOrders = async (req, res) => {
       query.paymentStatus = paymentStatus;
     }
 
-    // 3. Sorting
+    
     let sortObj = { createdAt: -1 };
     if (sortBy) {
       const orderDir = sortOrder === "desc" ? -1 : 1;
@@ -474,12 +472,12 @@ const adminGetOrderMetrics = async (req, res) => {
     const cancelledOrders = await Order.countDocuments({ status: "Cancelled" });
     const refundRequests = await Order.countDocuments({ paymentStatus: "Refunded" });
 
-    // Today's Orders
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayOrders = await Order.countDocuments({ createdAt: { $gte: today } });
 
-    // Total Revenue (Sum of Paid and Delivered orders)
+    
     const revenueAggregate = await Order.aggregate([
       { $match: { paymentStatus: "Paid" } },
       { $group: { _id: null, total: { $sum: "$totalAmount" } } }
@@ -524,7 +522,7 @@ const adminUpdateOrderStatus = async (req, res) => {
 
     const serialized = serializeOrder(updatedOrder);
 
-    // Notify client apps in real-time
+    
     if (global.io) {
       global.io.emit("order_updated", serialized);
     }
@@ -553,7 +551,7 @@ const adminUpdatePaymentStatus = async (req, res) => {
 
     order.paymentStatus = paymentStatus;
     
-    // Auto-update timeline if paid
+    
     if (paymentStatus === "Paid") {
       const timestampStr = formatEventDate();
       order.timeline = order.timeline.map(evt => {
@@ -603,7 +601,7 @@ const adminUpdateDeliveryStatus = async (req, res) => {
     order.deliveryStatus = deliveryStatus;
     const timestampStr = formatEventDate();
 
-    // Map logistic states back to main order status transitions
+    
     if (deliveryStatus === "In Transit" && order.status !== "Shipped") {
       order.status = "Shipped";
       order.timeline = order.timeline.map(evt => {
@@ -800,7 +798,7 @@ const adminBulkUpdateStatus = async (req, res) => {
       }
     }
 
-    // Broadcast update events
+    
     if (global.io && updatedOrders.length > 0) {
       updatedOrders.forEach(o => global.io.emit("order_updated", o));
     }

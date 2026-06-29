@@ -131,7 +131,7 @@ function App() {
                           isLoggedIn ? <DashboardLayout onLogout={handleLogout} /> : <Navigate to="/login" replace />
                         } 
                       >
-                        {/* Nested routes rendered inside DashboardLayout Outlet */}
+                        {}
                         <Route index element={<Dashboard />} />
                         <Route path="users" element={
                           <RouteGuard module="customers" subpage="User List">

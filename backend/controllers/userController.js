@@ -7,7 +7,7 @@ const SystemSetting = require("../models/SystemSetting");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-// Helper: Map DB user/admin to unified frontend User interface
+
 const mapToUnifiedUser = (doc, type, orderStats) => {
   const id = doc._id.toString();
   const stats = orderStats[id] || { count: 0, spent: 0 };
@@ -41,7 +41,7 @@ const mapToUnifiedUser = (doc, type, orderStats) => {
       notificationPreferences: doc.notificationPreferences || {},
     };
   } else {
-    // Admin or Super Admin
+    
     const roleName = doc.role && doc.role.name ? doc.role.name : "Admin";
     const status = doc.status === "Inactive" ? "Blocked" : "Active";
 
@@ -68,7 +68,7 @@ const mapToUnifiedUser = (doc, type, orderStats) => {
 };
 
 class UserController {
-  // GET /api/users
+  
   getAllUsers = async (req, res) => {
     try {
       const {
@@ -81,7 +81,7 @@ class UserController {
         limit = 5,
       } = req.query;
 
-      // 1. Fetch all completed/active order statistics to compute total spent & order count
+      
       const ordersStats = await Order.aggregate([
         {
           $group: {
@@ -102,13 +102,13 @@ class UserController {
         }
       });
 
-      // 2. Fetch Customers
+      
       const customers = await User.find({});
       
-      // 3. Fetch Admins
+      
       const admins = await Admin.find({}).populate("role");
 
-      // 4. Map both arrays
+      
       const unifiedCustomers = customers.map((c) =>
         mapToUnifiedUser(c, "Customer", orderStatsMap)
       );
@@ -116,10 +116,10 @@ class UserController {
         mapToUnifiedUser(a, "Admin", orderStatsMap)
       );
 
-      // Combine both
+      
       let combined = [...unifiedCustomers, ...unifiedAdmins];
 
-      // 5. Apply filtering
+      
       if (search) {
         const query = search.toLowerCase();
         combined = combined.filter(
@@ -139,7 +139,7 @@ class UserController {
         combined = combined.filter((u) => u.role === role);
       }
 
-      // 6. Apply sorting
+      
       combined.sort((a, b) => {
         let valA = a[sortBy];
         let valB = b[sortBy];
@@ -157,7 +157,7 @@ class UserController {
         return 0;
       });
 
-      // 7. Apply pagination
+      
       const totalItems = combined.length;
       const parsedPage = parseInt(page);
       const parsedLimit = parseInt(limit);
@@ -183,7 +183,7 @@ class UserController {
     }
   };
 
-  // GET /api/users/:id
+  
   getUserById = async (req, res) => {
     try {
       const { id } = req.params;
@@ -204,7 +204,7 @@ class UserController {
         return res.status(404).json({ success: false, message: "User not found" });
       }
 
-      // Get order count and total spent
+      
       const ordersStats = await Order.aggregate([
         { $match: { user: new mongoose.Types.ObjectId(id) } },
         {
@@ -221,7 +221,7 @@ class UserController {
 
       const unifiedUser = mapToUnifiedUser(userDoc, type, orderStatsMap);
 
-      // Fetch actual orders history
+      
       const orders = await Order.find({ user: id }).sort({ createdAt: -1 });
 
       res.status(200).json({
@@ -240,7 +240,7 @@ class UserController {
     }
   };
 
-  // POST /api/users
+  
   createUser = async (req, res) => {
     try {
       const { name, email, phone, role, status } = req.body;
@@ -249,7 +249,7 @@ class UserController {
         return res.status(400).json({ success: false, message: "Name and email are required" });
       }
 
-      // Check if email already in use
+      
       const customerExists = await User.findOne({ email });
       const adminExists = await Admin.findOne({ email });
       if (customerExists || adminExists) {
@@ -259,7 +259,7 @@ class UserController {
       let createdDoc;
       let type = "Customer";
 
-      // Temporary password for created users
+      
       const tempPassword = "Password123!";
 
       if (role === "Customer") {
@@ -275,10 +275,10 @@ class UserController {
         });
       } else {
         type = "Admin";
-        // Find role by name
+        
         let roleDoc = await Role.findOne({ name: role });
         if (!roleDoc) {
-          // Default to regular Admin if role not found
+          
           roleDoc = await Role.findOne({ name: "Admin" });
         }
 
@@ -300,7 +300,7 @@ class UserController {
       const orderStatsMap = {};
       const unifiedUser = mapToUnifiedUser(createdDoc, type, orderStatsMap);
 
-      // Log Activity
+      
       await ActivityLog.create({
         userId: unifiedUser.id,
         userName: unifiedUser.name,
@@ -325,7 +325,7 @@ class UserController {
     }
   };
 
-  // PUT /api/users/:id
+  
   updateUser = async (req, res) => {
     try {
       const { id } = req.params;
@@ -346,18 +346,18 @@ class UserController {
       let type = "Customer";
 
       if (customer) {
-        // If changing role from Customer to Admin/Super Admin
+        
         if (role !== "Customer") {
-          // Delete customer, create admin
+          
           const roleDoc = await Role.findOne({ name: role }) || await Role.findOne({ name: "Admin" });
           
           await User.findByIdAndDelete(id);
 
           updatedDoc = await Admin.create({
-            _id: id, // preserve ID
+            _id: id, 
             name: name || customer.name,
             email: email || customer.email,
-            password: customer.password, // preserve password hash
+            password: customer.password, 
             role: roleDoc._id,
             status: status === "Blocked" ? "Inactive" : "Active",
             blockReason: status === "Blocked" ? "Blocked during role transition" : "",
@@ -365,7 +365,7 @@ class UserController {
           });
           type = "Admin";
         } else {
-          // Just update customer
+          
           if (name) customer.name = name;
           if (email) customer.email = email;
           if (phone !== undefined) customer.phone = phone;
@@ -377,17 +377,17 @@ class UserController {
             } else {
               customer.blockReason = "";
               customer.blockedAt = null;
-              customer.isVerified = true; // verify if unblocking
+              customer.isVerified = true; 
             }
           }
 
           updatedDoc = await customer.save();
         }
       } else {
-        // It's an Admin
+        
         type = "Admin";
         if (role === "Customer") {
-          // Delete admin, create customer
+          
           await Admin.findByIdAndDelete(id);
 
           updatedDoc = await User.create({
@@ -403,11 +403,11 @@ class UserController {
           });
           type = "Customer";
         } else {
-          // Update admin details
+          
           if (name) admin.name = name;
           if (email) admin.email = email;
           
-          // Role update
+          
           const roleDoc = await Role.findOne({ name: role });
           if (roleDoc) {
             admin.role = roleDoc._id;
@@ -431,7 +431,7 @@ class UserController {
       const orderStatsMap = {};
       const unifiedUser = mapToUnifiedUser(updatedDoc, type, orderStatsMap);
 
-      // Log Activity
+      
       await ActivityLog.create({
         userId: unifiedUser.id,
         userName: unifiedUser.name,
@@ -456,7 +456,7 @@ class UserController {
     }
   };
 
-  // DELETE /api/users/:id
+  
   deleteUser = async (req, res) => {
     try {
       const { id } = req.params;
@@ -477,7 +477,7 @@ class UserController {
         return res.status(404).json({ success: false, message: "User not found" });
       }
 
-      // Log Activity
+      
       await ActivityLog.create({
         userId: id,
         userName: deletedUser.name,
@@ -501,7 +501,7 @@ class UserController {
     }
   };
 
-  // POST /api/users/:id/block
+  
   blockUser = async (req, res) => {
     try {
       const { id } = req.params;
@@ -544,7 +544,7 @@ class UserController {
       const orderStatsMap = {};
       const unifiedUser = mapToUnifiedUser(updatedDoc, type, orderStatsMap);
 
-      // Log Activity
+      
       await ActivityLog.create({
         userId: unifiedUser.id,
         userName: unifiedUser.name,
@@ -569,11 +569,11 @@ class UserController {
     }
   };
 
-  // POST /api/users/:id/unblock
+  
   unblockUser = async (req, res) => {
     try {
       const { id } = req.params;
-      const { reason } = req.body; // optional for unblocking, but can log
+      const { reason } = req.body; 
 
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid User ID format" });
@@ -607,7 +607,7 @@ class UserController {
       const orderStatsMap = {};
       const unifiedUser = mapToUnifiedUser(updatedDoc, type, orderStatsMap);
 
-      // Log Activity
+      
       await ActivityLog.create({
         userId: unifiedUser.id,
         userName: unifiedUser.name,
@@ -632,7 +632,7 @@ class UserController {
     }
   };
 
-  // GET /api/users/activity/logs
+  
   getActivityLogs = async (req, res) => {
     try {
       const logs = await ActivityLog.find({}).sort({ timestamp: -1 });
@@ -649,7 +649,7 @@ class UserController {
     }
   };
 
-  // GET /api/users/preferences/notifications
+  
   getNotificationPreferences = async (req, res) => {
     try {
       let prefSetting = await SystemSetting.findOne({ key: "notification_preferences" });
@@ -680,7 +680,7 @@ class UserController {
     }
   };
 
-  // PUT /api/users/preferences/notifications
+  
   updateNotificationPreferences = async (req, res) => {
     try {
       const { email, push, sms } = req.body;
@@ -705,7 +705,7 @@ class UserController {
         await prefSetting.save();
       }
 
-      // Log administrative action
+      
       await ActivityLog.create({
         userId: req.admin ? req.admin._id.toString() : "admin",
         userName: req.admin ? req.admin.name : "Admin",

@@ -4,7 +4,7 @@ const userController = require("../controllers/userController");
 const { protect } = require("../src/middleware/auth.middleware");
 const { checkPermission } = require("../src/middleware/permission.middleware");
 
-// Unified User List
+
 router.get(
   "/",
   protect,
@@ -19,7 +19,7 @@ router.post(
   userController.createUser
 );
 
-// Global Notification Preferences (placed above id routes to prevent matching as params)
+
 router.get(
   "/preferences/notifications",
   protect,
@@ -34,7 +34,7 @@ router.put(
   userController.updateNotificationPreferences
 );
 
-// Unified Activity Logs
+
 router.get(
   "/activity/logs",
   protect,
@@ -42,7 +42,7 @@ router.get(
   userController.getActivityLogs
 );
 
-// User Detail and Modifiers
+
 router.get(
   "/:id",
   protect,
