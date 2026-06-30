@@ -93,6 +93,11 @@ const ProductSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    stock: {
+      type: Number,
+      default: 10,
+      min: [0, "Stock cannot be negative"],
+    },
   },
   {
     timestamps: true,

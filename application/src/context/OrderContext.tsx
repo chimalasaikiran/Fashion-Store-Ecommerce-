@@ -36,7 +36,8 @@ interface OrderContextType {
     items: any[],
     paymentMethod?: string,
     promoCode?: string,
-    totalCost?: number
+    totalCost?: number,
+    shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string }
   ) => Promise<string>;
 }
 
@@ -140,7 +141,8 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     items: any[],
     paymentMethod: string = "Wallet",
     promoCode: string = "",
-    totalCost: number = 0
+    totalCost: number = 0,
+    shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string }
   ): Promise<string> => {
     try {
       const ensureValidObjectId = (id: string): string => {
@@ -168,6 +170,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         paymentMethod,
         items: apiItems,
         totalAmount: totalCost || items.reduce((sum, i) => sum + i.price * (i.quantity || 1), 0),
+        shippingAddress: shippingAddress || undefined,
       };
 
       const res = await createOrderApi(payload);

@@ -16,6 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
+import { useCart } from "../../context/CartContext";
 
 const BROWN_DARK = Colors.primary; 
 const ACCENT = Colors.accent; 
@@ -57,8 +58,19 @@ export default function ShippingAddressScreen() {
   const router = useRouter();
 
   
-  const [addresses, setAddresses] = useState<AddressItem[]>(INITIAL_ADDRESSES);
-  const [selectedId, setSelectedId] = useState<string>("1");
+  const { selectedAddress, setSelectedAddress } = useCart();
+  const [addresses, setAddresses] = useState<AddressItem[]>(() => {
+    const exists = INITIAL_ADDRESSES.some(a => a.address === selectedAddress?.address);
+    if (selectedAddress && !exists) {
+      return [...INITIAL_ADDRESSES, { id: "custom_selected", label: selectedAddress.label, address: selectedAddress.address }];
+    }
+    return INITIAL_ADDRESSES;
+  });
+  
+  const [selectedId, setSelectedId] = useState<string>(() => {
+    const found = addresses.find(a => a.address === selectedAddress?.address);
+    return found ? found.id : "1";
+  });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newAddress, setNewAddress] = useState("");
@@ -67,6 +79,10 @@ export default function ShippingAddressScreen() {
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
+    const found = addresses.find((a) => a.id === id);
+    if (found) {
+      setSelectedAddress({ label: found.label, address: found.address });
+    }
   };
 
   const handleBack = () => {
@@ -92,6 +108,7 @@ export default function ShippingAddressScreen() {
 
     setAddresses([...addresses, item]);
     setSelectedId(newId);
+    setSelectedAddress({ label: item.label, address: item.address });
     setNewLabel("");
     setNewAddress("");
     setErrorMsg(null);

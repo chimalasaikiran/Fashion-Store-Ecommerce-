@@ -15,6 +15,7 @@ import { usePayment } from "../../context/PaymentContext";
 import { useCart } from "../../context/CartContext";
 import { useOrders } from "../../context/OrderContext";
 import { useWallet } from "../../context/WalletContext";
+import { useProfile } from "../../context/ProfileContext";
 import { Colors } from "../../constants/Colors";
 
 
@@ -146,9 +147,10 @@ export default function PaymentMethodsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { cards } = usePayment();
-  const { cartItems, clearCart, totalCost, appliedPromo } = useCart();
+  const { cartItems, clearCart, totalCost, appliedPromo, selectedAddress } = useCart();
   const { placeOrder } = useOrders();
   const { deductMoney } = useWallet();
+  const { profile } = useProfile();
   
   
   const [selectedMethod, setSelectedMethod] = useState<string>("wallet");
@@ -169,11 +171,22 @@ export default function PaymentMethodsScreen() {
 
   const handleConfirmPayment = async () => {
     if (cartItems.length > 0) {
+      const backendAddress = selectedAddress ? {
+        name: profile.name || "Customer",
+        street: selectedAddress.address.split(",")[0] || selectedAddress.address,
+        city: selectedAddress.address.split(",")[1]?.trim() || "New York",
+        state: selectedAddress.address.split(",")[2]?.trim().split(" ")[0] || "NY",
+        zip: selectedAddress.address.split(",")[2]?.trim().split(" ")[1] || "10016",
+        country: selectedAddress.address.split(",")[3]?.trim() || "USA",
+        phone: profile.phone || "+1 (208) 555-0112",
+      } : undefined;
+
       const newOrderId = await placeOrder(
         cartItems,
         selectedMethod,
         appliedPromo,
-        totalCost
+        totalCost,
+        backendAddress
       );
       if (selectedMethod === "wallet") {
         deductMoney(totalCost, newOrderId.replace("#", ""));

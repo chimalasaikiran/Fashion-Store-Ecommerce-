@@ -12,7 +12,9 @@ import {
   Modal,
   FlatList,
   Pressable,
+  Alert,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -84,14 +86,51 @@ export default function CompleteProfileScreen() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   
-  const handlePhotoSelect = (option: string) => {
+  const handlePhotoSelect = async (option: string) => {
     setIsPhotoSheetVisible(false);
     if (option === "remove") {
       setPhotoUri(null);
-    } else if (option === "gallery") {
-      setPhotoUri("gallery_selected");
-    } else if (option === "camera") {
-      setPhotoUri("camera_selected");
+      return;
+    }
+
+    try {
+      if (option === "gallery") {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "We need access to your photo library to select a profile photo.");
+          return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          setPhotoUri(result.assets[0].uri);
+        }
+      } else if (option === "camera") {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "We need access to your camera to take a profile photo.");
+          return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          setPhotoUri(result.assets[0].uri);
+        }
+      }
+    } catch (error) {
+      console.error("ImagePicker Error:", error);
+      Alert.alert("Error", "An error occurred while picking the image.");
     }
   };
 
@@ -211,23 +250,15 @@ export default function CompleteProfileScreen() {
             activeOpacity={0.9}
           >
             <View style={styles.avatarCircle}>
-              {photoUri === "gallery_selected" ? (
+              {photoUri ? (
                 <Image
-                  source={require("../../../assets/images/fashion_portrait_1_1781014071035.png")}
-                  style={styles.avatarImage}
-                  contentFit="cover"
-                />
-              ) : photoUri === "camera_selected" ? (
-                <Image
-                  source={require("../../../assets/images/fashion_portrait_2_1781014083606.png")}
+                  source={{ uri: photoUri }}
                   style={styles.avatarImage}
                   contentFit="cover"
                 />
               ) : (
                 <Svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-                  {}
                   <Circle cx="36" cy="26" r="11" stroke="#3D1800" strokeWidth="3.5" />
-                  {}
                   <Ellipse cx="36" cy="49" rx="18" ry="8" stroke="#C27B3A" strokeWidth="3.5" />
                 </Svg>
               )}

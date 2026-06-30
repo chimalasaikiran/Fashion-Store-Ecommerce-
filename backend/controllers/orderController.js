@@ -174,10 +174,43 @@ const serializeOrder = (order) => {
   return obj;
 };
 
+const restockOrderItems = async (order) => {
+  if (order.items && Array.isArray(order.items)) {
+    for (const item of order.items) {
+      if (item.product) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: Number(item.quantity || 1) }
+        });
+      }
+    }
+  }
+};
+
 const createOrder = async (req, res) => {
   const { phone, promoCode, paymentMethod, items, totalAmount } = req.body;
 
   try {
+    // Verify stock availability
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res.status(404).json({ success: false, message: `Product not found: ${item.name}` });
+      }
+      if (product.stock !== undefined && product.stock < Number(item.quantity || 1)) {
+        return res.status(400).json({
+          success: false,
+          message: `Item out of stock or insufficient quantity: ${item.name} (Available: ${product.stock})`
+        });
+      }
+    }
+
+    // Decrement stock levels
+    for (const item of items) {
+      await Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: -Number(item.quantity || 1) }
+      });
+    }
+
     const orderId = await generateOrderId();
     const transactionId = await generateTransactionId();
     
@@ -336,6 +369,7 @@ const cancelOrder = async (req, res) => {
     }
 
     const updatedOrder = orchestrateTransition(order, "Cancelled", req.user.name || "Customer");
+    await restockOrderItems(updatedOrder);
     await updatedOrder.save();
     
     const serialized = serializeOrder(updatedOrder);
@@ -518,6 +552,9 @@ const adminUpdateOrderStatus = async (req, res) => {
     }
 
     const updatedOrder = orchestrateTransition(order, status, adminName);
+    if (status === "Cancelled" || status === "Refunded") {
+      await restockOrderItems(updatedOrder);
+    }
     await updatedOrder.save();
 
     const serialized = serializeOrder(updatedOrder);
@@ -653,6 +690,7 @@ const adminRefundOrder = async (req, res) => {
     }
 
     const updatedOrder = orchestrateTransition(order, "Refunded", adminName);
+    await restockOrderItems(updatedOrder);
     await updatedOrder.save();
     
     const serialized = serializeOrder(updatedOrder);

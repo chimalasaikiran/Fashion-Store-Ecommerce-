@@ -26,6 +26,10 @@ interface CartContextType {
   tax: number;
   totalCost: number;
   clearCart: () => void;
+  selectedAddress: { label: string; address: string } | null;
+  setSelectedAddress: (address: { label: string; address: string } | null) => void;
+  selectedShippingType: { type: string; eta: string; price: number } | null;
+  setSelectedShippingType: (shipping: { type: string; eta: string; price: number } | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -72,6 +76,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   const [appliedPromo, setAppliedPromo] = useState<string>("");
+
+  const [selectedAddress, setSelectedAddress] = useState<{ label: string; address: string } | null>({
+    label: "Home",
+    address: "245 Madison Ave, New York, NY 10016, USA",
+  });
+  const [selectedShippingType, setSelectedShippingType] = useState<{ type: string; eta: string; price: number } | null>({
+    type: "Economy",
+    eta: "Estimated Arrival  11\nMarch 2026",
+    price: 20.0,
+  });
 
   
   const subTotal = useMemo(() => {
@@ -172,6 +186,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         tax,
         totalCost,
         clearCart,
+        selectedAddress,
+        setSelectedAddress,
+        selectedShippingType,
+        setSelectedShippingType,
       }}
     >
       {children}

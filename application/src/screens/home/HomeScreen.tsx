@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Animated,
+  Dimensions,
 } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,6 +20,9 @@ import { ChatListTab } from "../chat/ChatScreen";
 import { ProfileTab } from "../profile/ProfileScreen";
 import { Colors } from "../../constants/Colors";
 
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CAROUSEL_WIDTH = SCREEN_WIDTH - 48;
+
 const BROWN_DARK = Colors.primary; 
 const ACCENT = Colors.accent; 
 const WARM_YELLOW = Colors.warning; 
@@ -25,6 +30,39 @@ const LIGHT_BG = Colors.background;
 const GRAY_BG = Colors.backgroundGray; 
 const TEXT_MUTED = Colors.textMuted;
 const TEXT_PRIMARY = Colors.textPrimary;
+
+const PROMO_OFFERS = [
+  {
+    id: 1,
+    badge: "Today's Exclusive Deals",
+    title: "Enjoy ",
+    italicTitle: "Extra Off",
+    discountText: "Up to",
+    percent: "30",
+    image: require("../../../assets/images/special_offers_banner.png"),
+    backgroundColor: "#F3EBE3",
+  },
+  {
+    id: 2,
+    badge: "Limited Time Offer",
+    title: "New Summer ",
+    italicTitle: "Arrivals",
+    discountText: "Flat",
+    percent: "50",
+    image: require("../../../assets/images/special_offers_banner.png"),
+    backgroundColor: "#E3ECF0",
+  },
+  {
+    id: 3,
+    badge: "Weekend Flash Sale",
+    title: "Premium ",
+    italicTitle: "Brands",
+    discountText: "Save",
+    percent: "20",
+    image: require("../../../assets/images/special_offers_banner.png"),
+    backgroundColor: "#F0E3E3",
+  }
+];
 
 const CATEGORIES = [
   { id: "t-shirt", name: "T-Shirt", type: "tshirt" },
@@ -41,6 +79,43 @@ export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState("t-shirt");
   const [activeTab, setActiveTab] = useState("home");
   const searchQuery = "";
+
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  // Auto-play effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      let nextIndex = currentSlideIndex + 1;
+      if (nextIndex >= PROMO_OFFERS.length) {
+        nextIndex = 0;
+      }
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({
+          x: nextIndex * CAROUSEL_WIDTH,
+          animated: true,
+        });
+      }
+      setCurrentSlideIndex(nextIndex);
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [currentSlideIndex]);
+
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    {
+      useNativeDriver: false,
+      listener: (event: any) => {
+        const contentOffsetX = event.nativeEvent.contentOffset.x;
+        const index = Math.round(contentOffsetX / CAROUSEL_WIDTH);
+        if (index !== currentSlideIndex && index >= 0 && index < PROMO_OFFERS.length) {
+          setCurrentSlideIndex(index);
+        }
+      }
+    }
+  );
 
   useEffect(() => {
     if (params.tab) {
@@ -225,42 +300,91 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {}
-        <View style={styles.promoBanner}>
-          {}
-          <View style={styles.promoTextContainer}>
-            <View style={styles.promoBadge}>
-              <Text style={styles.promoBadgeText}>{"Today's Exclusive Deals"}</Text>
-            </View>
-            <Text style={styles.promoTitle}>
-              Enjoy <Text style={styles.italicTitleText}>Extra Off</Text>
-            </Text>
-            <View style={styles.promoDiscountRow}>
-              <Text style={styles.promoDiscountText}>Up to</Text>
-              <Text style={styles.promoPercentBig}>30</Text>
-              <View style={styles.percentCircle}>
-                <Text style={styles.percentCircleText}>%</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.claimBtn} activeOpacity={0.85}>
-              <Text style={styles.claimBtnText}>Claim</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Promotion Banner Carousel */}
+        <View style={styles.carouselContainer}>
+          <ScrollView
+            ref={scrollViewRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={CAROUSEL_WIDTH}
+            decelerationRate="fast"
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            contentContainerStyle={{ gap: 0 }}
+          >
+            {PROMO_OFFERS.map((offer) => (
+              <View 
+                key={offer.id} 
+                style={[styles.promoBanner, { width: CAROUSEL_WIDTH, backgroundColor: offer.backgroundColor, marginHorizontal: 0 }]}
+              >
+                {/* Text Content */}
+                <View style={styles.promoTextContainer}>
+                  <View style={styles.promoBadge}>
+                    <Text style={styles.promoBadgeText}>{offer.badge}</Text>
+                  </View>
+                  <Text style={styles.promoTitle}>
+                    {offer.title}<Text style={styles.italicTitleText}>{offer.italicTitle}</Text>
+                  </Text>
+                  <View style={styles.promoDiscountRow}>
+                    <Text style={styles.promoDiscountText}>{offer.discountText}</Text>
+                    <Text style={styles.promoPercentBig}>{offer.percent}</Text>
+                    <View style={styles.percentCircle}>
+                      <Text style={styles.percentCircleText}>%</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity style={styles.claimBtn} activeOpacity={0.85}>
+                    <Text style={styles.claimBtnText}>Claim</Text>
+                  </TouchableOpacity>
+                </View>
 
-          {}
-          <Image
-            source={require("../../../assets/images/special_offers_banner.png")}
-            style={styles.promoImage}
-            contentFit="cover"
-          />
+                {/* Image */}
+                <Image
+                  source={offer.image}
+                  style={styles.promoImage}
+                  contentFit="cover"
+                />
+              </View>
+            ))}
+          </ScrollView>
         </View>
 
-        {}
+        {/* Carousel Dots */}
         <View style={styles.carouselDots}>
-          <View style={[styles.carouselDot, styles.carouselDotActive]} />
-          <View style={styles.carouselDot} />
-          <View style={styles.carouselDot} />
-          <View style={styles.carouselDot} />
+          {PROMO_OFFERS.map((_, i) => {
+            const dotWidth = scrollX.interpolate({
+              inputRange: [
+                (i - 1) * CAROUSEL_WIDTH,
+                i * CAROUSEL_WIDTH,
+                (i + 1) * CAROUSEL_WIDTH,
+              ],
+              outputRange: [6, 16, 6],
+              extrapolate: "clamp",
+            });
+
+            const dotColor = scrollX.interpolate({
+              inputRange: [
+                (i - 1) * CAROUSEL_WIDTH,
+                i * CAROUSEL_WIDTH,
+                (i + 1) * CAROUSEL_WIDTH,
+              ],
+              outputRange: ["#E0E0E0", WARM_YELLOW, "#E0E0E0"],
+              extrapolate: "clamp",
+            });
+
+            return (
+              <Animated.View
+                key={i}
+                style={[
+                  styles.carouselDot,
+                  {
+                    width: dotWidth,
+                    backgroundColor: dotColor,
+                  },
+                ]}
+              />
+            );
+          })}
         </View>
 
         <View style={styles.sectionHeader}>
@@ -270,7 +394,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -303,43 +426,56 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {}
+        {/* Products Grid */}
         <View style={styles.productsGrid}>
-          {filteredProducts.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.productCard}
-              activeOpacity={0.9}
-              onPress={() => router.push({ pathname: "/product-details", params: { id: item.id } })}
-            >
-              <View style={styles.productImageWrapper}>
-                <Image source={item.image} style={styles.productImage} contentFit="cover" />
-                <TouchableOpacity
-                  style={styles.heartBtn}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    toggleLike(item.id);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name={item.liked ? "heart" : "heart-outline"}
-                    size={16}
-                    color={item.liked ? "#FF0000" : "#7A7A7A"}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.productInfo}>
-                <Text style={styles.productName} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <View style={styles.priceRow}>
-                  <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
-                  <Text style={styles.originalPrice}>${item.originalPrice.toFixed(2)}</Text>
+          {filteredProducts.map((item) => {
+            const isOutOfStock = item.stock === 0;
+
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={[styles.productCard, isOutOfStock && { opacity: 0.85 }]}
+                activeOpacity={0.9}
+                onPress={() => router.push({ pathname: "/product-details", params: { id: item.id } })}
+              >
+                <View style={styles.productImageWrapper}>
+                  <Image source={item.image} style={styles.productImage} contentFit="cover" />
+                  
+                  {isOutOfStock && (
+                    <View style={styles.outOfStockOverlay}>
+                      <View style={styles.outOfStockBadge}>
+                        <Text style={styles.outOfStockText}>OUT OF STOCK</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  <TouchableOpacity
+                    style={styles.heartBtn}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      toggleLike(item.id);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={item.liked ? "heart" : "heart-outline"}
+                      size={16}
+                      color={item.liked ? "#FF0000" : "#7A7A7A"}
+                    />
+                  </TouchableOpacity>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+                <View style={styles.productInfo}>
+                  <Text style={styles.productName} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  <View style={styles.priceRow}>
+                    <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+                    <Text style={styles.originalPrice}>${item.originalPrice.toFixed(2)}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
       </>
@@ -556,15 +692,41 @@ const styles = StyleSheet.create({
   },
 
   
-  promoBanner: {
+  carouselContainer: {
     marginHorizontal: 24,
-    height: 150,
-    backgroundColor: GRAY_BG,
     borderRadius: 20,
-    flexDirection: "row",
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#F4ECE3",
+  },
+  promoBanner: {
+    height: 150,
+    backgroundColor: GRAY_BG,
+    flexDirection: "row",
+    overflow: "hidden",
+  },
+  outOfStockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  outOfStockBadge: {
+    backgroundColor: "#FF3B30",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  outOfStockText: {
+    color: "#FFFFFF",
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
   promoTextContainer: {
     flex: 1.3,

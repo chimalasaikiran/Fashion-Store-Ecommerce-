@@ -10,6 +10,7 @@ export interface Product {
   rating: string;
   image: any;
   liked: boolean;
+  stock?: number;
 }
 
 interface WishlistContextType {
@@ -32,6 +33,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.8",
     image: require("../../assets/images/fashion_portrait_3_1781014096781.png"),
     liked: true,
+    stock: 15,
   },
   {
     id: "2",
@@ -42,6 +44,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.7",
     image: require("../../assets/images/fashion_portrait_5_1781014303170.png"),
     liked: false,
+    stock: 10,
   },
   {
     id: "3",
@@ -52,6 +55,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.7",
     image: require("../../assets/images/fashion_portrait_1_1781014071035.png"),
     liked: false,
+    stock: 8,
   },
   {
     id: "4",
@@ -62,6 +66,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.9",
     image: require("../../assets/images/fashion_portrait_2_1781014083606.png"),
     liked: true,
+    stock: 12,
   },
   {
     id: "5",
@@ -72,6 +77,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.8",
     image: require("../../assets/images/fashion_portrait_4_1781014289331.png"),
     liked: false,
+    stock: 5,
   },
   {
     id: "6",
@@ -82,6 +88,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.8",
     image: require("../../assets/images/fashion_portrait_6_1781014316459.png"),
     liked: true,
+    stock: 20,
   },
   {
     id: "7",
@@ -92,6 +99,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.7",
     image: require("../../assets/images/fashion_portrait_3_1781014096781.png"),
     liked: false,
+    stock: 7,
   },
   {
     id: "8",
@@ -102,6 +110,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "4.8",
     image: require("../../assets/images/fashion_portrait_1_1781014071035.png"),
     liked: false,
+    stock: 14,
   },
   {
     id: "9",
@@ -112,6 +121,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "5.0",
     image: require("../../assets/images/fashion_portrait_5_1781014303170.png"),
     liked: false,
+    stock: 0,
   },
   {
     id: "10",
@@ -122,6 +132,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     rating: "5.0",
     image: require("../../assets/images/fashion_portrait_4_1781014289331.png"),
     liked: false,
+    stock: 6,
   },
 ];
 

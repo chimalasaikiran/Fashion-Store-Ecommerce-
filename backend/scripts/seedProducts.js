@@ -34,7 +34,8 @@ const SEED_PRODUCTS = [
       role: "Manager",
       avatar: "seller_avatar.png"
     },
-    isFeatured: true
+    isFeatured: true,
+    stock: 15
   },
   {
     name: "Classy White Shirt",
@@ -58,7 +59,8 @@ const SEED_PRODUCTS = [
       name: "Jenny Wilson",
       role: "Sales Executive",
       avatar: "jenny_avatar.png"
-    }
+    },
+    stock: 10
   },
   {
     name: "Light Brown Sweater",
@@ -81,7 +83,8 @@ const SEED_PRODUCTS = [
       name: "Leslie Alexander",
       role: "Manager",
       avatar: "seller_avatar.png"
-    }
+    },
+    stock: 8
   },
   {
     name: "Classy Light Coat",
@@ -104,7 +107,8 @@ const SEED_PRODUCTS = [
       name: "Leslie Alexander",
       role: "Manager",
       avatar: "seller_avatar.png"
-    }
+    },
+    stock: 12
   },
   {
     name: "Brown Dress",
@@ -127,7 +131,8 @@ const SEED_PRODUCTS = [
       name: "Leslie Alexander",
       role: "Manager",
       avatar: "seller_avatar.png"
-    }
+    },
+    stock: 5
   },
   {
     name: "Chic Leather Jacket",
@@ -150,7 +155,8 @@ const SEED_PRODUCTS = [
       name: "Jenny Wilson",
       role: "Sales Executive",
       avatar: "jenny_avatar.png"
-    }
+    },
+    stock: 20
   },
   {
     name: "Classic Fedora Trench",
@@ -173,7 +179,8 @@ const SEED_PRODUCTS = [
       name: "Leslie Alexander",
       role: "Manager",
       avatar: "seller_avatar.png"
-    }
+    },
+    stock: 7
   },
   {
     name: "Dark Yellow Sweater",
@@ -196,7 +203,8 @@ const SEED_PRODUCTS = [
       name: "Leslie Alexander",
       role: "Manager",
       avatar: "seller_avatar.png"
-    }
+    },
+    stock: 14
   },
   {
     name: "Classic Black Shirt",
@@ -219,7 +227,8 @@ const SEED_PRODUCTS = [
       name: "Jenny Wilson",
       role: "Sales Executive",
       avatar: "jenny_avatar.png"
-    }
+    },
+    stock: 0
   },
   {
     name: "Modern Party Dress",
@@ -242,7 +251,8 @@ const SEED_PRODUCTS = [
       name: "Leslie Alexander",
       role: "Manager",
       avatar: "seller_avatar.png"
-    }
+    },
+    stock: 6
   }
 ];
 

@@ -12,7 +12,9 @@ import {
   Modal,
   FlatList,
   Pressable,
+  Alert,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -85,14 +87,51 @@ export default function YourProfileScreen() {
     setAvatarAsset(profile.avatar);
   }, [profile]);
 
-  const handlePhotoSelect = (option: string) => {
+  const handlePhotoSelect = async (option: string) => {
     setIsPhotoSheetVisible(false);
     if (option === "remove") {
       setAvatarAsset(require("../../../assets/images/fashion_portrait_2_1781014083606.png"));
-    } else if (option === "gallery") {
-      setAvatarAsset(require("../../../assets/images/fashion_portrait_1_1781014071035.png"));
-    } else if (option === "camera") {
-      setAvatarAsset(require("../../../assets/images/fashion_portrait_3_1781014096781.png"));
+      return;
+    }
+
+    try {
+      if (option === "gallery") {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "We need access to your photo library to select a profile photo.");
+          return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          setAvatarAsset({ uri: result.assets[0].uri });
+        }
+      } else if (option === "camera") {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "We need access to your camera to take a profile photo.");
+          return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          setAvatarAsset({ uri: result.assets[0].uri });
+        }
+      }
+    } catch (error) {
+      console.error("ImagePicker Error:", error);
+      Alert.alert("Error", "An error occurred while picking the image.");
     }
   };
 

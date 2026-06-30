@@ -27,7 +27,7 @@ const TEXT_PRIMARY = Colors.textPrimary;
 export default function CheckoutScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { cartItems } = useCart();
+  const { cartItems, selectedAddress, selectedShippingType } = useCart();
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
   const handleBack = () => {
@@ -126,11 +126,11 @@ export default function CheckoutScreen() {
                 />
               </View>
 
-              {}
+              {/* Details */}
               <View style={styles.detailsContainer}>
-                <Text style={styles.detailsLabel}>Home</Text>
+                <Text style={styles.detailsLabel}>{selectedAddress ? selectedAddress.label : "Home"}</Text>
                 <Text style={styles.detailsSubText}>
-                  245 Madison Ave, New York, NY 10016, USA
+                  {selectedAddress ? selectedAddress.address : "245 Madison Ave, New York, NY 10016, USA"}
                 </Text>
               </View>
 
@@ -154,11 +154,11 @@ export default function CheckoutScreen() {
                 {renderShippingIcon()}
               </View>
 
-              {}
+              {/* Details */}
               <View style={styles.detailsContainer}>
-                <Text style={styles.detailsLabel}>Economy</Text>
+                <Text style={styles.detailsLabel}>{selectedShippingType ? selectedShippingType.type : "Economy"}</Text>
                 <Text style={styles.detailsSubText}>
-                  Estimated Arrival  11{"\n"}March 2026
+                  {selectedShippingType ? selectedShippingType.eta : "Estimated Arrival  11\nMarch 2026"}
                 </Text>
               </View>
 

@@ -43,6 +43,8 @@ export default function ProductDetailsScreen() {
   const liked = isLiked(productId);
   const { addToCart } = useCart();
 
+  const isOutOfStock = details?.stock === 0;
+
   useEffect(() => {
     let active = true;
     const fetchDetails = async () => {
@@ -178,9 +180,16 @@ export default function ProductDetailsScreen() {
         <View style={styles.detailsContainer}>
           {}
           <View style={styles.infoTitleRow}>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={styles.categoryText}>{details.category}</Text>
-              <Text style={styles.titleText}>{details.name}</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                <Text style={styles.titleText}>{details.name}</Text>
+                {isOutOfStock && (
+                  <View style={styles.outOfStockBadge}>
+                    <Text style={styles.outOfStockText}>OUT OF STOCK</Text>
+                  </View>
+                )}
+              </View>
             </View>
 
             <TouchableOpacity
@@ -216,18 +225,27 @@ export default function ProductDetailsScreen() {
           </View>
 
           {}
-          <Text style={styles.sectionHeader}>Size : {selectedSize}</Text>
+          <Text style={styles.sectionHeader}>Size : {isOutOfStock ? "Unavailable" : selectedSize}</Text>
           <View style={styles.sizesRow}>
             {details.sizes.map((size: string) => {
               const isSelected = selectedSize === size;
               return (
                 <TouchableOpacity
                   key={size}
-                  style={[styles.sizeBubble, isSelected && styles.sizeBubbleActive]}
+                  style={[
+                    styles.sizeBubble, 
+                    isSelected && styles.sizeBubbleActive,
+                    isOutOfStock && { opacity: 0.4, borderColor: "#E0E0E0" }
+                  ]}
                   onPress={() => setSelectedSize(size)}
                   activeOpacity={0.8}
+                  disabled={isOutOfStock}
                 >
-                  <Text style={[styles.sizeText, isSelected && styles.sizeTextActive]}>
+                  <Text style={[
+                    styles.sizeText, 
+                    isSelected && styles.sizeTextActive,
+                    isOutOfStock && { color: TEXT_MUTED }
+                  ]}>
                     {size}
                   </Text>
                 </TouchableOpacity>
@@ -236,7 +254,7 @@ export default function ProductDetailsScreen() {
           </View>
 
           {}
-          <Text style={styles.sectionHeader}>Color : {selectedColor}</Text>
+          <Text style={styles.sectionHeader}>Color : {isOutOfStock ? "Unavailable" : selectedColor}</Text>
           <View style={styles.colorsRow}>
             {details.colors.map((color: any) => {
               const isSelected = selectedColor === color.name;
@@ -246,9 +264,11 @@ export default function ProductDetailsScreen() {
                   style={[
                     styles.colorRing,
                     { borderColor: isSelected ? color.hex : "transparent" },
+                    isOutOfStock && { opacity: 0.4 }
                   ]}
                   onPress={() => setSelectedColor(color.name)}
                   activeOpacity={0.85}
+                  disabled={isOutOfStock}
                 >
                   <View style={[styles.colorDot, { backgroundColor: color.hex }]} />
                 </TouchableOpacity>
@@ -266,12 +286,16 @@ export default function ProductDetailsScreen() {
         </View>
 
         <TouchableOpacity 
-          style={styles.addToCartBtn} 
+          style={[
+            styles.addToCartBtn,
+            isOutOfStock && { backgroundColor: "#B0B0B0", shadowColor: "transparent" }
+          ]} 
           activeOpacity={0.9}
           onPress={handleAddToCart}
+          disabled={isOutOfStock}
         >
-          <Feather name="shopping-bag" size={20} color="#FFFFFF" style={styles.cartIcon} />
-          <Text style={styles.addToCartText}>Add to Cart</Text>
+          <Feather name={isOutOfStock ? "slash" : "shopping-bag"} size={20} color="#FFFFFF" style={styles.cartIcon} />
+          <Text style={styles.addToCartText}>{isOutOfStock ? "Out of Stock" : "Add to Cart"}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -565,5 +589,16 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
+  },
+  outOfStockBadge: {
+    backgroundColor: "#FF3B30",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  outOfStockText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "800",
   },
 });
