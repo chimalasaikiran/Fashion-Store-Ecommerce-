@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import Svg, { Rect } from "react-native-svg";
 import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
 import { Colors } from "../../constants/Colors";
 
 const BROWN_DARK = Colors.primary; 
@@ -97,6 +98,7 @@ export default function EReceiptScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { cartItems, appliedPromo } = useCart();
+  const { products } = useWishlist();
   const [copied, setCopied] = useState(false);
 
   
@@ -168,41 +170,44 @@ export default function EReceiptScreen() {
 
         {}
         <View style={styles.card}>
-          {displayProducts.map((product, index) => (
-            <View key={product.id || index}>
-              <View style={styles.productRow}>
-                {}
-                <Image
-                  source={product.image}
-                  style={styles.productImage}
-                  contentFit="cover"
-                />
+          {displayProducts.map((product, index) => {
+            const dbProduct = products.find((p) => p.id === product.productId);
+            const displayImage = dbProduct ? dbProduct.image : product.image;
+            return (
+              <View key={product.id || index}>
+                <View style={styles.productRow}>
+                  {/* Image */}
+                  <Image
+                    source={displayImage}
+                    style={styles.productImage}
+                    contentFit="cover"
+                  />
 
-                {}
-                <View style={styles.productDetails}>
-                  <Text style={styles.productName} numberOfLines={1}>
-                    {product.name}
-                  </Text>
-                  <Text style={styles.productCategory}>
-                    {product.category}
-                  </Text>
-                  <View style={styles.priceContainer}>
-                    <Text style={styles.productPrice}>
-                      ${product.price.toFixed(2)}
+                  {/* Details */}
+                  <View style={styles.productDetails}>
+                    <Text style={styles.productName} numberOfLines={1}>
+                      {product.name}
                     </Text>
-                    <Text style={styles.productOriginalPrice}>
-                      ${product.originalPrice.toFixed(2)}
+                    <Text style={styles.productCategory}>
+                      {product.category}
                     </Text>
+                    <View style={styles.priceContainer}>
+                      <Text style={styles.productPrice}>
+                        ${product.price.toFixed(2)}
+                      </Text>
+                      <Text style={styles.productOriginalPrice}>
+                        ${product.originalPrice.toFixed(2)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
 
-              {}
-              {index < displayProducts.length - 1 && (
-                <View style={styles.rowDivider} />
-              )}
-            </View>
-          ))}
+                {index < displayProducts.length - 1 && (
+                  <View style={styles.rowDivider} />
+                )}
+              </View>
+            );
+          })}
         </View>
 
         {}

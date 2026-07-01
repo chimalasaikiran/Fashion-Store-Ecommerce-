@@ -18,6 +18,7 @@ import WelcomeScreen from "../screens/onboarding/WelcomeScreen";
 import InviteFriendsScreen from "../screens/settings/InviteFriendsScreen";
 import LeaveReviewScreen from "../screens/orders/LeaveReviewScreen";
 import LocationAccessScreen from "../screens/onboarding/LocationAccessScreen";
+import OrderDetailsScreen from "../screens/orders/OrderDetailsScreen";
 import MyCouponsScreen from "../screens/profile/MyCouponsScreen";
 import MyOrdersScreen from "../screens/orders/MyOrdersScreen";
 import MyWalletScreen from "../screens/wallet/MyWalletScreen";
@@ -124,6 +125,8 @@ export default function RouteHandler() {
 
     case "track-order":
       return <TrackOrderScreen />;
+    case "order-details":
+      return <OrderDetailsScreen />;
     case "verify-code":
       return <VerifyCodeScreen />;
     case "wishlist":

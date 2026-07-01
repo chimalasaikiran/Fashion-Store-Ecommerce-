@@ -55,6 +55,9 @@ export interface Order {
   orderStatus: 'Pending' | 'Confirmed' | 'Packed' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Refunded' | 'Processing' | 'Dispatched' | 'Out For Delivery';
   deliveryStatus: 'Pending' | 'In Transit' | 'Delivered' | 'Cancelled';
   createdDate: string;
+  deliveryDate: string;
+  courierPartner: string;
+  trackingId: string;
   shippingAddress: Address;
   billingAddress: Address;
   paymentDetails: {
@@ -125,6 +128,9 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: 
       orderStatus: ord.status || 'Pending',
       deliveryStatus: ord.deliveryStatus || 'Pending',
       createdDate: ord.date || (ord.createdAt ? new Date(ord.createdAt).toLocaleDateString() : new Date().toLocaleDateString()),
+      deliveryDate: ord.deliveryDate || '',
+      courierPartner: ord.courierPartner || 'Delhivery',
+      trackingId: ord.trackingId || '',
       shippingAddress: ord.shippingAddress || {
         name: customerName,
         street: '123 Apparel Blvd, Suite 400',

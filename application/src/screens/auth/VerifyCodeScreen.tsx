@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 import { verifyOtp, resendOtp, setAuthToken } from "../../services/api";
 import { useProfile } from "../../context/ProfileContext";
+import { useCart } from "../../context/CartContext";
 
 
 
@@ -34,6 +35,7 @@ export default function VerifyCodeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { updateProfile } = useProfile();
+  const { loadCart } = useCart();
 
   
   const email = (params?.email as string) || "";
@@ -98,6 +100,7 @@ export default function VerifyCodeScreen() {
       
       if (response && response.token) {
         await setAuthToken(response.token);
+        await loadCart();
       }
 
       

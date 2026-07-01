@@ -121,7 +121,7 @@ export default function ReplacementOrders() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Total Replacements</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (114 + totalCount)}
+              {isLoading ? '...' : totalCount}
             </span>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function ReplacementOrders() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Pending Review</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (3 + pendingCount)}
+              {isLoading ? '...' : pendingCount}
             </span>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function ReplacementOrders() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Approved Orders</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (98 + approvedCount)}
+              {isLoading ? '...' : approvedCount}
             </span>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function ReplacementOrders() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-white/70 tracking-wider uppercase block">Dispatched</span>
             <span className="text-2xl font-extrabold text-white tracking-tight block font-mono">
-              {isLoading ? '...' : (13 + shippedCount)}
+              {isLoading ? '...' : shippedCount}
             </span>
           </div>
         </div>

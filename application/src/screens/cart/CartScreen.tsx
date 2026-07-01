@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useCart, CartItem } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
 import { Colors } from "../../constants/Colors";
 
 
@@ -29,6 +30,7 @@ const RED_DELETE = Colors.redDelete;
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { products } = useWishlist();
   
   const {
     cartItems,
@@ -169,60 +171,64 @@ export default function CartScreen() {
           >
             {}
             <View style={styles.itemsList}>
-              {cartItems.map((item) => (
-                <View key={item.id} style={styles.swipeableWrapper}>
-                  <Swipeable
-                    ref={(ref) => {
-                      swipeableRefs.current[item.id] = ref;
-                    }}
-                    renderRightActions={() => renderRightActions(item)}
-                    friction={2}
-                    rightThreshold={40}
-                  >
-                    <View style={styles.itemCard}>
-                      {}
-                      <Image source={item.image} style={styles.itemImage} contentFit="cover" />
+              {cartItems.map((item) => {
+                const dbProduct = products.find((p) => p.id === item.productId);
+                const displayImage = dbProduct ? dbProduct.image : item.image;
+                return (
+                  <View key={item.id} style={styles.swipeableWrapper}>
+                    <Swipeable
+                      ref={(ref) => {
+                        swipeableRefs.current[item.id] = ref;
+                      }}
+                      renderRightActions={() => renderRightActions(item)}
+                      friction={2}
+                      rightThreshold={40}
+                    >
+                      <View style={styles.itemCard}>
+                        {/* Image */}
+                        <Image source={displayImage} style={styles.itemImage} contentFit="cover" />
 
-                      {}
-                      <View style={styles.itemDetails}>
-                        <Text style={styles.itemName} numberOfLines={1}>
-                          {item.name}
-                        </Text>
-                        <Text style={styles.itemCategory}>
-                          {item.category}
-                        </Text>
-                        <View style={styles.priceRow}>
-                          <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-                          <Text style={styles.itemOriginalPrice}>
-                            ${item.originalPrice.toFixed(2)}
+                        {/* Details */}
+                        <View style={styles.itemDetails}>
+                          <Text style={styles.itemName} numberOfLines={1}>
+                            {item.name}
                           </Text>
+                          <Text style={styles.itemCategory}>
+                            {item.category}
+                          </Text>
+                          <View style={styles.priceRow}>
+                            <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+                            <Text style={styles.itemOriginalPrice}>
+                              ${item.originalPrice.toFixed(2)}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Quantity */}
+                        <View style={styles.quantityContainer}>
+                          <TouchableOpacity
+                            style={styles.qtyBtn}
+                            onPress={() => handleDecrease(item)}
+                            activeOpacity={0.6}
+                          >
+                            <Feather name="minus" size={14} color={TEXT_PRIMARY} />
+                          </TouchableOpacity>
+                          
+                          <Text style={styles.qtyText}>{item.quantity}</Text>
+                          
+                          <TouchableOpacity
+                            style={[styles.qtyBtn, styles.qtyBtnPlus]}
+                            onPress={() => handleIncrease(item)}
+                            activeOpacity={0.6}
+                          >
+                            <Feather name="plus" size={14} color="#FFFFFF" />
+                          </TouchableOpacity>
                         </View>
                       </View>
-
-                      {}
-                      <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                          style={styles.qtyBtn}
-                          onPress={() => handleDecrease(item)}
-                          activeOpacity={0.6}
-                        >
-                          <Feather name="minus" size={14} color={TEXT_PRIMARY} />
-                        </TouchableOpacity>
-                        
-                        <Text style={styles.qtyText}>{item.quantity}</Text>
-                        
-                        <TouchableOpacity
-                          style={[styles.qtyBtn, styles.qtyBtnPlus]}
-                          onPress={() => handleIncrease(item)}
-                          activeOpacity={0.6}
-                        >
-                          <Feather name="plus" size={14} color="#FFFFFF" />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </Swipeable>
-                </View>
-              ))}
+                    </Swipeable>
+                  </View>
+                );
+              })}
             </View>
           </ScrollView>
 
@@ -337,31 +343,35 @@ export default function CartScreen() {
             <View style={styles.modalDivider} />
 
             {}
-            {selectedItemToRemove && (
-              <View style={styles.modalItemPreview}>
-                <Image
-                  source={selectedItemToRemove.image}
-                  style={styles.modalItemImage}
-                  contentFit="cover"
-                />
-                <View style={styles.modalItemDetails}>
-                  <Text style={styles.modalItemName} numberOfLines={1}>
-                    {selectedItemToRemove.name}
-                  </Text>
-                  <Text style={styles.modalItemCategory}>
-                    {selectedItemToRemove.category}
-                  </Text>
-                  <View style={styles.modalPriceRow}>
-                    <Text style={styles.modalItemPrice}>
-                      ${selectedItemToRemove.price.toFixed(2)}
+            {selectedItemToRemove && (() => {
+              const dbProduct = products.find((p) => p.id === selectedItemToRemove.productId);
+              const displayImage = dbProduct ? dbProduct.image : selectedItemToRemove.image;
+              return (
+                <View style={styles.modalItemPreview}>
+                  <Image
+                    source={displayImage}
+                    style={styles.modalItemImage}
+                    contentFit="cover"
+                  />
+                  <View style={styles.modalItemDetails}>
+                    <Text style={styles.modalItemName} numberOfLines={1}>
+                      {selectedItemToRemove.name}
                     </Text>
-                    <Text style={styles.modalItemOriginalPrice}>
-                      ${selectedItemToRemove.originalPrice.toFixed(2)}
+                    <Text style={styles.modalItemCategory}>
+                      {selectedItemToRemove.category}
                     </Text>
+                    <View style={styles.modalPriceRow}>
+                      <Text style={styles.modalItemPrice}>
+                        ${selectedItemToRemove.price.toFixed(2)}
+                      </Text>
+                      <Text style={styles.modalItemOriginalPrice}>
+                        ${selectedItemToRemove.originalPrice.toFixed(2)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
+              );
+            })()}
 
             {}
             <View style={styles.modalButtonsRow}>

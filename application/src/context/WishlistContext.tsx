@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from "react";
-import { getProducts } from "../services/api";
+import { getProducts, API_URL } from "../services/api";
+import { io } from "socket.io-client";
 
 export interface Product {
   id: string;
@@ -143,9 +144,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await getProducts();
       if (res.success) {
-        
-        
-        
         setProducts((prev) => {
           return res.products.map((newProd: any) => {
             const existing = prev.find((p) => p.id === newProd.id);
@@ -163,6 +161,40 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshProducts();
+  }, []);
+
+  // Listen for real-time product updates via Socket.io
+  useEffect(() => {
+    const socketUrl = API_URL.replace("/api", "");
+    console.log("[Socket Wishlist] Connecting to sync server at:", socketUrl);
+    const socket = io(socketUrl);
+
+    socket.on("connect", () => {
+      console.log("[Socket Wishlist] Connected to product sync server");
+    });
+
+    socket.on("product_created", (data) => {
+      console.log("[Socket Wishlist] Product created:", data.name);
+      refreshProducts();
+    });
+
+    socket.on("product_updated", (data) => {
+      console.log("[Socket Wishlist] Product updated:", data.name);
+      refreshProducts();
+    });
+
+    socket.on("product_deleted", (data) => {
+      console.log("[Socket Wishlist] Product deleted:", data.id);
+      refreshProducts();
+    });
+
+    socket.on("disconnect", () => {
+      console.log("[Socket Wishlist] Disconnected from sync server");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const wishlistItems = useMemo(() => {

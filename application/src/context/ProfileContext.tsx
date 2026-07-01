@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { API_URL } from "../services/api";
 
 export interface ProfileData {
   name: string;
@@ -16,6 +17,30 @@ interface ProfileContextType {
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
+
+export const resolveAvatarSource = (avatar: any) => {
+  if (!avatar) {
+    return require("../../assets/images/fashion_portrait_2_1781014083606.png");
+  }
+  if (typeof avatar === "string") {
+    if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
+      return { uri: avatar };
+    }
+    if (avatar.startsWith("/")) {
+      const serverOrigin = API_URL.replace("/api", "");
+      return { uri: `${serverOrigin}${avatar}` };
+    }
+    const serverOrigin = API_URL.replace("/api", "");
+    return { uri: `${serverOrigin}/images/${avatar}` };
+  }
+  if (typeof avatar === "number") {
+    return avatar;
+  }
+  if (avatar && avatar.uri) {
+    return avatar;
+  }
+  return require("../../assets/images/fashion_portrait_2_1781014083606.png");
+};
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<ProfileData>({

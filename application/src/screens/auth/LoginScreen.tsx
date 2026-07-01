@@ -20,6 +20,7 @@ import Svg, { Path } from "react-native-svg";
 import { Colors } from "../../constants/Colors";
 import { loginUser, setAuthToken } from "../../services/api";
 import { useProfile } from "../../context/ProfileContext";
+import { useCart } from "../../context/CartContext";
 
 
 
@@ -35,6 +36,7 @@ export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { updateProfile } = useProfile();
+  const { loadCart } = useCart();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,6 +64,9 @@ export default function LoginScreen() {
       
       
       await setAuthToken(response.token);
+
+      // Load user's cart from the database
+      await loadCart();
 
       
       updateProfile({

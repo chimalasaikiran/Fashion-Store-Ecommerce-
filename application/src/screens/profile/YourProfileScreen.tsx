@@ -20,8 +20,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import { useProfile } from "../../context/ProfileContext";
+import { useProfile, resolveAvatarSource } from "../../context/ProfileContext";
 import { Colors } from "../../constants/Colors";
+import { completeUserProfile } from "../../services/api";
 
 
 const BROWN_DARK = Colors.primary;
@@ -87,14 +88,40 @@ export default function YourProfileScreen() {
     setAvatarAsset(profile.avatar);
   }, [profile]);
 
+  const convertUriToBase64 = async (uri: string): Promise<string> => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
   const handlePhotoSelect = async (option: string) => {
     setIsPhotoSheetVisible(false);
     if (option === "remove") {
-      setAvatarAsset(require("../../../assets/images/fashion_portrait_2_1781014083606.png"));
+      try {
+        setLoading(true);
+        const res = await completeUserProfile({ avatar: "" });
+        if (res && res.success) {
+          updateProfile({ avatar: res.user.avatar });
+          setAvatarAsset(res.user.avatar);
+          Alert.alert("Success", "Profile photo removed.");
+        }
+      } catch (err: any) {
+        Alert.alert("Error", err.message || "Failed to remove photo.");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
     try {
+      let result = null;
       if (option === "gallery") {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
@@ -102,16 +129,13 @@ export default function YourProfileScreen() {
           return;
         }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
+        result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [1, 1],
           quality: 0.8,
+          base64: true,
         });
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-          setAvatarAsset({ uri: result.assets[0].uri });
-        }
       } else if (option === "camera") {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
@@ -119,19 +143,35 @@ export default function YourProfileScreen() {
           return;
         }
 
-        const result = await ImagePicker.launchCameraAsync({
+        result = await ImagePicker.launchCameraAsync({
           allowsEditing: true,
           aspect: [1, 1],
           quality: 0.8,
+          base64: true,
         });
+      }
 
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-          setAvatarAsset({ uri: result.assets[0].uri });
+      if (result && !result.canceled && result.assets && result.assets.length > 0) {
+        setLoading(true);
+        const selectedUri = result.assets[0].uri;
+        let dataUri = "";
+        if (result.assets[0].base64) {
+          dataUri = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        } else {
+          dataUri = await convertUriToBase64(selectedUri);
+        }
+        const res = await completeUserProfile({ avatar: dataUri });
+        if (res && res.success) {
+          updateProfile({ avatar: res.user.avatar });
+          setAvatarAsset(res.user.avatar);
+          Alert.alert("Success", "Profile photo updated successfully!");
         }
       }
-    } catch (error) {
-      console.error("ImagePicker Error:", error);
-      Alert.alert("Error", "An error occurred while picking the image.");
+    } catch (error: any) {
+      console.error("ImagePicker/Upload Error:", error);
+      Alert.alert("Error", error.message || "An error occurred while uploading the photo.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,17 +201,23 @@ export default function YourProfileScreen() {
     setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      updateProfile({
+      // Call completeUserProfile API to save name, phone, gender, and countryCode in database
+      const res = await completeUserProfile({
         name,
-        email,
         phone,
         countryCode: selectedCountry.dial,
-        dob,
         gender,
-        avatar: avatarAsset,
       });
+
+      if (res && res.success) {
+        updateProfile({
+          name: res.user.name,
+          phone: res.user.phone,
+          countryCode: res.user.countryCode,
+          gender: res.user.gender,
+          avatar: res.user.avatar,
+        });
+      }
 
       setSuccessMsg("Profile updated successfully!");
 
@@ -179,8 +225,8 @@ export default function YourProfileScreen() {
         setSuccessMsg(null);
         router.back();
       }, 1000);
-    } catch {
-      setErrorMsg("Something went wrong. Please try again.");
+    } catch (error: any) {
+      setErrorMsg(error.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -242,7 +288,7 @@ export default function YourProfileScreen() {
         >
           <View style={styles.avatarCircle}>
             <Image
-              source={avatarAsset}
+              source={resolveAvatarSource(avatarAsset)}
               style={styles.avatarImage}
               contentFit="cover"
             />

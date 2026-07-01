@@ -135,6 +135,19 @@ export default function CompleteProfileScreen() {
   };
 
   
+  const convertUriToBase64 = async (uri: string): Promise<string> => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
   const handleCompleteProfile = async () => {
     if (!name.trim()) {
       setErrorMsg("Please enter your name.");
@@ -153,12 +166,22 @@ export default function CompleteProfileScreen() {
     setLoading(true);
 
     try {
+      let avatarData = "";
+      if (photoUri) {
+        try {
+          avatarData = await convertUriToBase64(photoUri);
+        } catch (e) {
+          console.error("Error converting photoUri to base64:", e);
+          avatarData = photoUri; // fallback
+        }
+      }
+
       const response = await completeUserProfile({
         name: name.trim(),
         phone: phone.trim(),
         countryCode: selectedCountry.dial,
         gender: gender,
-        avatar: photoUri || ""
+        avatar: avatarData
       });
 
       

@@ -1,5 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CATEGORIES_CONFIG, PRODUCTS_CONFIG, PRODUCT_MOVEMENTS, PRODUCT_ACTIVITIES, formatCurrency } from '../../data/mockDb';
+import { CATEGORIES_CONFIG, PRODUCT_MOVEMENTS, PRODUCT_ACTIVITIES, formatCurrency } from '../../data/mockDb';
+
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
+
+const getHeaders = () => {
+  const token = localStorage.getItem('adminToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+};
 
 export interface ProductVariant {
   size: string;
@@ -70,40 +80,36 @@ interface ProductsContextType {
   movements: InventoryMovement[];
   activities: ProductActivity[];
   toasts: Toast[];
-  addProduct: (product: Omit<Product, 'id' | 'createdDate' | 'updatedDate'>) => void;
-  updateProduct: (id: string, updatedFields: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-  toggleProductVisibility: (id: string) => void;
-  bulkUpdateVisibility: (ids: string[], status: 'Live' | 'Draft') => void;
-  bulkDeleteProducts: (ids: string[]) => void;
+  loading: boolean;
+  addProduct: (product: Omit<Product, 'id' | 'createdDate' | 'updatedDate'>) => Promise<boolean>;
+  updateProduct: (id: string, updatedFields: Partial<Product>) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
+  toggleProductVisibility: (id: string) => Promise<void>;
+  bulkUpdateVisibility: (ids: string[], status: 'Live' | 'Draft') => Promise<void>;
+  bulkDeleteProducts: (ids: string[]) => Promise<void>;
   
   addCategory: (category: Omit<Category, 'id' | 'createdDate' | 'updatedDate'>) => void;
   updateCategory: (id: string, updatedFields: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
   
-  adjustStock: (productId: string, change: number, type: 'In' | 'Out' | 'Adjustment', reason: string) => void;
+  adjustStock: (productId: string, change: number, type: 'In' | 'Out' | 'Adjustment', reason: string) => Promise<void>;
   
   addToast: (message: string, type?: Toast['type']) => void;
   removeToast: (id: string) => void;
+  fetchProducts: () => Promise<void>;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
 
 const initialCategories: Category[] = CATEGORIES_CONFIG as Category[];
-const initialProducts: Product[] = PRODUCTS_CONFIG as Product[];
 const initialMovements: InventoryMovement[] = PRODUCT_MOVEMENTS as InventoryMovement[];
 const initialActivities: ProductActivity[] = PRODUCT_ACTIVITIES as ProductActivity[];
 
-export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('products_catalog');
-    return saved ? JSON.parse(saved) : initialProducts;
-  });
+export const ProductsProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: boolean }> = ({ children, isLoggedIn }) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const [categories, setCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('categories_catalog');
-    return saved ? JSON.parse(saved) : initialCategories;
-  });
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [movements, setMovements] = useState<InventoryMovement[]>(() => {
     const saved = localStorage.getItem('products_movements');
@@ -117,14 +123,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  
-  useEffect(() => {
-    localStorage.setItem('products_catalog', JSON.stringify(products));
-  }, [products]);
 
-  useEffect(() => {
-    localStorage.setItem('categories_catalog', JSON.stringify(categories));
-  }, [categories]);
 
   useEffect(() => {
     localStorage.setItem('products_movements', JSON.stringify(movements));
@@ -134,7 +133,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('products_activities', JSON.stringify(activities));
   }, [activities]);
 
-  
   const addToast = (message: string, type: Toast['type'] = 'success') => {
     const id = `toast-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     setToasts(prev => [...prev, { id, type, message }]);
@@ -145,7 +143,6 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
-  
   const logActivity = (productId: string, productName: string, action: string, user: string = 'Admin User') => {
     const newAct: ProductActivity = {
       id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -158,184 +155,254 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setActivities(prev => [newAct, ...prev]);
   };
 
-  
-  const addProduct = (productData: Omit<Product, 'id' | 'createdDate' | 'updatedDate'>) => {
-    const newId = `prd-${Math.floor(8200 + Math.random() * 800)}`;
-    const today = new Date().toISOString().split('T')[0];
-    const newProduct: Product = {
-      ...productData,
-      id: newId,
-      createdDate: today,
-      updatedDate: today
-    };
-
-    setProducts(prev => [newProduct, ...prev]);
-    logActivity(newId, newProduct.name, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
-    
-    
-    if (newProduct.stock > 0) {
-      const newMov: InventoryMovement = {
-        id: `mov-${Date.now()}`,
-        productId: newId,
-        productName: newProduct.name,
-        sku: newProduct.sku,
-        type: 'In',
-        changeQuantity: newProduct.stock,
-        resultingQuantity: newProduct.stock,
-        timestamp: new Date().toISOString(),
-        reason: 'Initial inventory load',
-        user: 'Admin User'
-      };
-      setMovements(prev => [newMov, ...prev]);
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(`${API_URL}/products`);
+      const data = await res.json();
+      if (data.success) {
+        setProducts(data.products);
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      addToast('Failed to fetch products from server.', 'error');
     }
-    
-    addToast(`Product "${newProduct.name}" added successfully.`);
   };
 
-  const updateProduct = (id: string, updatedFields: Partial<Product>) => {
-    const p = products.find(prod => prod.id === id);
-    if (p) {
-      if (updatedFields.price !== undefined && updatedFields.price !== p.price) {
-        logActivity(id, p.name, `Price updated from ${formatCurrency(p.price)} to ${formatCurrency(updatedFields.price)}`);
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/categories`);
+      const data = await res.json();
+      if (data.success) {
+        setCategories(data.categories);
       }
-      if (updatedFields.status !== undefined && updatedFields.status !== p.status) {
-        logActivity(id, p.name, `Visibility status changed to ${updatedFields.status}`);
-      }
-      if (updatedFields.name !== undefined && updatedFields.name !== p.name) {
-        logActivity(id, p.name, `Renamed product from "${p.name}" to "${updatedFields.name}"`);
-      }
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      addToast('Failed to fetch categories from server.', 'error');
     }
+  };
 
-    setProducts(prev =>
-      prev.map(prod => {
-        if (prod.id === id) {
-          return {
-            ...prod,
-            ...updatedFields,
-            updatedDate: new Date().toISOString().split('T')[0]
+  useEffect(() => {
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
+    if (loggedIn) {
+      setLoading(true);
+      Promise.all([fetchProducts(), fetchCategories()]).finally(() => setLoading(false));
+    }
+  }, [isLoggedIn]);
+
+  const addProduct = async (productData: Omit<Product, 'id' | 'createdDate' | 'updatedDate'>): Promise<boolean> => {
+    try {
+      const res = await fetch(`${API_URL}/products`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(productData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchProducts();
+        logActivity(data.product.id, data.product.name, `Created product "${data.product.name}" (SKU: ${data.product.sku})`);
+        
+        // Log movement
+        if (data.product.stock > 0) {
+          const newMov: InventoryMovement = {
+            id: `mov-${Date.now()}`,
+            productId: data.product.id,
+            productName: data.product.name,
+            sku: data.product.sku,
+            type: 'In',
+            changeQuantity: data.product.stock,
+            resultingQuantity: data.product.stock,
+            timestamp: new Date().toISOString(),
+            reason: 'Initial inventory load',
+            user: 'Admin User'
           };
+          setMovements(prev => [newMov, ...prev]);
         }
-        return prod;
-      })
-    );
-    addToast('Product updated successfully.');
-  };
-
-  const deleteProduct = (id: string) => {
-    const product = products.find(p => p.id === id);
-    if (product) {
-      setProducts(prev => prev.filter(p => p.id !== id));
-      logActivity(id, product.name, `Deleted product permanently`);
-      addToast(`Product "${product.name}" deleted.`, 'info');
+        
+        addToast(`Product "${data.product.name}" added successfully.`);
+        return true;
+      } else {
+        addToast(data.message || 'Failed to add product.', 'error');
+        return false;
+      }
+    } catch (err) {
+      console.error('Error creating product:', err);
+      addToast('Server error creating product.', 'error');
+      return false;
     }
   };
 
-  const toggleProductVisibility = (id: string) => {
+  const updateProduct = async (id: string, updatedFields: Partial<Product>): Promise<boolean> => {
+    try {
+      const p = products.find(prod => prod.id === id);
+      const res = await fetch(`${API_URL}/products/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(updatedFields)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchProducts();
+        if (p) {
+          if (updatedFields.price !== undefined && updatedFields.price !== p.price) {
+            logActivity(id, p.name, `Price updated from ${formatCurrency(p.price)} to ${formatCurrency(updatedFields.price)}`);
+          }
+          if (updatedFields.status !== undefined && updatedFields.status !== p.status) {
+            logActivity(id, p.name, `Visibility status changed to ${updatedFields.status}`);
+          }
+          if (updatedFields.name !== undefined && updatedFields.name !== p.name) {
+            logActivity(id, p.name, `Renamed product from "${p.name}" to "${updatedFields.name}"`);
+          }
+        }
+        addToast('Product updated successfully.');
+        return true;
+      } else {
+        addToast(data.message || 'Failed to update product.', 'error');
+        return false;
+      }
+    } catch (err) {
+      console.error('Error updating product:', err);
+      addToast('Server error updating product.', 'error');
+      return false;
+    }
+  };
+
+  const deleteProduct = async (id: string): Promise<boolean> => {
+    try {
+      const product = products.find(p => p.id === id);
+      const res = await fetch(`${API_URL}/products/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchProducts();
+        if (product) {
+          logActivity(id, product.name, `Deleted product permanently`);
+          addToast(`Product "${product.name}" deleted.`, 'info');
+        }
+        return true;
+      } else {
+        addToast(data.message || 'Failed to delete product.', 'error');
+        return false;
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      addToast('Server error deleting product.', 'error');
+      return false;
+    }
+  };
+
+  const toggleProductVisibility = async (id: string) => {
     const product = products.find(p => p.id === id);
     if (!product) return;
 
     const newStatus: Product['status'] = product.status === 'Live' ? 'Draft' : 'Live';
-
-    setProducts(prev =>
-      prev.map(p => {
-        if (p.id === id) {
-          return {
-            ...p,
-            status: newStatus,
-            updatedDate: new Date().toISOString().split('T')[0]
-          };
-        }
-        return p;
-      })
-    );
-
-    logActivity(id, product.name, `Toggled visibility to ${newStatus}`);
-    addToast(`"${product.name}" is now ${newStatus === 'Live' ? 'visible' : 'hidden'}.`);
+    await updateProduct(id, { status: newStatus });
   };
 
-  const bulkUpdateVisibility = (ids: string[], status: 'Live' | 'Draft') => {
-    const changedProducts = products.filter(p => ids.includes(p.id) && p.status !== status);
-
-    setProducts(prev =>
-      prev.map(p => {
-        if (ids.includes(p.id)) {
-          return {
-            ...p,
-            status,
-            updatedDate: new Date().toISOString().split('T')[0]
-          };
-        }
-        return p;
-      })
-    );
-
-    changedProducts.forEach(p => {
-      logActivity(p.id, p.name, `Bulk status set to ${status}`);
-    });
-
-    addToast(`Bulk updated ${ids.length} products to ${status === 'Live' ? 'visible' : 'hidden'}.`);
-  };
-
-  const bulkDeleteProducts = (ids: string[]) => {
-    const selected = products.filter(p => ids.includes(p.id));
-    setProducts(prev => prev.filter(p => !ids.includes(p.id)));
-    selected.forEach(p => {
-      logActivity(p.id, p.name, 'Deleted product via bulk operation');
-    });
-    addToast(`Successfully deleted ${ids.length} products.`, 'info');
-  };
-
-  
-  const addCategory = (categoryData: Omit<Category, 'id' | 'createdDate' | 'updatedDate'>) => {
-    const newId = `cat-${Math.floor(100 + Math.random() * 900)}`;
-    const today = new Date().toISOString().split('T')[0];
-    const newCategory: Category = {
-      ...categoryData,
-      id: newId,
-      createdDate: today,
-      updatedDate: today
-    };
-    setCategories(prev => [...prev, newCategory]);
-    addToast(`Category "${newCategory.name}" created.`);
-  };
-
-  const updateCategory = (id: string, updatedFields: Partial<Category>) => {
-    setCategories(prev =>
-      prev.map(c => {
-        if (c.id === id) {
-          return {
-            ...c,
-            ...updatedFields,
-            updatedDate: new Date().toISOString().split('T')[0]
-          };
-        }
-        return c;
-      })
-    );
-    addToast('Category updated successfully.');
-  };
-
-  const deleteCategory = (id: string) => {
-    const category = categories.find(c => c.id === id);
-    if (category) {
-      setCategories(prev =>
-        prev.map(c => {
-          if (c.id === id) {
-            return {
-              ...c,
-              status: 'Archived',
-              updatedDate: new Date().toISOString().split('T')[0]
-            };
-          }
-          return c;
+  const bulkUpdateVisibility = async (ids: string[], status: 'Live' | 'Draft') => {
+    try {
+      setLoading(true);
+      await Promise.all(ids.map(id => 
+        fetch(`${API_URL}/products/${id}`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify({ status })
         })
-      );
-      addToast(`Category "${category.name}" soft deleted.`, 'info');
+      ));
+      await fetchProducts();
+      ids.forEach(id => {
+        const p = products.find(prod => prod.id === id);
+        if (p) logActivity(id, p.name, `Bulk status set to ${status}`);
+      });
+      addToast(`Bulk updated ${ids.length} products to ${status === 'Live' ? 'visible' : 'hidden'}.`);
+    } catch (err) {
+      console.error('Error in bulk update:', err);
+      addToast('Failed to update some products.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
-  
-  const adjustStock = (productId: string, change: number, type: 'In' | 'Out' | 'Adjustment', reason: string) => {
+  const bulkDeleteProducts = async (ids: string[]) => {
+    try {
+      setLoading(true);
+      await Promise.all(ids.map(id => 
+        fetch(`${API_URL}/products/${id}`, {
+          method: 'DELETE',
+          headers: getHeaders()
+        })
+      ));
+      await fetchProducts();
+      addToast(`Successfully deleted ${ids.length} products.`, 'info');
+    } catch (err) {
+      console.error('Error in bulk delete:', err);
+      addToast('Failed to delete some products.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addCategory = async (categoryData: Omit<Category, 'id' | 'createdDate' | 'updatedDate'>) => {
+    try {
+      const res = await fetch(`${API_URL}/categories`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(categoryData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchCategories();
+        addToast(`Category "${data.category.name}" created.`);
+      } else {
+        addToast(data.message || 'Failed to create category.', 'error');
+      }
+    } catch (err) {
+      console.error('Error creating category:', err);
+      addToast('Server error creating category.', 'error');
+    }
+  };
+
+  const updateCategory = async (id: string, updatedFields: Partial<Category>) => {
+    try {
+      const res = await fetch(`${API_URL}/categories/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(updatedFields)
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchCategories();
+        addToast('Category updated successfully.');
+      } else {
+        addToast(data.message || 'Failed to update category.', 'error');
+      }
+    } catch (err) {
+      console.error('Error updating category:', err);
+      addToast('Server error updating category.', 'error');
+    }
+  };
+
+  const deleteCategory = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/categories/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchCategories();
+        addToast('Category deleted successfully.', 'info');
+      } else {
+        addToast(data.message || 'Failed to delete category.', 'error');
+      }
+    } catch (err) {
+      console.error('Error deleting category:', err);
+      addToast('Server error deleting category.', 'error');
+    }
+  };
+
+  const adjustStock = async (productId: string, change: number, type: 'In' | 'Out' | 'Adjustment', reason: string) => {
     const p = products.find(prod => prod.id === productId);
     if (!p) return;
 
@@ -348,35 +415,24 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       newStock = change;
     }
 
-    setProducts(prev =>
-      prev.map(prod => {
-        if (prod.id === productId) {
-          return {
-            ...prod,
-            stock: newStock,
-            updatedDate: new Date().toISOString().split('T')[0]
-          };
-        }
-        return prod;
-      })
-    );
+    const success = await updateProduct(productId, { stock: newStock });
+    if (success) {
+      logActivity(productId, p.name, `Stock adjusted to ${newStock} (${type === 'Adjustment' ? 'Set' : type === 'In' ? '+' : '-'}${Math.abs(change)})`);
 
-    logActivity(productId, p.name, `Stock adjusted to ${newStock} (${type === 'Adjustment' ? 'Set' : type === 'In' ? '+' : '-'}${Math.abs(change)})`);
-
-    const newMov: InventoryMovement = {
-      id: `mov-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      productId,
-      productName: p.name,
-      sku: p.sku,
-      type,
-      changeQuantity: type === 'Out' ? -Math.abs(change) : change,
-      resultingQuantity: newStock,
-      timestamp: new Date().toISOString(),
-      reason,
-      user: 'Admin User'
-    };
-    setMovements(prev => [newMov, ...prev]);
-    addToast(`Stock level adjusted for "${p.name}".`);
+      const newMov: InventoryMovement = {
+        id: `mov-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        productId,
+        productName: p.name,
+        sku: p.sku,
+        type,
+        changeQuantity: type === 'Out' ? -Math.abs(change) : change,
+        resultingQuantity: newStock,
+        timestamp: new Date().toISOString(),
+        reason,
+        user: 'Admin User'
+      };
+      setMovements(prev => [newMov, ...prev]);
+    }
   };
 
   return (
@@ -387,6 +443,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         movements,
         activities,
         toasts,
+        loading,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -398,7 +455,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         deleteCategory,
         adjustStock,
         addToast,
-        removeToast
+        removeToast,
+        fetchProducts
       }}
     >
       {children}

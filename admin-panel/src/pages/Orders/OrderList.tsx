@@ -290,8 +290,8 @@ export default function OrderList() {
       </div>
 
       {}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {/* Card: Total Orders */}
         <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[140px]">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-[#00522E]/10 rounded-lg flex items-center justify-center text-[#00522E]">
@@ -306,24 +306,6 @@ export default function OrderList() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Total Orders</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block">{totalOrdersStat.toLocaleString()}</span>
-          </div>
-        </div>
-
-        {}
-        <div className="bg-white border border-[#BEC9BE] rounded-xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-200 min-h-[140px]">
-          <div className="flex items-center justify-between">
-            <div className="p-2 bg-amber-50 rounded-lg flex items-center justify-center text-amber-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800">
-              Active
-            </span>
-          </div>
-          <div className="mt-4 space-y-1">
-            <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Pending</span>
-            <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block">{pendingStat.toLocaleString()}</span>
           </div>
         </div>
 

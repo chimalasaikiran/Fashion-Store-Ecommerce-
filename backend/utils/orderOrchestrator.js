@@ -2,14 +2,12 @@ const TRANSITIONS = {
   "active": ["Pending", "Processing", "Cancelled"], 
   "Pending": ["Processing", "Cancelled"],
   "Processing": ["Dispatched", "Cancelled"],
-  "Dispatched": ["Shipped"],
-  "Shipped": ["Out For Delivery"],
-  "Out For Delivery": ["Delivered"],
+  "Dispatched": ["Shipped", "Cancelled"],
+  "Shipped": ["Out For Delivery", "Cancelled"],
+  "Out For Delivery": ["Delivered", "Cancelled"],
   "Delivered": ["Refunded"], 
-  "Cancelled": [],
+  "Cancelled": ["Pending", "Processing"], // Allow reverting if rejected
   "Refunded": [],
-
-  
   "Confirmed": ["Packed", "Processing", "Dispatched", "Cancelled"],
   "Packed": ["Shipped", "Dispatched", "Cancelled"],
 };
@@ -23,34 +21,27 @@ const STATUS_DESCRIPTIONS = {
   "Delivered": "Order successfully delivered.",
   "Cancelled": "Order has been cancelled.",
   "Refunded": "Order has been cancelled and payment refunded.",
-  
-  "Confirmed": "Order has been confirmed by the store.",
-  "Packed": "Order has been packed and is ready for dispatch.",
 };
-
 
 const isValidTransition = (currentStatus, nextStatus) => {
   if (!currentStatus) return nextStatus === "Pending" || nextStatus === "active";
   
+  // Allow transitions to Cancelled from anywhere except Delivered / Refunded
+  if (nextStatus === "Cancelled") {
+    return currentStatus !== "Delivered" && currentStatus !== "Refunded";
+  }
+
   const allowed = TRANSITIONS[currentStatus];
   if (!allowed) return false;
   
   return allowed.includes(nextStatus);
 };
 
-
 const createInitialTimeline = (dateStr, isPaid = true) => {
   return [
     {
-      id: "evt-placed",
-      title: "Order Placed",
-      description: "Your order has been placed successfully.",
-      timestamp: dateStr,
-      status: "completed"
-    },
-    {
       id: "evt-payment",
-      title: "Payment Successful",
+      title: "User Paid",
       description: isPaid ? "Your payment has been successfully processed and cleared." : "Awaiting payment clearance.",
       timestamp: isPaid ? dateStr : "",
       status: isPaid ? "completed" : "current"
@@ -61,13 +52,6 @@ const createInitialTimeline = (dateStr, isPaid = true) => {
       description: isPaid ? "Your order has been confirmed by the store." : "Awaiting payment confirmation.",
       timestamp: "",
       status: isPaid ? "current" : "upcoming"
-    },
-    {
-      id: "evt-processing",
-      title: "Processing Started",
-      description: "The store has started processing your items.",
-      timestamp: "",
-      status: "upcoming"
     },
     {
       id: "evt-dispatched",
@@ -85,7 +69,7 @@ const createInitialTimeline = (dateStr, isPaid = true) => {
     },
     {
       id: "evt-out-for-delivery",
-      title: "Out For Delivery",
+      title: "Out for Delivery",
       description: "Your package is out for delivery with the courier agent.",
       timestamp: "",
       status: "upcoming"
@@ -100,13 +84,12 @@ const createInitialTimeline = (dateStr, isPaid = true) => {
   ];
 };
 
-
-const formatEventDate = () => {
+const formatEventDate = (date) => {
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
-  const d = new Date();
+  const d = date ? new Date(date) : new Date();
   const day = d.getDate().toString().padStart(2, "0");
   const month = months[d.getMonth()];
   const year = d.getFullYear();
@@ -119,18 +102,14 @@ const formatEventDate = () => {
   return `${day} ${month} ${year}, ${strTime}`;
 };
 
-
 const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
   if (!isValidTransition(order.status, nextStatus)) {
     throw new Error(`Invalid status transition from ${order.status} to ${nextStatus}`);
   }
 
   const timestampStr = formatEventDate();
-
-  
   order.status = nextStatus;
 
-  
   if (nextStatus === "Shipped") {
     order.deliveryStatus = "In Transit";
   } else if (nextStatus === "Delivered") {
@@ -162,90 +141,102 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
     }
   }
 
-  
-  if (!order.timeline || order.timeline.length === 0) {
+  // Handle Cancelled Timeline (append "Cancelled" to the end)
+  if (nextStatus === "Cancelled" || nextStatus === "Refunded") {
+    if (!order.timeline || order.timeline.length === 0 || (order.timeline.length === 1 && order.timeline[0].id === "evt-cancelled")) {
+      order.timeline = createInitialTimeline(order.date || timestampStr, order.paymentStatus === "Paid");
+    }
+
+    const hasRequest = order.timeline.some(e => e.id === "evt-cancellation-requested");
+    if (hasRequest) {
+      order.timeline = order.timeline.map(e => {
+        if (e.id === "evt-cancelled") {
+          return {
+            ...e,
+            status: "completed",
+            description: nextStatus === "Refunded" ? "Order has been cancelled and payment refunded." : "Order has been cancelled.",
+            timestamp: timestampStr
+          };
+        }
+        return e;
+      });
+    } else {
+      order.timeline = order.timeline.filter(e => e.status === "completed" || e.status === "current");
+      order.timeline = order.timeline.filter(e => e.id !== "evt-cancelled");
+      order.timeline.push({
+        id: "evt-cancelled",
+        title: "Cancelled",
+        description: nextStatus === "Refunded" ? "Order has been cancelled and payment refunded." : "Order has been cancelled.",
+        timestamp: timestampStr,
+        status: "completed"
+      });
+    }
+
+    order.activityLogs.unshift({
+      id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      action: nextStatus === "Refunded" ? "Order Refunded & Cancelled" : `Order Status changed to Cancelled`,
+      user: actor,
+      timestamp: new Date()
+    });
+
+    return order;
+  }
+
+  // Initialize timeline if not present
+  if (!order.timeline || order.timeline.length === 0 || order.timeline.some(e => e.id === "evt-cancelled")) {
     order.timeline = createInitialTimeline(order.date || timestampStr, order.paymentStatus === "Paid");
   }
 
-  order.timeline = order.timeline.map(event => {
-    
-    if (nextStatus === "Processing") {
-      if (event.id === "evt-confirmed") {
-        return { ...event, status: "completed", timestamp: event.timestamp || timestampStr, description: "Your order has been confirmed by the store." };
-      }
-      if (event.id === "evt-processing") {
-        return { ...event, status: "completed", timestamp: timestampStr, description: "The store has started processing your items." };
-      }
-      if (event.id === "evt-dispatched") {
-        return { ...event, status: "current" };
-      }
-    }
-    
-    
-    if (nextStatus === "Dispatched") {
-      if (["evt-confirmed", "evt-processing"].includes(event.id)) {
-        return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
-      }
-      if (event.id === "evt-dispatched") {
-        return { ...event, status: "completed", timestamp: timestampStr, description: "Your items have been packed and dispatched to our logistics partner." };
-      }
-      if (event.id === "evt-shipped") {
-        return { ...event, status: "current" };
-      }
-    }
-    
-    
-    if (nextStatus === "Shipped") {
-      if (["evt-confirmed", "evt-processing", "evt-dispatched"].includes(event.id)) {
-        return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
-      }
-      if (event.id === "evt-shipped") {
-        return { ...event, status: "completed", timestamp: timestampStr, description: "Your package has been shipped and is on its way to you." };
-      }
-      if (event.id === "evt-out-for-delivery") {
-        return { ...event, status: "current" };
-      }
-    }
-    
-    
-    if (nextStatus === "Out For Delivery") {
-      if (["evt-confirmed", "evt-processing", "evt-dispatched", "evt-shipped"].includes(event.id)) {
-        return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
-      }
-      if (event.id === "evt-out-for-delivery") {
-        return { ...event, status: "completed", timestamp: timestampStr, description: "Your package is out for delivery with the courier agent." };
-      }
-      if (event.id === "evt-delivered") {
-        return { ...event, status: "current" };
-      }
-    }
-    
-    
-    if (nextStatus === "Delivered") {
-      if (["evt-confirmed", "evt-processing", "evt-dispatched", "evt-shipped", "evt-out-for-delivery"].includes(event.id)) {
-        return { ...event, status: "completed", timestamp: event.timestamp || timestampStr };
-      }
-      if (event.id === "evt-delivered") {
-        return { ...event, status: "completed", timestamp: timestampStr, description: "Your package has been delivered. Thank you for shopping with us!" };
-      }
-    }
+  // Update timeline for normal flow
+  const statusOrder = ["evt-payment", "evt-confirmed", "evt-dispatched", "evt-shipped", "evt-out-for-delivery", "evt-delivered"];
+  let targetStepId = "";
+  if (nextStatus === "Pending") {
+    targetStepId = "evt-payment";
+  } else if (nextStatus === "Confirmed" || nextStatus === "Processing") {
+    targetStepId = "evt-confirmed";
+  } else if (nextStatus === "Dispatched") {
+    targetStepId = "evt-dispatched";
+  } else if (nextStatus === "Shipped") {
+    targetStepId = "evt-shipped";
+  } else if (nextStatus === "Out For Delivery" || nextStatus === "Out for Delivery") {
+    targetStepId = "evt-out-for-delivery";
+  } else if (nextStatus === "Delivered") {
+    targetStepId = "evt-delivered";
+  }
 
-    
-    if (nextStatus === "Cancelled" || nextStatus === "Refunded") {
-      if (event.status === "current" || event.status === "upcoming") {
+  if (targetStepId) {
+    const targetIndex = statusOrder.indexOf(targetStepId);
+    order.timeline = order.timeline.map(event => {
+      const eventIndex = statusOrder.indexOf(event.id);
+      if (eventIndex < targetIndex) {
+        return {
+          ...event,
+          status: "completed",
+          timestamp: event.timestamp || timestampStr
+        };
+      } else if (eventIndex === targetIndex) {
+        return {
+          ...event,
+          status: "completed",
+          timestamp: timestampStr
+        };
+      } else if (eventIndex === targetIndex + 1) {
+        return {
+          ...event,
+          status: "current",
+          timestamp: ""
+        };
+      } else {
         return {
           ...event,
           status: "upcoming",
-          title: `${event.title} (Cancelled)`,
-          description: `This step was cancelled because the order was terminated.`
+          timestamp: ""
         };
       }
-    }
-    
-    return event;
-  });
+    });
+  }
 
-  
+  // Ensure payment event is marked completed if paid
   if (order.paymentStatus === "Paid") {
     order.timeline = order.timeline.map(event => {
       if (event.id === "evt-payment") {
@@ -260,21 +251,9 @@ const orchestrateTransition = (order, nextStatus, actor = "Admin") => {
     });
   }
 
-  
-  if (nextStatus === "Cancelled" || nextStatus === "Refunded") {
-    order.timeline.push({
-      id: `evt-${Date.now()}`,
-      title: nextStatus === "Refunded" ? "Order Refunded" : "Order Cancelled",
-      description: STATUS_DESCRIPTIONS[nextStatus],
-      timestamp: timestampStr,
-      status: "completed"
-    });
-  }
-
-  
   order.activityLogs.unshift({
     id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    action: nextStatus === "Refunded" ? "Order Refunded & Cancelled" : `Order Status changed to ${nextStatus}`,
+    action: `Order Status changed to ${nextStatus}`,
     user: actor,
     timestamp: new Date()
   });

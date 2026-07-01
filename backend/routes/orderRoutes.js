@@ -17,6 +17,24 @@ const {
   adminDeleteOrder,
   adminBulkUpdateStatus,
   adminBulkDelete,
+  adminGetCancellations,
+  adminApproveCancellation,
+  adminRejectCancellation,
+  adminGetRefunds,
+  adminApproveRefund,
+  adminRejectRefund,
+  adminProcessRefund,
+  createReturnRequest,
+  createReplacementRequest,
+  adminGetReturns,
+  adminApproveReturn,
+  adminRejectReturn,
+  adminScheduleReturnPickup,
+  adminGetReplacements,
+  adminApproveReplacement,
+  adminRejectReplacement,
+  adminCreateReplacementOrder,
+  adminGenerateReplacementShipment
 } = require("../controllers/orderController");
 const { protect } = require("../middleware/authMiddleware"); 
 const { validateOrderCreate } = require("../middleware/orderValidation");
@@ -105,6 +123,57 @@ router.post(
 );
 
 
+// Cancellation Requests admin routes
+router.get(
+  "/admin/cancellations",
+  protectAdmin,
+  checkPermission("shipments", "Cancellation Requests", "view"),
+  adminGetCancellations
+);
+
+router.put(
+  "/admin/cancellations/:id/approve",
+  protectAdmin,
+  checkPermission("shipments", "Cancellation Requests", "edit"),
+  adminApproveCancellation
+);
+
+router.put(
+  "/admin/cancellations/:id/reject",
+  protectAdmin,
+  checkPermission("shipments", "Cancellation Requests", "edit"),
+  adminRejectCancellation
+);
+
+// Refund Requests admin routes
+router.get(
+  "/admin/refunds",
+  protectAdmin,
+  checkPermission("shipments", "Refund Processing", "view"),
+  adminGetRefunds
+);
+
+router.put(
+  "/admin/refunds/:id/approve",
+  protectAdmin,
+  checkPermission("shipments", "Refund Processing", "edit"),
+  adminApproveRefund
+);
+
+router.put(
+  "/admin/refunds/:id/reject",
+  protectAdmin,
+  checkPermission("shipments", "Refund Processing", "edit"),
+  adminRejectRefund
+);
+
+router.put(
+  "/admin/refunds/:id/process",
+  protectAdmin,
+  checkPermission("shipments", "Refund Processing", "edit"),
+  adminProcessRefund
+);
+
 
 router.route("/")
   .post(protect, validateOrderCreate, createOrder)
@@ -118,5 +187,71 @@ router.route("/:id/cancel")
 
 router.route("/:id/reorder")
   .put(protect, reorder);
+
+// Return Requests admin routes
+router.get(
+  "/admin/returns",
+  protectAdmin,
+  checkPermission("shipments", "Return Requests", "view"),
+  adminGetReturns
+);
+router.put(
+  "/admin/returns/:id/approve",
+  protectAdmin,
+  checkPermission("shipments", "Return Requests", "edit"),
+  adminApproveReturn
+);
+router.put(
+  "/admin/returns/:id/reject",
+  protectAdmin,
+  checkPermission("shipments", "Return Requests", "edit"),
+  adminRejectReturn
+);
+router.put(
+  "/admin/returns/:id/pickup",
+  protectAdmin,
+  checkPermission("shipments", "Return Requests", "edit"),
+  adminScheduleReturnPickup
+);
+
+// Replacement Requests admin routes
+router.get(
+  "/admin/replacements",
+  protectAdmin,
+  checkPermission("shipments", "Replacement Orders", "view"),
+  adminGetReplacements
+);
+router.put(
+  "/admin/replacements/:id/approve",
+  protectAdmin,
+  checkPermission("shipments", "Replacement Orders", "edit"),
+  adminApproveReplacement
+);
+router.put(
+  "/admin/replacements/:id/reject",
+  protectAdmin,
+  checkPermission("shipments", "Replacement Orders", "edit"),
+  adminRejectReplacement
+);
+router.put(
+  "/admin/replacements/:id/create-order",
+  protectAdmin,
+  checkPermission("shipments", "Replacement Orders", "edit"),
+  adminCreateReplacementOrder
+);
+router.put(
+  "/admin/replacements/:id/ship",
+  protectAdmin,
+  checkPermission("shipments", "Replacement Orders", "edit"),
+  adminGenerateReplacementShipment
+);
+
+// User Return / Replacement routes
+router.route("/:id/return")
+  .post(protect, createReturnRequest);
+
+router.route("/:id/replacement")
+  .post(protect, createReplacementRequest);
+
 
 module.exports = router;

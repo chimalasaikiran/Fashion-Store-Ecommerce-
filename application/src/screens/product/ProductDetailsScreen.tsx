@@ -15,7 +15,8 @@ import { Ionicons, Feather } from "@expo/vector-icons";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { Colors } from "../../constants/Colors";
-import { getProductDetails } from "../../services/api";
+import { getProductDetails, API_URL } from "../../services/api";
+import { io } from "socket.io-client";
 
 const { width, height } = Dimensions.get("window");
 
@@ -45,6 +46,28 @@ export default function ProductDetailsScreen() {
 
   const isOutOfStock = details?.stock === 0;
 
+  // Combine the main image and gallery images, filtering duplicates
+  const getProductImages = () => {
+    if (!details) return [];
+    const images: string[] = [];
+    if (details.image) {
+      images.push(details.image);
+    }
+    if (details.gallery && Array.isArray(details.gallery)) {
+      details.gallery.forEach((img: string) => {
+        if (img && img !== details.image) {
+          images.push(img);
+        }
+      });
+    }
+    if (images.length === 0) {
+      images.push("https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600");
+    }
+    return images;
+  };
+
+  const productImages = getProductImages();
+
   useEffect(() => {
     let active = true;
     const fetchDetails = async () => {
@@ -69,6 +92,31 @@ export default function ProductDetailsScreen() {
     };
   }, [productId]);
 
+  useEffect(() => {
+    const socketUrl = API_URL.replace("/api", "");
+    console.log("[Socket ProductDetails] Connecting to sync server at:", socketUrl);
+    const socket = io(socketUrl);
+
+    socket.on("connect", () => {
+      console.log("[Socket ProductDetails] Connected to product sync server");
+    });
+
+    socket.on("product_updated", (data) => {
+      if (data.id === productId) {
+        console.log("[Socket ProductDetails] Product updated in real-time:", data.name);
+        setDetails(data);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("[Socket ProductDetails] Disconnected from sync server");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [productId]);
+
   const handleAddToCart = () => {
     if (!details) return;
     addToCart({
@@ -77,7 +125,7 @@ export default function ProductDetailsScreen() {
       category: details.category,
       price: details.price,
       originalPrice: details.originalPrice,
-      image: details.gallery[0] || details.image,
+      image: details.image || (details.gallery && details.gallery[0]) || "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600",
       size: selectedSize,
       color: selectedColor,
     });
@@ -113,7 +161,7 @@ export default function ProductDetailsScreen() {
         {}
         <View style={styles.imageContainer}>
           <Image
-            source={details.gallery[selectedImageIndex]}
+            source={productImages[selectedImageIndex] || "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600"}
             style={styles.heroImage}
             contentFit="cover"
           />
@@ -147,33 +195,34 @@ export default function ProductDetailsScreen() {
           </View>
 
           {}
-          <View style={styles.galleryWrapper}>
-            {details.gallery.map((img: any, idx: number) => {
-              const isSelected = selectedImageIndex === idx;
-              const isLast = idx === details.gallery.length - 1;
+          {productImages.length > 1 && (
+            <View style={styles.galleryWrapper}>
+              {productImages.map((img: any, idx: number) => {
+                const isSelected = selectedImageIndex === idx;
+                const isLast = idx === productImages.length - 1;
 
-              return (
-                <TouchableOpacity
-                  key={idx}
-                  style={[
-                    styles.thumbnailContainer,
-                    isSelected && styles.thumbnailContainerActive,
-                  ]}
-                  onPress={() => setSelectedImageIndex(idx)}
-                  activeOpacity={0.9}
-                >
-                  <Image source={img} style={styles.thumbnailImage} contentFit="cover" />
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[
+                      styles.thumbnailContainer,
+                      isSelected && styles.thumbnailContainerActive,
+                    ]}
+                    onPress={() => setSelectedImageIndex(idx)}
+                    activeOpacity={0.9}
+                  >
+                    <Image source={img} style={styles.thumbnailImage} contentFit="cover" />
 
-                  {}
-                  {isLast && (
-                    <View style={styles.playOverlay}>
-                      <Ionicons name="play-circle" size={20} color="#7A7A7A" />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                    {isLast && productImages.length > 2 && (
+                      <View style={styles.playOverlay}>
+                        <Ionicons name="play-circle" size={20} color="#7A7A7A" />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
         </View>
 
         {}

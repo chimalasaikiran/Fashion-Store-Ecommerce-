@@ -6,13 +6,19 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  Alert,
+  ActivityIndicator,
+  Pressable,
 } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, Feather, FontAwesome5 } from "@expo/vector-icons";
-import { useProfile } from "../../context/ProfileContext";
+import * as ImagePicker from "expo-image-picker";
+import { useProfile, resolveAvatarSource } from "../../context/ProfileContext";
+import { useCart } from "../../context/CartContext";
 import { Colors } from "../../constants/Colors";
+import { completeUserProfile } from "../../services/api";
 
 
 const BROWN_DARK = Colors.primary;
@@ -29,8 +35,11 @@ interface ProfileTabProps {
 export function ProfileTab({ onBack }: ProfileTabProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { profile } = useProfile();
+  const { profile, updateProfile } = useProfile();
+  const { clearCart } = useCart();
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
+  const [isPhotoSheetVisible, setIsPhotoSheetVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const menuItems = [
     {
@@ -122,9 +131,95 @@ export function ProfileTab({ onBack }: ProfileTabProps) {
 
   const handleConfirmLogout = () => {
     setIsLogoutVisible(false);
+    clearCart();
     setTimeout(() => {
       router.replace("/signin");
     }, 200);
+  };
+
+  const convertUriToBase64 = async (uri: string): Promise<string> => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const handlePhotoSelect = async (option: string) => {
+    setIsPhotoSheetVisible(false);
+    if (option === "remove") {
+      try {
+        setUploading(true);
+        const res = await completeUserProfile({ avatar: "" });
+        if (res && res.success) {
+          updateProfile({ avatar: res.user.avatar });
+          Alert.alert("Success", "Profile photo removed.");
+        }
+      } catch (err: any) {
+        Alert.alert("Error", err.message || "Failed to remove photo.");
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+
+    try {
+      let result = null;
+      if (option === "gallery") {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "We need access to your photo library to select a profile photo.");
+          return;
+        }
+
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+          base64: true,
+        });
+      } else if (option === "camera") {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "We need access to your camera to take a profile photo.");
+          return;
+        }
+
+        result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+          base64: true,
+        });
+      }
+
+      if (result && !result.canceled && result.assets && result.assets.length > 0) {
+        setUploading(true);
+        const selectedUri = result.assets[0].uri;
+        let dataUri = "";
+        if (result.assets[0].base64) {
+          dataUri = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        } else {
+          dataUri = await convertUriToBase64(selectedUri);
+        }
+        const res = await completeUserProfile({ avatar: dataUri });
+        if (res && res.success) {
+          updateProfile({ avatar: res.user.avatar });
+          Alert.alert("Success", "Profile photo updated successfully!");
+        }
+      }
+    } catch (error: any) {
+      console.error("ImagePicker/Upload Error:", error);
+      Alert.alert("Error", error.message || "An error occurred while uploading the photo.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const renderIcon = (icon: string, type: string) => {
@@ -155,20 +250,27 @@ export function ProfileTab({ onBack }: ProfileTabProps) {
       >
         {}
         <View style={styles.avatarSection}>
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={() => setIsPhotoSheetVisible(true)}
+            activeOpacity={0.9}
+            disabled={uploading}
+          >
             <Image
-              source={profile.avatar}
+              source={resolveAvatarSource(profile.avatar)}
               style={styles.avatarImage}
               contentFit="cover"
             />
-            <TouchableOpacity
-              style={styles.editBadge}
-              onPress={() => router.push("/your-profile")}
-              activeOpacity={0.8}
-            >
-              <FontAwesome5 name="pencil-alt" size={10} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
+            {uploading ? (
+              <View style={styles.uploadingOverlay}>
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              </View>
+            ) : (
+              <View style={styles.editBadge}>
+                <FontAwesome5 name="pencil-alt" size={10} color="#FFFFFF" />
+              </View>
+            )}
+          </TouchableOpacity>
           <Text style={styles.userName}>{profile.name}</Text>
         </View>
 
@@ -196,7 +298,7 @@ export function ProfileTab({ onBack }: ProfileTabProps) {
         </View>
       </ScrollView>
 
-      {}
+      {/* Logout Confirmation Modal */}
       <Modal
         visible={isLogoutVisible}
         transparent={true}
@@ -228,6 +330,62 @@ export function ProfileTab({ onBack }: ProfileTabProps) {
                 onPress={handleConfirmLogout}
               >
                 <Text style={styles.confirmBtnText}>Yes, Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Photo Picker Modal */}
+      <Modal
+        visible={isPhotoSheetVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setIsPhotoSheetVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.modalDismissArea} onPress={() => setIsPhotoSheetVisible(false)} />
+          <View style={styles.modalContent}>
+            <View style={styles.modalGrabBar} />
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Profile Photo</Text>
+              <TouchableOpacity onPress={() => setIsPhotoSheetVisible(false)}>
+                <Ionicons name="close" size={24} color={TEXT_PRIMARY} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.sheetOptions}>
+              <TouchableOpacity
+                style={styles.sheetOptionBtn}
+                onPress={() => handlePhotoSelect("gallery")}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.sheetIconBox, { backgroundColor: "#E3F2FD" }]}>
+                  <Ionicons name="image" size={22} color="#1E88E5" />
+                </View>
+                <Text style={styles.sheetOptionText}>Choose from Gallery</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.sheetOptionBtn}
+                onPress={() => handlePhotoSelect("camera")}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.sheetIconBox, { backgroundColor: "#EDE7F6" }]}>
+                  <Ionicons name="camera" size={22} color="#5E35B1" />
+                </View>
+                <Text style={styles.sheetOptionText}>Take Photo</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.sheetOptionBtn}
+                onPress={() => handlePhotoSelect("remove")}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.sheetIconBox, { backgroundColor: "#FFEBEE" }]}>
+                  <Ionicons name="trash" size={22} color="#E53935" />
+                </View>
+                <Text style={[styles.sheetOptionText, { color: "#E53935" }]}>Remove Current Photo</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -361,6 +519,31 @@ const styles = StyleSheet.create({
   modalBgDismiss: {
     ...StyleSheet.absoluteFillObject,
   },
+  modalDismissArea: {
+    flex: 1,
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    maxHeight: "80%",
+  },
+  modalGrabBar: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#E0E0E0",
+    alignSelf: "center",
+    marginVertical: 12,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
   modalSheet: {
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 30,
@@ -425,5 +608,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#FFFFFF",
+  },
+  uploadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sheetOptions: {
+    gap: 16,
+    marginTop: 8,
+  },
+  sheetOptionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    paddingVertical: 12,
+  },
+  sheetIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sheetOptionText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: TEXT_PRIMARY,
   },
 });

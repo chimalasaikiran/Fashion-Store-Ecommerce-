@@ -107,7 +107,7 @@ export default function ReturnRequests() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Total Requests</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (245 + totalCount)}
+              {isLoading ? '...' : totalCount}
             </span>
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function ReturnRequests() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Pending</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (4 + pendingCount)}
+              {isLoading ? '...' : pendingCount}
             </span>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function ReturnRequests() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-white/70 tracking-wider uppercase block">Approved Returns</span>
             <span className="text-2xl font-extrabold text-white tracking-tight block font-mono">
-              {isLoading ? '...' : (220 + approvedCount)}
+              {isLoading ? '...' : approvedCount}
             </span>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function ReturnRequests() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Rejected Returns</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (21 + rejectedCount)}
+              {isLoading ? '...' : rejectedCount}
             </span>
           </div>
         </div>

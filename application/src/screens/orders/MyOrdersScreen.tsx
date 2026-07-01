@@ -13,6 +13,7 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useOrders } from "../../context/OrderContext";
+import { useWishlist } from "../../context/WishlistContext";
 import { Colors } from "../../constants/Colors";
 
 const BROWN_DARK = Colors.primary; 
@@ -26,6 +27,7 @@ export default function MyOrdersScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { orders, cancelOrder, reOrder, fetchOrders } = useOrders();
+  const { products } = useWishlist();
   const [activeTab, setActiveTab] = useState<TabType>("active");
 
   React.useEffect(() => {
@@ -36,7 +38,7 @@ export default function MyOrdersScreen() {
 
   const handleBack = () => {
     
-    router.replace({ pathname: "/home", params: { tab: "profile" } });
+    router.replace({ pathname: "/home" as any, params: { tab: "profile" } });
   };
 
   const handleSearch = () => {
@@ -56,7 +58,7 @@ export default function MyOrdersScreen() {
           text: "Yes, Cancel",
           style: "destructive",
           onPress: () => {
-            cancelOrder(orderId);
+            cancelOrder(orderId, "Customer Cancelled");
             Alert.alert("Success", "Your order has been cancelled.");
           },
         },
@@ -80,10 +82,12 @@ export default function MyOrdersScreen() {
   };
 
   const handleTrackClick = (orderId: string) => {
-    router.push({ pathname: "/track-order", params: { orderId } });
+    router.push({ pathname: "/track-order" as any, params: { orderId } });
   };
 
   const renderOrderCard = (order: typeof orders[0]) => {
+    const dbProduct = products.find((p) => p.id === order.productId);
+    const displayImage = dbProduct ? dbProduct.image : order.image;
     switch (activeTab) {
       case "active":
         return (
@@ -100,7 +104,7 @@ export default function MyOrdersScreen() {
 
             {}
             <View style={styles.productRow}>
-              <Image source={order.image} style={styles.productImage} contentFit="cover" />
+              <Image source={displayImage} style={styles.productImage} contentFit="cover" />
               <View style={styles.productInfo}>
                 <Text style={styles.productName}>{order.name}</Text>
                 <Text style={styles.productDetails}>
@@ -114,7 +118,7 @@ export default function MyOrdersScreen() {
               </View>
             </View>
 
-            {}
+            {/* Action Buttons */}
             <View style={styles.buttonsRow}>
               <TouchableOpacity
                 style={styles.secondaryButton}
@@ -128,7 +132,7 @@ export default function MyOrdersScreen() {
                 activeOpacity={0.85}
                 onPress={() => handleTrackClick(order.orderId)}
               >
-                <Text style={styles.primaryButtonText}>Track Order</Text>
+                <Text style={styles.primaryButtonText}>Track Shipment</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -136,7 +140,17 @@ export default function MyOrdersScreen() {
 
       case "completed":
         return (
-          <View key={order.id} style={styles.orderCard}>
+          <TouchableOpacity
+            key={order.id}
+            style={styles.orderCard}
+            activeOpacity={0.9}
+            onPress={() =>
+              router.push({
+                pathname: "/order-details" as any,
+                params: { orderId: order.orderId, productId: order.productId },
+              })
+            }
+          >
             {}
             <View style={styles.cardHeaderRow}>
               <Text style={styles.orderIdText}>Order ID : <Text style={styles.boldText}>{order.orderId}</Text></Text>
@@ -149,7 +163,7 @@ export default function MyOrdersScreen() {
 
             {}
             <View style={styles.productRow}>
-              <Image source={order.image} style={styles.productImage} contentFit="cover" />
+              <Image source={displayImage} style={styles.productImage} contentFit="cover" />
               <View style={styles.productInfo}>
                 <Text style={styles.productName}>{order.name}</Text>
                 <Text style={styles.productDetails}>
@@ -168,7 +182,12 @@ export default function MyOrdersScreen() {
               <TouchableOpacity
                 style={styles.secondaryButton}
                 activeOpacity={0.7}
-                onPress={() => router.push("/leave-review")}
+                onPress={() =>
+                  router.push({
+                    pathname: "/leave-review" as any,
+                    params: { id: order.productId },
+                  })
+                }
               >
                 <Text style={styles.secondaryButtonText}>Leave Review</Text>
               </TouchableOpacity>
@@ -180,7 +199,7 @@ export default function MyOrdersScreen() {
                 <Text style={styles.primaryButtonText}>View E-Receipt</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </TouchableOpacity>
         );
 
       case "cancelled":
@@ -198,7 +217,7 @@ export default function MyOrdersScreen() {
 
             {}
             <View style={styles.productRow}>
-              <Image source={order.image} style={styles.productImage} contentFit="cover" />
+              <Image source={displayImage} style={styles.productImage} contentFit="cover" />
               <View style={styles.productInfo}>
                 <Text style={styles.productName}>{order.name}</Text>
                 <Text style={styles.productDetails}>

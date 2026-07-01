@@ -17,7 +17,7 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
-import { getProductDetails, submitProductReview } from "../../services/api";
+import { getProductDetails, submitProductReview, getProducts } from "../../services/api";
 
 const DEEP_BROWN = Colors.primary; 
 const WARM_YELLOW = Colors.warning; 
@@ -53,12 +53,31 @@ export default function LeaveReviewScreen() {
     const loadProduct = async () => {
       setLoading(true);
       try {
-        const res = await getProductDetails(productId);
-        if (res.success && active) {
+        let res = null;
+        const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(productId);
+        if (isValidObjectId) {
+          res = await getProductDetails(productId);
+        }
+        
+        if (res && res.success && active) {
           setProduct(res.product);
+        } else {
+          // Fallback to fetching all products and using the first one
+          const productsRes = await getProducts();
+          if (productsRes && productsRes.success && productsRes.products && productsRes.products.length > 0 && active) {
+            setProduct(productsRes.products[0]);
+          }
         }
       } catch (err) {
         console.error("Error loading product for review:", err);
+        try {
+          const productsRes = await getProducts();
+          if (productsRes && productsRes.success && productsRes.products && productsRes.products.length > 0 && active) {
+            setProduct(productsRes.products[0]);
+          }
+        } catch (fallbackErr) {
+          console.error("Error on fallback getProducts:", fallbackErr);
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -125,11 +144,33 @@ export default function LeaveReviewScreen() {
     }
   };
 
-  if (loading || !product) {
+  if (loading) {
     return (
       <View style={[styles.root, { justifyContent: "center", alignItems: "center" }]}>
         <StatusBar style="dark" />
         <ActivityIndicator size="large" color={DEEP_BROWN} />
+      </View>
+    );
+  }
+
+  if (!product) {
+    return (
+      <View style={[styles.root, { justifyContent: "center", alignItems: "center", padding: 24 }]}>
+        <StatusBar style="dark" />
+        <Text style={{ fontSize: 16, color: TEXT_PRIMARY, marginBottom: 16, textAlign: "center" }}>
+          Product not found or failed to load.
+        </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: DEEP_BROWN,
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 20,
+          }}
+          onPress={handleBack}
+        >
+          <Text style={{ color: "#FFFFFF", fontWeight: "700" }}>Go Back</Text>
+        </TouchableOpacity>
       </View>
     );
   }

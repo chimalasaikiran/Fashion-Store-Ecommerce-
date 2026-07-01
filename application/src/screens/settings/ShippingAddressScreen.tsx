@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store";
 import { Colors } from "../../constants/Colors";
 import { useCart } from "../../context/CartContext";
 
@@ -30,52 +31,59 @@ interface AddressItem {
   address: string;
 }
 
-const INITIAL_ADDRESSES: AddressItem[] = [
-  {
-    id: "1",
-    label: "Home",
-    address: "245 Madison Ave, New York, NY 10016, USA",
-  },
-  {
-    id: "2",
-    label: "Office",
-    address: "780 Broadway, New York, NY 10003, USA",
-  },
-  {
-    id: "3",
-    label: "Parent's House",
-    address: "210 E 34th St, New York, NY 10016, USA",
-  },
-  {
-    id: "4",
-    label: "Friend's House",
-    address: "400 W 42nd St, New York, NY 10036, USA",
-  },
-];
+const SECURE_STORE_KEY = "saved_shipping_addresses";
 
 export default function ShippingAddressScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  
   const { selectedAddress, setSelectedAddress } = useCart();
-  const [addresses, setAddresses] = useState<AddressItem[]>(() => {
-    const exists = INITIAL_ADDRESSES.some(a => a.address === selectedAddress?.address);
-    if (selectedAddress && !exists) {
-      return [...INITIAL_ADDRESSES, { id: "custom_selected", label: selectedAddress.label, address: selectedAddress.address }];
-    }
-    return INITIAL_ADDRESSES;
-  });
+  const [addresses, setAddresses] = useState<AddressItem[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   
-  const [selectedId, setSelectedId] = useState<string>(() => {
-    const found = addresses.find(a => a.address === selectedAddress?.address);
-    return found ? found.id : "1";
-  });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newAddress, setNewAddress] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Load addresses on mount
+  useEffect(() => {
+    const loadAddresses = async () => {
+      try {
+        const stored = await SecureStore.getItemAsync(SECURE_STORE_KEY);
+        let parsed: AddressItem[] = [];
+        if (stored) {
+          parsed = JSON.parse(stored);
+        }
+        
+        // Ensure that selectedAddress (from CartContext) is in the list
+        if (selectedAddress) {
+          const exists = parsed.some(a => a.address === selectedAddress.address);
+          if (!exists) {
+            parsed.push({
+              id: "custom_selected",
+              label: selectedAddress.label,
+              address: selectedAddress.address,
+            });
+          }
+        }
+        
+        setAddresses(parsed);
+        
+        if (selectedAddress) {
+          const found = parsed.find(a => a.address === selectedAddress.address);
+          if (found) {
+            setSelectedId(found.id);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading saved addresses:", error);
+      }
+    };
+    
+    loadAddresses();
+  }, []);
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
@@ -89,7 +97,7 @@ export default function ShippingAddressScreen() {
     router.back();
   };
 
-  const handleAddAddress = () => {
+  const handleAddAddress = async () => {
     if (!newLabel.trim()) {
       setErrorMsg("Please enter an address label.");
       return;
@@ -99,26 +107,50 @@ export default function ShippingAddressScreen() {
       return;
     }
 
-    const newId = (addresses.length + 1).toString();
+    const newId = Date.now().toString();
     const item: AddressItem = {
       id: newId,
       label: newLabel.trim(),
       address: newAddress.trim(),
     };
 
-    setAddresses([...addresses, item]);
+    // Filter out any temporary custom selection of the same address
+    const updated = [...addresses.filter(a => a.id !== "custom_selected" && a.address !== item.address), item];
+    setAddresses(updated);
     setSelectedId(newId);
     setSelectedAddress({ label: item.label, address: item.address });
+
+    try {
+      await SecureStore.setItemAsync(SECURE_STORE_KEY, JSON.stringify(updated.filter(a => a.id !== "custom_selected")));
+    } catch (error) {
+      console.error("Error saving address list:", error);
+    }
+
     setNewLabel("");
     setNewAddress("");
     setErrorMsg(null);
     setIsModalVisible(false);
 
-    
     setSuccessMsg("New shipping address added!");
     setTimeout(() => {
       setSuccessMsg(null);
     }, 2000);
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    const updated = addresses.filter(a => a.id !== id);
+    setAddresses(updated);
+    
+    if (selectedId === id) {
+      setSelectedId(null);
+      setSelectedAddress(null);
+    }
+    
+    try {
+      await SecureStore.setItemAsync(SECURE_STORE_KEY, JSON.stringify(updated.filter(a => a.id !== "custom_selected")));
+    } catch (error) {
+      console.error("Error deleting address:", error);
+    }
   };
 
   const handleContinue = () => {
@@ -168,50 +200,70 @@ export default function ShippingAddressScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {}
-          <View style={styles.addressesCard}>
-            {addresses.map((item, index) => {
-              const isSelected = selectedId === item.id;
-              return (
-                <View key={item.id}>
-                  <TouchableOpacity
-                    style={styles.addressRow}
-                    onPress={() => handleSelect(item.id)}
-                    activeOpacity={0.85}
-                  >
-                    {}
-                    <View style={styles.iconContainer}>
-                      <Ionicons
-                        name="location-sharp"
-                        size={22}
-                        color={ACCENT}
-                      />
+          {addresses.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="location-outline" size={48} color={TEXT_MUTED} />
+              <Text style={styles.emptyTitle}>No Addresses Saved</Text>
+              <Text style={styles.emptySubtitle}>
+                Add a new shipping address below to proceed with your order.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.addressesCard}>
+              {addresses.map((item, index) => {
+                const isSelected = selectedId === item.id;
+                return (
+                  <View key={item.id}>
+                    <View style={styles.addressRowContainer}>
+                      <TouchableOpacity
+                        style={styles.addressRow}
+                        onPress={() => handleSelect(item.id)}
+                        activeOpacity={0.85}
+                      >
+                        {/* Icon */}
+                        <View style={styles.iconContainer}>
+                          <Ionicons
+                            name="location-sharp"
+                            size={22}
+                            color={ACCENT}
+                          />
+                        </View>
+
+                        {/* Details */}
+                        <View style={styles.detailsContainer}>
+                          <Text style={styles.addressLabel}>{item.label}</Text>
+                          <Text style={styles.addressText}>{item.address}</Text>
+                        </View>
+
+                        {/* Radio Button */}
+                        <View
+                          style={[
+                            styles.radioButtonOuter,
+                            isSelected && styles.radioButtonOuterActive,
+                          ]}
+                        >
+                          {isSelected && <View style={styles.radioButtonInner} />}
+                        </View>
+                      </TouchableOpacity>
+
+                      {/* Delete Button */}
+                      <TouchableOpacity
+                        style={styles.deleteBtn}
+                        onPress={() => handleDeleteAddress(item.id)}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons name="trash-outline" size={20} color="#E53935" />
+                      </TouchableOpacity>
                     </View>
 
-                    {}
-                    <View style={styles.detailsContainer}>
-                      <Text style={styles.addressLabel}>{item.label}</Text>
-                      <Text style={styles.addressText}>{item.address}</Text>
-                    </View>
-
-                    {}
-                    <View
-                      style={[
-                        styles.radioButtonOuter,
-                        isSelected && styles.radioButtonOuterActive,
-                      ]}
-                    >
-                      {isSelected && <View style={styles.radioButtonInner} />}
-                    </View>
-                  </TouchableOpacity>
-
-                  {index < addresses.length - 1 && (
-                    <View style={styles.rowDivider} />
-                  )}
-                </View>
-              );
-            })}
-          </View>
+                    {index < addresses.length - 1 && (
+                      <View style={styles.rowDivider} />
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          )}
 
           {}
           <TouchableOpacity
@@ -381,11 +433,46 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginBottom: 20,
   },
+  addressRowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 12,
+  },
   addressRow: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 18,
     paddingHorizontal: 20,
+  },
+  deleteBtn: {
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 24,
+    backgroundColor: CARD_BG,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#EAEAEA",
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: TEXT_PRIMARY,
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    color: TEXT_MUTED,
+    textAlign: "center",
+    lineHeight: 18,
   },
   iconContainer: {
     width: 46,

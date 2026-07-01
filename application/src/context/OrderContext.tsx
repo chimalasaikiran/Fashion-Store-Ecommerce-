@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { io } from "socket.io-client";
 import { 
   createOrderApi, 
   getOrdersApi, 
   cancelOrderApi, 
-  reorderApi 
+  reorderApi,
+  createReturnRequestApi,
+  createReplacementRequestApi,
+  API_URL
 } from "../services/api";
 import { useProfile } from "./ProfileContext";
 
@@ -24,21 +28,33 @@ export interface OrderItem {
   date: string;
   deliveryDate: string;
   timeline?: any[];
+  courierPartner?: string;
+  trackingId?: string;
+  paymentMethod?: string;
+  transactionId?: string;
+  totalAmount?: number;
+  shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string };
+  billingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string };
+  promoCode?: string;
+  shippingMethod?: string;
 }
 
 interface OrderContextType {
   orders: OrderItem[];
   loading: boolean;
   fetchOrders: () => Promise<void>;
-  cancelOrder: (orderId: string) => Promise<void>;
+  cancelOrder: (orderId: string, reason: string, comments?: string) => Promise<void>;
   reOrder: (orderId: string) => Promise<void>;
   placeOrder: (
     items: any[],
     paymentMethod?: string,
     promoCode?: string,
     totalCost?: number,
-    shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string }
+    shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string },
+    shippingMethod?: string
   ) => Promise<string>;
+  createReturnRequest: (orderId: string, reason: string, productName: string, productPrice: number) => Promise<void>;
+  createReplacementRequest: (orderId: string, reason: string, originalProduct: string, replacementProduct: string) => Promise<void>;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -71,6 +87,12 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
             size: item.size,
             color: item.color,
             status: (() => {
+              const itemStatus = (item.status || "").toLowerCase();
+              if (itemStatus === "completed") {
+                return "completed";
+              } else if (itemStatus === "cancelled") {
+                return "cancelled";
+              }
               const lowerStatus = (order.status || "").toLowerCase();
               if (lowerStatus === "delivered" || lowerStatus === "completed") {
                 return "completed";
@@ -83,6 +105,15 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
             date: order.date,
             deliveryDate: item.deliveryDate || order.deliveryDate,
             timeline: order.timeline || [],
+            courierPartner: order.courierPartner || "",
+            trackingId: order.trackingId || "",
+            paymentMethod: order.paymentMethod || "Wallet",
+            transactionId: order.transactionId || "",
+            totalAmount: order.totalAmount || 0,
+            shippingAddress: order.shippingAddress,
+            billingAddress: order.billingAddress,
+            promoCode: order.promoCode || "",
+            shippingMethod: order.shippingMethod || "Economy",
           });
         });
       }
@@ -107,17 +138,32 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     fetchOrders();
+
+    const socketUrl = API_URL.replace("/api", "");
+    const socket = io(socketUrl);
+
+    socket.on("connect", () => {
+      console.log("[OrderContext] Connected to socket server");
+    });
+
+    socket.on("order_updated", (updatedOrder: any) => {
+      console.log("[OrderContext] Socket: Order updated!", updatedOrder);
+      setOrders((prev) => {
+        const newItems = flattenOrders([updatedOrder]);
+        const filtered = prev.filter((item) => item.orderId !== updatedOrder.orderId);
+        return [...newItems, ...filtered];
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
-  const cancelOrder = async (orderId: string) => {
-    
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.orderId === orderId ? { ...order, status: "cancelled", orderStatus: "Cancelled" } : order
-      )
-    );
+  const cancelOrder = async (orderId: string, reason: string, comments?: string) => {
     try {
-      await cancelOrderApi(orderId);
+      await cancelOrderApi(orderId, reason, comments);
+      await fetchOrders();
     } catch (err) {
       console.error("[OrderContext] Failed to cancel order on backend:", err);
     }
@@ -137,12 +183,33 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const createReturnRequest = async (orderId: string, reason: string, productName: string, productPrice: number) => {
+    try {
+      await createReturnRequestApi(orderId, reason, productName, productPrice);
+      await fetchOrders();
+    } catch (err) {
+      console.error("[OrderContext] Failed to submit return request:", err);
+      throw err;
+    }
+  };
+
+  const createReplacementRequest = async (orderId: string, reason: string, originalProduct: string, replacementProduct: string) => {
+    try {
+      await createReplacementRequestApi(orderId, reason, originalProduct, replacementProduct);
+      await fetchOrders();
+    } catch (err) {
+      console.error("[OrderContext] Failed to submit replacement request:", err);
+      throw err;
+    }
+  };
+
   const placeOrder = async (
     items: any[],
     paymentMethod: string = "Wallet",
     promoCode: string = "",
     totalCost: number = 0,
-    shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string }
+    shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string },
+    shippingMethod?: string
   ): Promise<string> => {
     try {
       const ensureValidObjectId = (id: string): string => {
@@ -171,6 +238,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         items: apiItems,
         totalAmount: totalCost || items.reduce((sum, i) => sum + i.price * (i.quantity || 1), 0),
         shippingAddress: shippingAddress || undefined,
+        shippingMethod: shippingMethod || undefined,
       };
 
       const res = await createOrderApi(payload);
@@ -209,7 +277,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <OrderContext.Provider value={{ orders, loading, fetchOrders, cancelOrder, reOrder, placeOrder }}>
+    <OrderContext.Provider value={{ orders, loading, fetchOrders, cancelOrder, reOrder, placeOrder, createReturnRequest, createReplacementRequest }}>
       {children}
     </OrderContext.Provider>
   );

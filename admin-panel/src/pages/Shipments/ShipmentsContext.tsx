@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
 import { SHIPMENTS, RETURN_REQUESTS, REFUND_REQUESTS, REPLACEMENT_ORDERS, CANCELLATION_REQUESTS } from '../../data/mockDb';
 
 export interface Shipment {
@@ -79,206 +80,436 @@ interface ShipmentsContextType {
   approveReturn: (id: string) => void;
   rejectReturn: (id: string) => void;
   scheduleReturnPickup: (id: string) => void;
-  approveRefund: (id: string) => void;
-  rejectRefund: (id: string) => void;
-  processRefund: (id: string) => void;
+  approveRefund: (id: string) => Promise<void>;
+  rejectRefund: (id: string) => Promise<void>;
+  processRefund: (id: string) => Promise<void>;
   approveReplacement: (id: string) => void;
   rejectReplacement: (id: string) => void;
   createReplacementOrder: (id: string) => void;
   generateReplacementShipment: (id: string) => void;
-  approveCancellation: (id: string) => void;
-  rejectCancellation: (id: string) => void;
+  approveCancellation: (id: string) => Promise<void>;
+  rejectCancellation: (id: string) => Promise<void>;
 }
 
 const ShipmentsContext = createContext<ShipmentsContextType | undefined>(undefined);
 
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
+const WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com' : 'http://localhost:5000');
+
 const initialShipments: Shipment[] = SHIPMENTS as Shipment[];
 const initialReturns: ReturnRequest[] = RETURN_REQUESTS as ReturnRequest[];
-const initialRefunds: RefundRequest[] = REFUND_REQUESTS as RefundRequest[];
 const initialReplacements: ReplacementOrder[] = REPLACEMENT_ORDERS as ReplacementOrder[];
-const initialCancellations: CancellationRequest[] = CANCELLATION_REQUESTS as CancellationRequest[];
 
 export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [shipments, setShipments] = useState<Shipment[]>(() => {
-    const saved = localStorage.getItem('shipments_data');
-    return saved ? JSON.parse(saved) : initialShipments;
-  });
+  const [shipments, setShipments] = useState<Shipment[]>([]);
 
-  const [returnRequests, setReturnRequests] = useState<ReturnRequest[]>(() => {
-    const saved = localStorage.getItem('returns_data');
-    return saved ? JSON.parse(saved) : initialReturns;
-  });
+  const [returnRequests, setReturnRequests] = useState<ReturnRequest[]>([]);
 
-  const [refundRequests, setRefundRequests] = useState<RefundRequest[]>(() => {
-    const saved = localStorage.getItem('refunds_data');
-    return saved ? JSON.parse(saved) : initialRefunds;
-  });
-
-  const [replacementOrders, setReplacementOrders] = useState<ReplacementOrder[]>(() => {
-    const saved = localStorage.getItem('replacements_data');
-    return saved ? JSON.parse(saved) : initialReplacements;
-  });
-
-  const [cancellationRequests, setCancellationRequests] = useState<CancellationRequest[]>(() => {
-    const saved = localStorage.getItem('cancellations_data');
-    return saved ? JSON.parse(saved) : initialCancellations;
-  });
-
+  const [refundRequests, setRefundRequests] = useState<RefundRequest[]>([]);
   
-  useEffect(() => {
-    localStorage.setItem('shipments_data', JSON.stringify(shipments));
-  }, [shipments]);
+  const [replacementOrders, setReplacementOrders] = useState<ReplacementOrder[]>([]);
 
-  useEffect(() => {
-    localStorage.setItem('returns_data', JSON.stringify(returnRequests));
-  }, [returnRequests]);
+  const [cancellationRequests, setCancellationRequests] = useState<CancellationRequest[]>([]);
 
-  useEffect(() => {
-    localStorage.setItem('refunds_data', JSON.stringify(refundRequests));
-  }, [refundRequests]);
-
-  useEffect(() => {
-    localStorage.setItem('replacements_data', JSON.stringify(replacementOrders));
-  }, [replacementOrders]);
-
-  useEffect(() => {
-    localStorage.setItem('cancellations_data', JSON.stringify(cancellationRequests));
-  }, [cancellationRequests]);
-
-  
-  const createShipment = (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => {
-    const newId = `SH-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newShipment: Shipment = {
-      ...shipment,
-      id: newId,
-      trackingNumber: '',
-      labelGenerated: false
+  const getHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
     };
-    setShipments(prev => [newShipment, ...prev]);
-    return newShipment;
   };
 
-  const updateShipmentStatus = (id: string, status: Shipment['status'], trackingNum?: string) => {
-    setShipments(prev => prev.map(s => {
-      if (s.id === id) {
-        return {
-          ...s,
-          status,
-          trackingNumber: trackingNum !== undefined ? trackingNum : s.trackingNumber
-        };
+  const fetchShipments = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/shipments`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setShipments(data.shipments);
       }
-      return s;
-    }));
+    } catch (err) {
+      console.error('Error fetching shipments:', err);
+    }
   };
 
-  const generateShippingLabel = (id: string) => {
-    setShipments(prev => prev.map(s => {
-      if (s.id === id) {
-        const tracking = s.trackingNumber || `DLV-${Math.floor(100000 + Math.random() * 900000)}-IND`;
-        return {
-          ...s,
-          labelGenerated: true,
-          trackingNumber: tracking,
-          status: s.status === 'Draft' ? 'Ready to Ship' : s.status
-        };
+  const fetchCancellations = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/cancellations`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setCancellationRequests(data.cancellations);
       }
-      return s;
-    }));
+    } catch (err) {
+      console.error('Error fetching cancellations:', err);
+    }
   };
 
-  const deleteShipment = (id: string) => {
-    setShipments(prev => prev.filter(s => s.id !== id));
-  };
-
-  const approveReturn = (id: string) => {
-    setReturnRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Approved' } : r));
-  };
-
-  const rejectReturn = (id: string) => {
-    setReturnRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Rejected' } : r));
-  };
-
-  const scheduleReturnPickup = (id: string) => {
-    setReturnRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Pickup Scheduled' } : r));
-  };
-
-  const approveRefund = (id: string) => {
-    setRefundRequests(prev => prev.map(r => {
-      if (r.id === id) {
-        return {
-          ...r,
-          status: 'Pending',
-          timeline: [...r.timeline, { title: 'Approved by Merchant', timestamp: new Date().toLocaleString() }]
-        };
+  const fetchRefunds = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/refunds`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setRefundRequests(data.refunds);
       }
-      return r;
-    }));
+    } catch (err) {
+      console.error('Error fetching refunds:', err);
+    }
   };
 
-  const rejectRefund = (id: string) => {
-    setRefundRequests(prev => prev.map(r => {
-      if (r.id === id) {
-        return {
-          ...r,
-          status: 'Failed',
-          timeline: [...r.timeline, { title: 'Refund Rejected', timestamp: new Date().toLocaleString() }]
-        };
+  const fetchReturns = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/returns`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setReturnRequests(data.returnRequests);
       }
-      return r;
-    }));
+    } catch (err) {
+      console.error('Error fetching returns:', err);
+    }
   };
 
-  const processRefund = (id: string) => {
-    setRefundRequests(prev => prev.map(r => {
-      if (r.id === id) {
-        return {
-          ...r,
-          status: 'Processed',
-          timeline: [
-            ...r.timeline,
-            { title: 'Processed through Gateway', timestamp: new Date().toLocaleString() },
-            { title: 'Gateway Cleared', timestamp: new Date().toLocaleString() }
-          ]
-        };
+  const fetchReplacements = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/replacements`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setReplacementOrders(data.replacements);
       }
-      return r;
-    }));
+    } catch (err) {
+      console.error('Error fetching replacements:', err);
+    }
   };
 
-  const approveReplacement = (id: string) => {
-    setReplacementOrders(prev => prev.map(r => r.id === id ? { ...r, status: 'Approved' } : r));
-  };
+  // Fetch cancellations, refunds, returns & replacements on login
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (loggedIn) {
+      fetchCancellations();
+      fetchRefunds();
+      fetchReturns();
+      fetchReplacements();
+      fetchShipments();
+    }
+  }, []);
 
-  const rejectReplacement = (id: string) => {
-    setReplacementOrders(prev => prev.map(r => r.id === id ? { ...r, status: 'Rejected' } : r));
-  };
+  // WebSockets for Real-Time updates
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!loggedIn) return;
 
-  const createReplacementOrder = (id: string) => {
-    setReplacementOrders(prev => prev.map(r => {
-      if (r.id === id) {
-        
-        return { ...r, status: 'Order Created' };
+    const socket = io(WS_URL);
+
+    socket.on('shipment_created', (newShipment: any) => {
+      setShipments(prev => {
+        if (prev.some(s => s.id === newShipment.id)) return prev;
+        return [newShipment, ...prev];
+      });
+    });
+
+    socket.on('shipment_updated', (updatedShipment: any) => {
+      setShipments(prev => prev.map(s => s.id === updatedShipment.id ? updatedShipment : s));
+    });
+
+    socket.on('shipment_deleted', (deleted: any) => {
+      setShipments(prev => prev.filter(s => s.id !== deleted.id));
+    });
+
+    socket.on('cancellation_created', (newCancellation: any) => {
+      setCancellationRequests(prev => {
+        if (prev.some(c => c.id === newCancellation.id)) return prev;
+        return [newCancellation, ...prev];
+      });
+    });
+
+    socket.on('cancellation_updated', (updatedCancellation: any) => {
+      setCancellationRequests(prev => prev.map(c => c.id === updatedCancellation.id ? updatedCancellation : c));
+    });
+
+    socket.on('refund_created', (newRefund: any) => {
+      setRefundRequests(prev => {
+        if (prev.some(r => r.id === newRefund.id)) return prev;
+        return [newRefund, ...prev];
+      });
+    });
+
+    socket.on('refund_updated', (updatedRefund: any) => {
+      setRefundRequests(prev => prev.map(r => r.id === updatedRefund.id ? updatedRefund : r));
+    });
+
+    socket.on('return_created', (newReturn: any) => {
+      setReturnRequests(prev => {
+        if (prev.some(r => r.id === newReturn.id)) return prev;
+        return [newReturn, ...prev];
+      });
+    });
+
+    socket.on('return_updated', (updatedReturn: any) => {
+      setReturnRequests(prev => prev.map(r => r.id === updatedReturn.id ? updatedReturn : r));
+    });
+
+    socket.on('replacement_created', (newReplacement: any) => {
+      setReplacementOrders(prev => {
+        if (prev.some(r => r.id === newReplacement.id)) return prev;
+        return [newReplacement, ...prev];
+      });
+    });
+
+    socket.on('replacement_updated', (updatedReplacement: any) => {
+      setReplacementOrders(prev => prev.map(r => r.id === updatedReplacement.id ? updatedReplacement : r));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const createShipment = async (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => {
+    try {
+      const res = await fetch(`${API_URL}/shipments`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(shipment)
+      });
+      const data = await res.json();
+      if (data.success) {
+        return data.shipment;
       }
-      return r;
-    }));
+    } catch (err) {
+      console.error('Error creating shipment:', err);
+    }
   };
 
-  const generateReplacementShipment = (id: string) => {
-    setReplacementOrders(prev => {
-      return prev.map(r => {
-        if (r.id === id) {
-          const trackNum = `BD-${Math.floor(100000 + Math.random() * 900000)}-IND`;
-          const orderId = r.originalOrderId + '-R';
+  const updateShipmentStatus = async (id: string, status: Shipment['status'], trackingNum?: string) => {
+    try {
+      await fetch(`${API_URL}/shipments/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ status, trackingNumber: trackingNum })
+      });
+    } catch (err) {
+      console.error('Error updating shipment status:', err);
+    }
+  };
+
+  const generateShippingLabel = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/shipments/${id}/label`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+    } catch (err) {
+      console.error('Error generating shipping label:', err);
+    }
+  };
+
+  const deleteShipment = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/shipments/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+    } catch (err) {
+      console.error('Error deleting shipment:', err);
+    }
+  };
+
+  const approveReturn = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/returns/${id}/approve`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReturnRequests(prev => prev.map(r => r.id === id ? data.returnRequest : r));
+      }
+    } catch (err) {
+      console.error('Error approving return:', err);
+    }
+  };
+
+  const rejectReturn = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/returns/${id}/reject`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReturnRequests(prev => prev.map(r => r.id === id ? data.returnRequest : r));
+      }
+    } catch (err) {
+      console.error('Error rejecting return:', err);
+    }
+  };
+
+  const scheduleReturnPickup = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/returns/${id}/pickup`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReturnRequests(prev => prev.map(r => r.id === id ? data.returnRequest : r));
+      }
+    } catch (err) {
+      console.error('Error scheduling return pickup:', err);
+    }
+  };
+
+  const approveCancellation = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/cancellations/${id}/approve`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCancellationRequests(prev => prev.map(c => c.id === id ? data.cancellation : c));
+        await fetchRefunds();
+      }
+    } catch (err) {
+      console.error('Error approving cancellation:', err);
+    }
+  };
+
+  const rejectCancellation = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/cancellations/${id}/reject`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCancellationRequests(prev => prev.map(c => c.id === id ? data.cancellation : c));
+      }
+    } catch (err) {
+      console.error('Error rejecting cancellation:', err);
+    }
+  };
+
+  const approveRefund = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/refunds/${id}/approve`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRefundRequests(prev => prev.map(r => r.id === id ? data.refund : r));
+      }
+    } catch (err) {
+      console.error('Error approving refund:', err);
+    }
+  };
+
+  const rejectRefund = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/refunds/${id}/reject`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRefundRequests(prev => prev.map(r => r.id === id ? data.refund : r));
+      }
+    } catch (err) {
+      console.error('Error rejecting refund:', err);
+    }
+  };
+
+  const processRefund = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/refunds/${id}/process`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRefundRequests(prev => prev.map(r => r.id === id ? data.refund : r));
+      }
+    } catch (err) {
+      console.error('Error processing refund:', err);
+    }
+  };
+
+  const approveReplacement = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/replacements/${id}/approve`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReplacementOrders(prev => prev.map(r => r.id === id ? data.replacement : r));
+      }
+    } catch (err) {
+      console.error('Error approving replacement:', err);
+    }
+  };
+
+  const rejectReplacement = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/replacements/${id}/reject`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReplacementOrders(prev => prev.map(r => r.id === id ? data.replacement : r));
+      }
+    } catch (err) {
+      console.error('Error rejecting replacement:', err);
+    }
+  };
+
+  const createReplacementOrder = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/replacements/${id}/create-order`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReplacementOrders(prev => prev.map(r => r.id === id ? data.replacement : r));
+      }
+    } catch (err) {
+      console.error('Error creating replacement order:', err);
+    }
+  };
+
+  const generateReplacementShipment = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/admin/replacements/${id}/ship`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReplacementOrders(prev => {
+          const updatedRep = data.replacement;
+          const trackNum = updatedRep.trackingNumber;
+          const orderId = updatedRep.originalOrderId + '-R';
           const newId = `SH-2026-${Math.floor(1000 + Math.random() * 9000)}`;
           const newOutbound: Shipment = {
             id: newId,
             orderId: orderId,
-            customerName: r.customerName,
-            customerEmail: r.customerEmail,
+            customerName: updatedRep.customerName,
+            customerEmail: updatedRep.customerEmail,
             shippingAddress: 'Customer Selected Return Pick-up Point Address',
             courier: 'Delhivery',
             shippingMethod: 'Air',
-            packageSummary: `Replacement: ${r.replacementProduct}`,
+            packageSummary: `Replacement: ${updatedRep.replacementProduct}`,
             shippingCost: 0,
             trackingNumber: trackNum,
             labelGenerated: true,
@@ -294,19 +525,12 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             });
           }, 0);
 
-          return { ...r, status: 'Shipped', trackingNumber: trackNum };
-        }
-        return r;
-      });
-    });
-  };
-
-  const approveCancellation = (id: string) => {
-    setCancellationRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Approved' } : r));
-  };
-
-  const rejectCancellation = (id: string) => {
-    setCancellationRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Rejected' } : r));
+          return prev.map(r => r.id === id ? updatedRep : r);
+        });
+      }
+    } catch (err) {
+      console.error('Error generating replacement shipment:', err);
+    }
   };
 
   return (
@@ -337,6 +561,7 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     </ShipmentsContext.Provider>
   );
 };
+
 
 export const useShipments = () => {
   const context = useContext(ShipmentsContext);

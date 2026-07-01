@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import * as Haptics from "expo-haptics";
 import Constants from "expo-constants";
 import { Alert } from "react-native";
+import { useRouter } from "expo-router";
 
 export interface NotificationItem {
   id: string;
@@ -60,6 +61,7 @@ export function NotificationProvider({ children, fetchOrders, orders }: {
   orders?: any[];
 }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const router = useRouter();
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -167,7 +169,22 @@ export function NotificationProvider({ children, fetchOrders, orders }: {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 
         
-        Alert.alert(title, description, [{ text: "Track Order" }]);
+        Alert.alert(
+          title,
+          description,
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Track Order",
+              onPress: () => {
+                router.push({
+                  pathname: "/track-order" as any,
+                  params: { orderId: updatedOrder.orderId }
+                });
+              }
+            }
+          ]
+        );
 
         
         if (fetchOrders) {

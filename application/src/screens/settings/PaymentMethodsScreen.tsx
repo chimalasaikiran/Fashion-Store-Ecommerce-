@@ -147,7 +147,7 @@ export default function PaymentMethodsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { cards } = usePayment();
-  const { cartItems, clearCart, totalCost, appliedPromo, selectedAddress } = useCart();
+  const { cartItems, clearCart, totalCost, appliedPromo, selectedAddress, selectedShippingType } = useCart();
   const { placeOrder } = useOrders();
   const { deductMoney } = useWallet();
   const { profile } = useProfile();
@@ -186,7 +186,8 @@ export default function PaymentMethodsScreen() {
         selectedMethod,
         appliedPromo,
         totalCost,
-        backendAddress
+        backendAddress,
+        selectedShippingType?.type || "Economy"
       );
       if (selectedMethod === "wallet") {
         deductMoney(totalCost, newOrderId.replace("#", ""));

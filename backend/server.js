@@ -8,10 +8,16 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const shipmentRoutes = require("./routes/shipmentRoutes");
 const roleRoutes = require("./src/modules/role/role.routes");
 const adminRoutes = require("./src/modules/admin/admin.routes");
 const auditRoutes = require("./src/modules/audit/audit.routes");
 const userRoutes = require("./routes/userRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const supportTicketRoutes = require("./routes/supportTicketRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 
 connectDB();
@@ -46,10 +52,16 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/shipments", shipmentRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/admins", adminRoutes);
 app.use("/api/audit-logs", auditRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/tickets", supportTicketRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/cart", cartRoutes);
 
 
 app.get("/", (req, res) => {

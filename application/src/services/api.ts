@@ -130,6 +130,10 @@ export const getProducts = async (filters: ProductQueryFilters = {}) => {
   return await apiRequest(endpoint, "GET");
 };
 
+export const getCategories = async () => {
+  return await apiRequest("/categories", "GET");
+};
+
 export const getProductDetails = async (id: string) => {
   return await apiRequest(`/products/${id}`, "GET");
 };
@@ -171,6 +175,8 @@ export interface CreateOrderPayload {
   paymentMethod: string;
   items: OrderItemInput[];
   totalAmount: number;
+  shippingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string };
+  shippingMethod?: string;
 }
 
 export const createOrderApi = async (orderData: CreateOrderPayload) => {
@@ -186,10 +192,37 @@ export const getOrderByIdApi = async (id: string) => {
   return await apiRequest(`/orders/${encodeURIComponent(id)}`, "GET", undefined, true);
 };
 
-export const cancelOrderApi = async (id: string) => {
-  return await apiRequest(`/orders/${encodeURIComponent(id)}/cancel`, "PUT", undefined, true);
+export const cancelOrderApi = async (id: string, reason: string, comments?: string) => {
+  return await apiRequest(`/orders/${encodeURIComponent(id)}/cancel`, "PUT", { reason, comments }, true);
 };
 
 export const reorderApi = async (id: string) => {
   return await apiRequest(`/orders/${encodeURIComponent(id)}/reorder`, "PUT", undefined, true);
 };
+
+export const createReturnRequestApi = async (
+  id: string,
+  reason: string,
+  productName: string,
+  productPrice: number
+) => {
+  return await apiRequest(`/orders/${encodeURIComponent(id)}/return`, "POST", { reason, productName, productPrice }, true);
+};
+
+export const createReplacementRequestApi = async (
+  id: string,
+  reason: string,
+  originalProduct: string,
+  replacementProduct: string
+) => {
+  return await apiRequest(`/orders/${encodeURIComponent(id)}/replacement`, "POST", { reason, originalProduct, replacementProduct }, true);
+};
+
+export const getCartApi = async () => {
+  return await apiRequest("/cart", "GET", undefined, true);
+};
+
+export const syncCartApi = async (cartItems: any[]) => {
+  return await apiRequest("/cart", "PUT", { cart: cartItems }, true);
+};
+

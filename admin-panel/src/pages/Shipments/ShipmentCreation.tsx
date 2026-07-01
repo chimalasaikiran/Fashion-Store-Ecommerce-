@@ -15,7 +15,14 @@ export default function ShipmentCreation() {
   const [shippingMethod, setShippingMethod] = useState<'Air' | 'Sea' | 'Land'>('Air');
   const [packageSummary, setPackageSummary] = useState('');
   const [shippingCost, setShippingCost] = useState(99);
-  const [targetDeliveryDate, setTargetDeliveryDate] = useState('2026-06-25');
+  const [targetDeliveryDate, setTargetDeliveryDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  });
 
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -57,12 +64,34 @@ export default function ShipmentCreation() {
         const country = addr.country || '';
         setShippingAddress(`${street}, ${city}, ${state}, ${zip}, ${country}`);
       }
-      setPackageSummary(`Package containing items for Order #${orderId}`);
+      setPackageSummary(`Package containing items for Order ${found.orderId}`);
+      
+      if (found.deliveryDate) {
+        const datePart = found.deliveryDate.split('|')[0].trim();
+        const parsedDate = new Date(datePart);
+        if (!isNaN(parsedDate.getTime())) {
+          const yyyy = parsedDate.getFullYear();
+          const mm = String(parsedDate.getMonth() + 1).padStart(2, '0');
+          const dd = String(parsedDate.getDate()).padStart(2, '0');
+          setTargetDeliveryDate(`${yyyy}-${mm}-${dd}`);
+        }
+      } else {
+        const defaultDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+        const yyyy = defaultDate.getFullYear();
+        const mm = String(defaultDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(defaultDate.getDate()).padStart(2, '0');
+        setTargetDeliveryDate(`${yyyy}-${mm}-${dd}`);
+      }
     } else {
       setCustomerName('');
       setCustomerEmail('');
       setShippingAddress('');
       setPackageSummary('');
+      const defaultDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+      const yyyy = defaultDate.getFullYear();
+      const mm = String(defaultDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(defaultDate.getDate()).padStart(2, '0');
+      setTargetDeliveryDate(`${yyyy}-${mm}-${dd}`);
     }
   };
 
@@ -183,7 +212,7 @@ export default function ShipmentCreation() {
           <div className="mt-2 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Total Outgoing</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block">
-              {isLoading ? '...' : (12840 + totalCount).toLocaleString()}
+              {isLoading ? '...' : totalCount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -202,7 +231,7 @@ export default function ShipmentCreation() {
           <div className="mt-2 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Pending</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (430 + pendingCount)}
+              {isLoading ? '...' : pendingCount}
             </span>
           </div>
         </div>
@@ -221,7 +250,7 @@ export default function ShipmentCreation() {
           <div className="mt-2 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Ready to Ship</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (115 + readyToShipCount)}
+              {isLoading ? '...' : readyToShipCount}
             </span>
           </div>
         </div>
@@ -240,7 +269,7 @@ export default function ShipmentCreation() {
           <div className="mt-2 space-y-1">
             <span className="text-[10px] font-bold text-white/70 tracking-wider uppercase block">Dispatched</span>
             <span className="text-2xl font-extrabold text-white tracking-tight block font-mono">
-              {isLoading ? '...' : (10290 + dispatchedCount).toLocaleString()}
+              {isLoading ? '...' : dispatchedCount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -269,7 +298,7 @@ export default function ShipmentCreation() {
                   <option value="">Select Customer Order...</option>
                   {orders.map(o => (
                     <option key={o.id} value={o.id}>
-                      #{o.id} - {o.customerName}
+                      {o.orderId} - {o.customerName}
                     </option>
                   ))}
                 </select>

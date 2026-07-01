@@ -69,6 +69,36 @@ const ProductSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    sku: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    cost: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+      enum: ["Live", "Draft"],
+      default: "Live",
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    seoTitle: {
+      type: String,
+      default: "",
+    },
+    seoDescription: {
+      type: String,
+      default: "",
+    },
+    reorderLevel: {
+      type: Number,
+      default: 10,
+    },
     sizes: {
       type: [String],
       default: [],

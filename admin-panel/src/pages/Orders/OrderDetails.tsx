@@ -9,7 +9,6 @@ export default function OrderDetails() {
     orders,
     updateOrderStatus,
     updatePaymentStatus,
-    updateDeliveryStatus,
     cancelOrder,
     refundOrder,
     addOrderNote,
@@ -31,6 +30,9 @@ export default function OrderDetails() {
   const [shippingZip, setShippingZip] = useState('');
   const [shippingCountry, setShippingCountry] = useState('');
   const [shippingPhone, setShippingPhone] = useState('');
+  const [courierPartner, setCourierPartner] = useState('');
+  const [trackingId, setTrackingId] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState('');
 
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -58,6 +60,9 @@ export default function OrderDetails() {
       setShippingZip(order.shippingAddress.zip);
       setShippingCountry(order.shippingAddress.country);
       setShippingPhone(order.shippingAddress.phone);
+      setCourierPartner(order.courierPartner || 'Delhivery');
+      setTrackingId(order.trackingId || '');
+      setDeliveryDate(order.deliveryDate || '');
     }
   }, [order]);
 
@@ -110,11 +115,14 @@ export default function OrderDetails() {
         zip: shippingZip,
         country: shippingCountry,
         phone: shippingPhone
-      }
+      },
+      courierPartner,
+      trackingId,
+      deliveryDate
     });
 
     setIsEditAddressOpen(false);
-    showToast("Shipping address updated successfully!", "success");
+    showToast("Shipping and delivery details updated successfully!", "success");
   };
 
   const handleCancelOrderAction = () => {
@@ -418,11 +426,6 @@ export default function OrderDetails() {
                     <option value="Pending">PENDING</option>
                     <option value="Processing">PROCESSING</option>
                     <option value="Dispatched">DISPATCHED</option>
-                    <option value="Shipped">SHIPPED</option>
-                    <option value="Out For Delivery">OUT FOR DELIVERY</option>
-                    <option value="Delivered">DELIVERED</option>
-                    <option value="Cancelled">CANCELLED</option>
-                    <option value="Refunded">REFUNDED</option>
                   </select>
                 </div>
 
@@ -437,20 +440,6 @@ export default function OrderDetails() {
                     <option value="Paid">PAID</option>
                     <option value="Refunded">REFUNDED</option>
                     <option value="Failed">FAILED</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6F7A70] block">Logistic Shipment Status</label>
-                  <select
-                    value={order.deliveryStatus}
-                    onChange={(e) => updateDeliveryStatus(order.id, e.target.value as any)}
-                    className="w-full bg-white border border-[#BEC9BE] text-xs font-bold text-[#111E16] rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:border-[#00522E] transition-all"
-                  >
-                    <option value="Pending">PENDING</option>
-                    <option value="In Transit">IN TRANSIT</option>
-                    <option value="Delivered">DELIVERED</option>
-                    <option value="Cancelled">CANCELLED</option>
                   </select>
                 </div>
               </div>
@@ -495,6 +484,15 @@ export default function OrderDetails() {
                   </p>
                   <p className="text-[#6F7A70]">{order.shippingAddress.country}</p>
                   <p className="text-[#6F7A70]">Tel: {order.shippingAddress.phone}</p>
+                </div>
+
+                <hr className="border-[#BEC9BE]/40" />
+
+                <div className="space-y-1 text-left">
+                  <span className="text-[10px] uppercase font-bold text-[#6F7A70] tracking-wider block">Shipment Information</span>
+                  <p className="text-xs text-[#6F7A70] font-semibold">Courier Partner: <span className="font-bold text-[#111E16]">{order.courierPartner || 'Delhivery'}</span></p>
+                  <p className="text-xs text-[#6F7A70] font-semibold">Tracking ID: <span className="font-bold text-[#111E16] font-mono">{order.trackingId || 'N/A'}</span></p>
+                  <p className="text-xs text-[#6F7A70] font-semibold">Expected Delivery: <span className="font-bold text-[#111E16]">{order.deliveryDate}</span></p>
                 </div>
 
                 <hr className="border-[#BEC9BE]/40" />
@@ -718,6 +716,37 @@ export default function OrderDetails() {
                   type="text"
                   value={shippingPhone}
                   onChange={(e) => setShippingPhone(e.target.value)}
+                  className="w-full bg-[#E8F8E9]/40 text-sm text-[#111E16] border border-[#BEC9BE] rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#00522E]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#111E16] block">Courier Partner</label>
+                  <input
+                    type="text"
+                    value={courierPartner}
+                    onChange={(e) => setCourierPartner(e.target.value)}
+                    className="w-full bg-[#E8F8E9]/40 text-sm text-[#111E16] border border-[#BEC9BE] rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#00522E]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#111E16] block">Tracking ID</label>
+                  <input
+                    type="text"
+                    value={trackingId}
+                    onChange={(e) => setTrackingId(e.target.value)}
+                    className="w-full bg-[#E8F8E9]/40 text-sm text-[#111E16] border border-[#BEC9BE] rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#00522E]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#111E16] block">Estimated Delivery Date</label>
+                <input
+                  type="text"
+                  value={deliveryDate}
+                  onChange={(e) => setDeliveryDate(e.target.value)}
                   className="w-full bg-[#E8F8E9]/40 text-sm text-[#111E16] border border-[#BEC9BE] rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#00522E]"
                 />
               </div>

@@ -144,7 +144,7 @@ export default function TrackShipments() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Total Shipments</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block">
-              {isLoading ? '...' : (12840 + totalCount).toLocaleString()}
+              {isLoading ? '...' : totalCount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function TrackShipments() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">In Transit</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (2100 + inTransitCount).toLocaleString()}
+              {isLoading ? '...' : inTransitCount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -182,7 +182,7 @@ export default function TrackShipments() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-white/70 tracking-wider uppercase block">Delivered</span>
             <span className="text-2xl font-extrabold text-white tracking-tight block font-mono">
-              {isLoading ? '...' : (10290 + deliveredCount).toLocaleString()}
+              {isLoading ? '...' : deliveredCount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function TrackShipments() {
           <div className="mt-4 space-y-1">
             <span className="text-[10px] font-bold text-[#6F7A70] tracking-wider uppercase block">Delayed</span>
             <span className="text-2xl font-extrabold text-[#111E16] tracking-tight block font-mono">
-              {isLoading ? '...' : (12 + delayedCount)}
+              {isLoading ? '...' : delayedCount}
             </span>
           </div>
         </div>

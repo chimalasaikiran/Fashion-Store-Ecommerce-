@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path, Circle, Rect, Line } from "react-native-svg";
 import { Colors } from "../../constants/Colors";
+import { useCart } from "../../context/CartContext";
 
 const BROWN_DARK = Colors.primary; 
 const ACCENT = Colors.accent; 
@@ -54,13 +55,24 @@ const SHIPPING_OPTIONS: ShippingOption[] = [
 export default function ChooseShippingScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState<string>("economy");
+  const { selectedShippingType, setSelectedShippingType } = useCart();
+  const [selectedOption, setSelectedOption] = useState<string>(() => {
+    return selectedShippingType?.type.toLowerCase() || "economy";
+  });
 
   const handleBack = () => {
     router.back();
   };
 
   const handleContinue = () => {
+    const option = SHIPPING_OPTIONS.find((o) => o.id === selectedOption);
+    if (option) {
+      setSelectedShippingType({
+        type: option.name,
+        eta: `${option.arrivalLine1}\n${option.arrivalLine2}`,
+        price: parseFloat(option.price.replace("$", "")),
+      });
+    }
     router.push("/checkout");
   };
 

@@ -170,6 +170,11 @@ const OrderSchema = new mongoose.Schema(
       type: AddressSchema,
       required: [true, "Billing address is required"],
     },
+    shippingMethod: {
+      type: String,
+      default: "Economy",
+      trim: true,
+    },
     date: {
       type: String,
       required: [true, "Order date string is required"],
@@ -177,6 +182,14 @@ const OrderSchema = new mongoose.Schema(
     deliveryDate: {
       type: String,
       required: [true, "Expected delivery date string is required"],
+    },
+    courierPartner: {
+      type: String,
+      default: "Delhivery",
+    },
+    trackingId: {
+      type: String,
+      default: "",
     },
     timeline: {
       type: [TimelineEventSchema],

@@ -12,8 +12,11 @@ export default function ProductDetail() {
     updateProduct, 
     adjustStock, 
     activities, 
-    toggleProductVisibility 
+    toggleProductVisibility,
+    addToast
   } = useProducts();
+
+  const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
 
   const product = products.find(p => p.id === id) || products[0];
 
@@ -36,6 +39,58 @@ export default function ProductDetail() {
   const [formSeoTitle, setFormSeoTitle] = useState('');
   const [formSeoDesc, setFormSeoDesc] = useState('');
   const [formError, setFormError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      addToast("Image size must be less than 5MB.", "error");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${API_URL}/upload/signature`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to get secure upload signature from server.');
+      }
+
+      const { signature, timestamp, apiKey, cloudName, folder } = await res.json();
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", apiKey);
+      formData.append("timestamp", String(timestamp));
+      formData.append("signature", signature);
+      formData.append("folder", folder);
+
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('Failed to upload image to Cloudinary.');
+      }
+
+      const uploadData = await uploadRes.json();
+      setFormImage(uploadData.secure_url);
+      addToast("Image uploaded to Cloudinary successfully!", "success");
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      addToast(err.message || "Failed to upload image.", "error");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (product) {
@@ -97,6 +152,11 @@ export default function ProductDetail() {
     e.preventDefault();
     if (!formName.trim() || !formSku.trim() || formPrice <= 0 || formCost <= 0) {
       setFormError('Please fill out all required fields correctly.');
+      return;
+    }
+
+    if (!formImage) {
+      setFormError('Product image is required. Please upload an image.');
       return;
     }
 
@@ -424,14 +484,63 @@ export default function ProductDetail() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#111E16] uppercase tracking-wider mb-1.5">Image URL</label>
-                  <input
-                    type="url"
-                    value={formImage}
-                    onChange={(e) => setFormImage(e.target.value)}
-                    className="w-full text-sm bg-white border border-[#BEC9BE] rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00522E] text-[#111E16]"
-                  />
+                <div className="col-span-2">
+                  <label className="block text-xs font-bold text-[#111E16] uppercase tracking-wider mb-1.5">Product Image *</label>
+                  <div className="flex items-center gap-4 p-4 border border-[#BEC9BE] rounded-lg bg-gray-50">
+                    {formImage ? (
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#BEC9BE]/60 flex-shrink-0 bg-white">
+                        <img src={formImage} alt="Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setFormImage('')}
+                          className="absolute top-0 right-0 bg-[#BA1A1A] text-white rounded-full p-0.5 m-0.5 hover:bg-[#930006] focus:outline-none"
+                          title="Remove Image"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 rounded-lg border-2 border-dashed border-[#BEC9BE] flex items-center justify-center flex-shrink-0 text-[#6F7A70] bg-white">
+                        <svg className="w-8 h-8 opacity-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375 0 11-.75 0 .375 0 017.5 0z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="detail-edit-product-image-file"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                        disabled={isUploading}
+                      />
+                      <label
+                        htmlFor="detail-edit-product-image-file"
+                        className={`inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-[#F6F6F6] border border-[#BEC9BE] rounded-lg text-xs font-bold text-[#111E16] cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {isUploading ? (
+                          <>
+                            <svg className="animate-spin h-4 w-4 text-[#00522E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Uploading to Cloudinary...</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4 text-[#00522E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span>{formImage ? 'Replace Image' : 'Upload Image'}</span>
+                          </>
+                        )}
+                      </label>
+                      <p className="text-[10px] text-[#6F7A70] mt-1.5">PNG, JPG, or GIF up to 5MB. Image will be uploaded directly to Cloudinary.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

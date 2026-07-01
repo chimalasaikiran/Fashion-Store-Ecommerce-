@@ -4,6 +4,8 @@ const {
   getProducts,
   getProductById,
   createProduct,
+  updateProduct,
+  deleteProduct,
   getProductReviews,
   createProductReview,
 } = require("../controllers/productController");
@@ -20,7 +22,9 @@ router.route("/")
   .post(protect, checkPermission("products", "Product List", "create"), validateProductCreate, createProduct);
 
 router.route("/:id")
-  .get(getProductById);
+  .get(getProductById)
+  .put(protect, checkPermission("products", "Product List", "edit"), updateProduct)
+  .delete(protect, checkPermission("products", "Product List", "delete"), deleteProduct);
 
 router.route("/:id/reviews")
   .get(getProductReviews)

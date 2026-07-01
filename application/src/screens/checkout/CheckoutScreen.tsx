@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path, Circle } from "react-native-svg";
 import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
 import { Colors } from "../../constants/Colors";
 
 const BROWN_DARK = Colors.primary; 
@@ -27,7 +28,17 @@ const TEXT_PRIMARY = Colors.textPrimary;
 export default function CheckoutScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { cartItems, selectedAddress, selectedShippingType } = useCart();
+  const {
+    cartItems,
+    selectedAddress,
+    selectedShippingType,
+    subTotal,
+    deliveryCharge,
+    tax,
+    promoDiscount,
+    totalCost,
+  } = useCart();
+  const { products } = useWishlist();
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
   const handleBack = () => {
@@ -128,9 +139,9 @@ export default function CheckoutScreen() {
 
               {/* Details */}
               <View style={styles.detailsContainer}>
-                <Text style={styles.detailsLabel}>{selectedAddress ? selectedAddress.label : "Home"}</Text>
+                <Text style={styles.detailsLabel}>{selectedAddress ? selectedAddress.label : "No Address Selected"}</Text>
                 <Text style={styles.detailsSubText}>
-                  {selectedAddress ? selectedAddress.address : "245 Madison Ave, New York, NY 10016, USA"}
+                  {selectedAddress ? selectedAddress.address : "Please select a shipping address"}
                 </Text>
               </View>
 
@@ -156,9 +167,9 @@ export default function CheckoutScreen() {
 
               {/* Details */}
               <View style={styles.detailsContainer}>
-                <Text style={styles.detailsLabel}>{selectedShippingType ? selectedShippingType.type : "Economy"}</Text>
+                <Text style={styles.detailsLabel}>{selectedShippingType ? selectedShippingType.type : "No Shipping Method Selected"}</Text>
                 <Text style={styles.detailsSubText}>
-                  {selectedShippingType ? selectedShippingType.eta : "Estimated Arrival  11\nMarch 2026"}
+                  {selectedShippingType ? selectedShippingType.eta : "Please select a shipping method"}
                 </Text>
               </View>
 
@@ -176,49 +187,92 @@ export default function CheckoutScreen() {
           {}
           <Text style={styles.sectionTitle}>Order List</Text>
           <View style={styles.orderListCard}>
-            {cartItems.map((item, index) => (
-              <View key={item.id}>
-                <View style={styles.orderItemRow}>
-                  {}
-                  <Image
-                    source={item.image}
-                    style={styles.productImage}
-                    contentFit="cover"
-                  />
+            {cartItems.map((item, index) => {
+              const dbProduct = products.find((p) => p.id === item.productId);
+              const displayImage = dbProduct ? dbProduct.image : item.image;
+              return (
+                <View key={item.id}>
+                  <View style={styles.orderItemRow}>
+                    {/* Image */}
+                    <Image
+                      source={displayImage}
+                      style={styles.productImage}
+                      contentFit="cover"
+                    />
 
-                  {}
-                  <View style={styles.productDetails}>
-                    <Text style={styles.productName} numberOfLines={1}>
-                      {item.name}
-                    </Text>
-                    <Text style={styles.productCategory}>
-                      {item.category}
-                    </Text>
-                    <View style={styles.priceRow}>
-                      <Text style={styles.productPrice}>
-                        ${item.price.toFixed(2)}
+                    {/* Details */}
+                    <View style={styles.productDetails}>
+                      <Text style={styles.productName} numberOfLines={1}>
+                        {item.name}
                       </Text>
-                      <Text style={styles.productOriginalPrice}>
-                        ${item.originalPrice.toFixed(2)}
+                      <Text style={styles.productCategory}>
+                        {item.category}
                       </Text>
+                      <View style={styles.priceRow}>
+                        <Text style={styles.productPrice}>
+                          ${item.price.toFixed(2)}
+                        </Text>
+                        <Text style={styles.productOriginalPrice}>
+                          ${item.originalPrice.toFixed(2)}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
 
-                {index < cartItems.length - 1 && (
-                  <View style={styles.rowDivider} />
-                )}
+                  {index < cartItems.length - 1 && (
+                    <View style={styles.rowDivider} />
+                  )}
+                </View>
+              );
+            })}
+          </View>
+ 
+          {/* Order Summary */}
+          <Text style={styles.sectionTitle}>Order Summary</Text>
+          <View style={styles.summaryCard}>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Sub-Total</Text>
+              <Text style={styles.summaryVal}>${subTotal.toFixed(2)}</Text>
+            </View>
+ 
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Shipping Charges</Text>
+              <Text style={styles.summaryVal}>${deliveryCharge.toFixed(2)}</Text>
+            </View>
+ 
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Tax</Text>
+              <Text style={styles.summaryVal}>${tax.toFixed(2)}</Text>
+            </View>
+ 
+            {promoDiscount > 0 && (
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Discount</Text>
+                <Text style={[styles.summaryVal, styles.discountVal]}>
+                  -${promoDiscount.toFixed(2)}
+                </Text>
               </View>
-            ))}
+            )}
+ 
+            <View style={styles.summaryDivider} />
+ 
+            <View style={[styles.summaryRow, { marginTop: 10 }]}>
+              <Text style={styles.totalLabel}>Total Cost</Text>
+              <Text style={styles.totalVal}>${totalCost.toFixed(2)}</Text>
+            </View>
           </View>
         </ScrollView>
 
         {}
         <View style={styles.footerContainer}>
           <TouchableOpacity
-            style={styles.continueBtn}
+            style={[
+              styles.continueBtn,
+              (!selectedAddress || !selectedShippingType) && styles.continueBtnDisabled,
+            ]}
             onPress={handleContinueToPayment}
             activeOpacity={0.9}
+            disabled={!selectedAddress || !selectedShippingType}
           >
             <Text style={styles.continueBtnText}>Continue to Payment</Text>
           </TouchableOpacity>
@@ -405,6 +459,54 @@ const styles = StyleSheet.create({
     color: TEXT_MUTED,
     marginBottom: 6,
   },
+  summaryCard: {
+    backgroundColor: CARD_BG,
+    borderWidth: 1,
+    borderColor: BORDER_COLOR,
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
+    marginBottom: 8,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 6,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: TEXT_MUTED,
+  },
+  summaryVal: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: TEXT_PRIMARY,
+  },
+  discountVal: {
+    color: "#D32F2F",
+  },
+  summaryDivider: {
+    height: 1,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderStyle: "dashed",
+    marginVertical: 12,
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: TEXT_PRIMARY,
+  },
+  totalVal: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: BROWN_DARK,
+  },
   priceRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -446,6 +548,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 4,
+  },
+  continueBtnDisabled: {
+    backgroundColor: "#A8A8A8",
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueBtnText: {
     color: "#FFFFFF",

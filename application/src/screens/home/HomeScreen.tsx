@@ -19,6 +19,7 @@ import { WishlistTab } from "../wishlist/WishlistScreen";
 import { ChatListTab } from "../chat/ChatScreen";
 import { ProfileTab } from "../profile/ProfileScreen";
 import { Colors } from "../../constants/Colors";
+import { getCategories } from "../../services/api";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CAROUSEL_WIDTH = SCREEN_WIDTH - 48;
@@ -64,19 +65,15 @@ const PROMO_OFFERS = [
   }
 ];
 
-const CATEGORIES = [
-  { id: "t-shirt", name: "T-Shirt", type: "tshirt" },
-  { id: "jacket", name: "Jacket", type: "jacket" },
-  { id: "dress", name: "Dress", type: "dress" },
-  { id: "watch", name: "Watch", type: "watch" },
-];
+// Dynamically loaded from database
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams();
   const { products, toggleLike } = useWishlist();
-  const [activeCategory, setActiveCategory] = useState("t-shirt");
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [categories, setCategories] = useState<any[]>([{ id: "all", name: "All" }]);
   const [activeTab, setActiveTab] = useState("home");
   const searchQuery = "";
 
@@ -123,6 +120,36 @@ export default function HomeScreen() {
     }
   }, [params.tab]);
 
+  useEffect(() => {
+    let active = true;
+    const fetchCats = async () => {
+      try {
+        const res = await getCategories();
+        if (res.success && active) {
+          const mapped = res.categories.map((c: any) => ({
+            id: c.name.toLowerCase(),
+            name: c.name
+          }));
+          setCategories([{ id: "all", name: "All" }, ...mapped]);
+        }
+      } catch (err) {
+        console.error("Error fetching categories in mobile app:", err);
+      }
+    };
+    fetchCats();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (params.category) {
+      setActiveCategory(params.category as string);
+    } else {
+      setActiveCategory("All");
+    }
+  }, [params.category]);
+
   const filteredProducts = products.filter((prod) => {
     
     const matchesSearch =
@@ -131,22 +158,8 @@ export default function HomeScreen() {
     if (!matchesSearch) return false;
 
     
-    if (params.category) {
-      const filterCat = (params.category as string).toLowerCase();
-      const prodCat = prod.category.toLowerCase();
-      if (filterCat === "women") {
-        const isWomenItem = ["coats", "dress", "sweaters", "jackets"].includes(prodCat);
-        if (!isWomenItem) return false;
-      } else if (filterCat === "men") {
-        const isMenItem = ["shirts", "shirt", "jackets"].includes(prodCat);
-        if (!isMenItem) return false;
-      } else if (filterCat === "t-shirts") {
-        if (prodCat !== "shirts" && prodCat !== "shirt") return false;
-      } else if (filterCat === "handbags") {
-        if (prodCat !== "handbags" && prodCat !== "bags") return false;
-      } else {
-        if (prodCat !== filterCat) return false;
-      }
+    if (activeCategory && activeCategory.toLowerCase() !== "all") {
+      if (prod.category.toLowerCase() !== activeCategory.toLowerCase()) return false;
     }
 
     
@@ -163,9 +176,16 @@ export default function HomeScreen() {
   });
 
   
-  const renderCategoryIcon = (type: string, isActive: boolean) => {
+  const renderCategoryIcon = (name: string, isActive: boolean) => {
     const color = isActive ? "#FFFFFF" : "#1A1A1A";
-    if (type === "tshirt") {
+    const lowerName = name.toLowerCase();
+
+    if (lowerName === "all") {
+      return (
+        <Ionicons name="grid-outline" size={18} color={color} />
+      );
+    }
+    if (lowerName.includes("t-shirt") || lowerName === "men") {
       return (
         <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <Path
@@ -179,7 +199,7 @@ export default function HomeScreen() {
         </Svg>
       );
     }
-    if (type === "jacket") {
+    if (lowerName.includes("jacket") || lowerName.includes("outerwear")) {
       return (
         <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <Path
@@ -198,7 +218,7 @@ export default function HomeScreen() {
         </Svg>
       );
     }
-    if (type === "dress") {
+    if (lowerName.includes("dress") || lowerName === "women") {
       return (
         <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <Path
@@ -211,7 +231,7 @@ export default function HomeScreen() {
         </Svg>
       );
     }
-    if (type === "watch") {
+    if (lowerName.includes("watch") || lowerName.includes("accessory") || lowerName.includes("accessories")) {
       return (
         <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <Circle cx="12" cy="12" r="5" stroke={color} strokeWidth="2" />
@@ -221,7 +241,24 @@ export default function HomeScreen() {
         </Svg>
       );
     }
-    return null;
+    if (lowerName.includes("shoe") || lowerName.includes("footwear")) {
+      return (
+        <Ionicons name="walk-outline" size={18} color={color} />
+      );
+    }
+    if (lowerName.includes("kid")) {
+      return (
+        <Ionicons name="happy-outline" size={18} color={color} />
+      );
+    }
+    if (lowerName.includes("electronic")) {
+      return (
+        <Ionicons name="hardware-chip-outline" size={18} color={color} />
+      );
+    }
+    return (
+      <Ionicons name="shirt-outline" size={18} color={color} />
+    );
   };
 
   return (
@@ -399,17 +436,17 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesScroll}
         >
-          {CATEGORIES.map((cat) => {
-            const isActive = activeCategory === cat.id;
+          {categories.map((cat) => {
+            const isActive = activeCategory.toLowerCase() === cat.name.toLowerCase();
             return (
               <TouchableOpacity
                 key={cat.id}
                 style={[styles.categoryPill, isActive && styles.categoryPillActive]}
-                onPress={() => setActiveCategory(cat.id)}
+                onPress={() => setActiveCategory(cat.name)}
                 activeOpacity={0.75}
               >
                 <View style={styles.categoryIconWrapper}>
-                  {renderCategoryIcon(cat.type, isActive)}
+                  {renderCategoryIcon(cat.name, isActive)}
                 </View>
                 <Text style={[styles.categoryText, isActive && styles.categoryTextActive]}>
                   {cat.name}

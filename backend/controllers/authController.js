@@ -369,12 +369,37 @@ const completeProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    
     if (name) user.name = name;
     if (phone) user.phone = phone;
     if (countryCode) user.countryCode = countryCode;
     if (gender) user.gender = gender;
-    if (avatar) user.avatar = avatar; 
+    
+    if (avatar) {
+      if (avatar.startsWith("data:image/")) {
+        const commaIndex = avatar.indexOf(",");
+        if (commaIndex !== -1) {
+          const meta = avatar.substring(0, commaIndex);
+          const base64Data = avatar.substring(commaIndex + 1);
+          
+          const mimeMatch = meta.match(/data:(image\/[a-zA-Z0-9+-.]+);base64/);
+          const mimeType = mimeMatch ? mimeMatch[1] : "image/png";
+          const ext = mimeType.split("/")[1] || "png";
+          
+          const buffer = Buffer.from(base64Data, "base64");
+          const filename = `avatar_${user._id}_${Date.now()}.${ext}`;
+          const path = require("path");
+          const fs = require("fs");
+          const filepath = path.join(__dirname, "../public/images", filename);
+          
+          fs.writeFileSync(filepath, buffer);
+          user.avatar = `/images/${filename}`;
+        } else {
+          user.avatar = avatar;
+        }
+      } else {
+        user.avatar = avatar;
+      }
+    }
 
     const updatedUser = await user.save();
 

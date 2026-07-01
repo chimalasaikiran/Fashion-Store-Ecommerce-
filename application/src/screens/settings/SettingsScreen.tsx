@@ -14,6 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
+import { useCart } from "../../context/CartContext";
 
 
 const BROWN_DARK = Colors.primary;
@@ -26,6 +27,7 @@ const BORDER_COLOR = Colors.borderLight;
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { clearCart } = useCart();
 
   
   const [isNotificationModalVisible, setIsNotificationModalVisible] = useState(false);
@@ -45,6 +47,7 @@ export default function SettingsScreen() {
     try {
       
       await new Promise((resolve) => setTimeout(resolve, 1500));
+      clearCart();
       setSuccessMsg("Account successfully deleted.");
       setIsDeleteModalVisible(false);
       

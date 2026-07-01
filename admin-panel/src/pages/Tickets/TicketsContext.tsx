@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { TICKETS, AGENTS, TICKET_CATEGORIES } from '../../data/mockDb';
+import { io } from 'socket.io-client';
+import { AGENTS, TICKET_CATEGORIES } from '../../data/mockDb';
 
 export interface TicketMessage {
   id: string;
@@ -59,374 +60,249 @@ interface TicketsContextType {
   tickets: Ticket[];
   agents: string[];
   categories: string[];
-  addReply: (ticketId: string, text: string, sender: 'Customer' | 'Agent') => void;
-  addNote: (ticketId: string, text: string) => void;
-  assignTicket: (ticketId: string, agent: string) => void;
-  updatePriority: (ticketId: string, priority: Ticket['priority']) => void;
-  updateStatus: (ticketId: string, status: Ticket['status']) => void;
-  escalateTicket: (ticketId: string, reason: string, escalateTo: string) => void;
-  closeTicket: (ticketId: string, resolutionNotes: string, feedbackRating?: number, feedbackComment?: string) => void;
-  reopenTicket: (ticketId: string) => void;
+  addReply: (ticketId: string, text: string, sender?: 'Customer' | 'Agent') => Promise<void>;
+  addNote: (ticketId: string, text: string) => Promise<void>;
+  assignTicket: (ticketId: string, agent: string) => Promise<void>;
+  updatePriority: (ticketId: string, priority: Ticket['priority']) => Promise<void>;
+  updateStatus: (ticketId: string, status: Ticket['status']) => Promise<void>;
+  escalateTicket: (ticketId: string, reason: string, escalateTo: string) => Promise<void>;
+  closeTicket: (ticketId: string, resolutionNotes: string, feedbackRating?: number, feedbackComment?: string) => Promise<void>;
+  reopenTicket: (ticketId: string) => Promise<void>;
   uploadAttachment: (ticketId: string, attachment: TicketAttachment) => void;
+  fetchTickets: () => Promise<void>;
 }
 
 const TicketsContext = createContext<TicketsContextType | undefined>(undefined);
 
-const initialTickets: Ticket[] = TICKETS as Ticket[];
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
+const WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com' : 'http://localhost:5000');
 
 export const TicketsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tickets, setTickets] = useState<Ticket[]>(() => {
-    const saved = localStorage.getItem('tickets_data');
-    return saved ? JSON.parse(saved) : initialTickets;
-  });
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
+  const getHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
+  const mapTicketData = (t: any): Ticket => {
+    return {
+      id: t.id || t._id,
+      customerName: t.customerName || 'Customer',
+      customerEmail: t.customerEmail || 'customer@example.com',
+      subject: t.subject || 'No Subject',
+      category: t.category || 'General',
+      priority: t.priority || 'MEDIUM',
+      status: t.status || 'Open',
+      assignedAgent: t.assignedAgent || 'Unassigned',
+      createdDate: t.createdDate || '',
+      updatedDate: t.updatedDate || '',
+      slaDue: t.slaDue || '',
+      slaStatus: t.slaStatus || 'Within Limits',
+      messages: Array.isArray(t.messages) ? t.messages : [],
+      notes: Array.isArray(t.notes) ? t.notes : [],
+      timeline: Array.isArray(t.timeline) ? t.timeline : [],
+      attachments: Array.isArray(t.attachments) ? t.attachments : [],
+      escalationReason: t.escalationReason,
+      escalatedTo: t.escalatedTo,
+      resolutionNotes: t.resolutionNotes,
+      feedbackRating: t.feedbackRating,
+      feedbackComment: t.feedbackComment,
+      closedDate: t.closedDate
+    };
+  };
+
+  const fetchTickets = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(data.tickets.map(mapTicketData));
+      }
+    } catch (err) {
+      console.error('Error fetching tickets from backend:', err);
+    }
+  };
+
+  // Fetch tickets on mount
   useEffect(() => {
-    localStorage.setItem('tickets_data', JSON.stringify(tickets));
-  }, [tickets]);
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      fetchTickets();
+    }
+  }, []);
 
-  const addReply = (ticketId: string, text: string, sender: 'Customer' | 'Agent') => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          const newMsg: TicketMessage = {
-            id: `msg-${Date.now()}`,
-            sender,
-            senderName: sender === 'Agent' ? 'Agent (You)' : t.customerName,
-            text,
-            timestamp,
-            avatar: sender === 'Customer' ? t.customerName.split(' ').map(n => n[0]).join('') : undefined
-          };
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: sender === 'Agent' ? 'Replied by Agent' : 'Replied by Customer',
-            actor: sender === 'Agent' ? 'Agent' : t.customerName,
-            timestamp
-          };
+  // WebSocket / Socket.io real-time listener
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
 
-          return {
-            ...t,
-            messages: [...t.messages, newMsg],
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+    const socket = io(WS_URL);
+
+    socket.on('connect', () => {
+      console.log('Connected to tickets socket server.');
+    });
+
+    socket.on('ticket_created', (newTicket: any) => {
+      console.log('Tickets Socket: New ticket created!', newTicket);
+      const mapped = mapTicketData(newTicket);
+      setTickets(prev => {
+        if (prev.some(t => t.id === mapped.id)) return prev;
+        return [mapped, ...prev];
+      });
+    });
+
+    socket.on('ticket_updated', (updatedTicket: any) => {
+      console.log('Tickets Socket: Ticket updated!', updatedTicket);
+      const mapped = mapTicketData(updatedTicket);
+      setTickets(prev => prev.map(t => t.id === mapped.id ? mapped : t));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const addReply = async (ticketId: string, text: string) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/messages`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error adding reply:', err);
+    }
   };
 
-  const addNote = (ticketId: string, text: string) => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          const newNote: TicketNote = {
-            id: `note-${Date.now()}`,
-            author: 'Agent (You)',
-            text,
-            timestamp
-          };
-
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: 'Internal Note Added',
-            actor: 'Agent',
-            timestamp
-          };
-
-          return {
-            ...t,
-            notes: [...t.notes, newNote],
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+  const addNote = async (ticketId: string, text: string) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/notes`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error adding note:', err);
+    }
   };
 
-  const assignTicket = (ticketId: string, agent: string) => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: `Ticket Assigned to ${agent}`,
-            actor: 'Agent',
-            timestamp
-          };
-
-          return {
-            ...t,
-            assignedAgent: agent,
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+  const assignTicket = async (ticketId: string, agent: string) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/assign`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ agent })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error assigning agent:', err);
+    }
   };
 
-  const updatePriority = (ticketId: string, priority: Ticket['priority']) => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: `Priority updated to ${priority}`,
-            actor: 'Agent',
-            timestamp
-          };
-
-          return {
-            ...t,
-            priority,
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+  const updatePriority = async (ticketId: string, priority: Ticket['priority']) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/priority`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ priority })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error updating priority:', err);
+    }
   };
 
-  const updateStatus = (ticketId: string, status: Ticket['status']) => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: `Status changed to ${status}`,
-            actor: 'Agent',
-            timestamp
-          };
-
-          
-          let slaVal = t.slaStatus;
-          if (status === 'Resolved' || status === 'Closed') {
-            slaVal = 'Resolved';
-          }
-
-          return {
-            ...t,
-            status,
-            slaStatus: slaVal,
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+  const updateStatus = async (ticketId: string, status: Ticket['status']) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/status`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+    }
   };
 
-  const escalateTicket = (ticketId: string, reason: string, escalateTo: string) => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: `Ticket escalated to ${escalateTo}`,
-            actor: 'Agent',
-            timestamp
-          };
-
-          const sysMessage: TicketMessage = {
-            id: `msg-sys-${Date.now()}`,
-            sender: 'System',
-            senderName: 'Escalation Engine',
-            text: `Ticket priority escalated to CRITICAL and routed to ${escalateTo}. Reason: ${reason}`,
-            timestamp
-          };
-
-          return {
-            ...t,
-            status: 'Escalated',
-            priority: 'CRITICAL',
-            slaStatus: 'Breached', 
-            escalationReason: reason,
-            escalatedTo: escalateTo,
-            messages: [...t.messages, sysMessage],
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+  const escalateTicket = async (ticketId: string, reason: string, escalateTo: string) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/escalate`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ reason, escalateTo })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error escalating ticket:', err);
+    }
   };
 
-  const closeTicket = (ticketId: string, resolutionNotes: string, feedbackRating?: number, feedbackComment?: string) => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: `Ticket closed`,
-            actor: 'Agent',
-            timestamp
-          };
-
-          const sysMessage: TicketMessage = {
-            id: `msg-sys-${Date.now()}`,
-            sender: 'System',
-            senderName: 'Closure Engine',
-            text: `Ticket resolved and officially CLOSED. Resolution details: ${resolutionNotes}`,
-            timestamp
-          };
-
-          return {
-            ...t,
-            status: 'Closed',
-            slaStatus: 'Resolved',
-            resolutionNotes,
-            feedbackRating,
-            feedbackComment,
-            closedDate: timestamp,
-            messages: [...t.messages, sysMessage],
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+  const closeTicket = async (ticketId: string, resolutionNotes: string) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/close`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ resolutionNotes })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error closing ticket:', err);
+    }
   };
 
-  const reopenTicket = (ticketId: string) => {
-    setTickets(prev =>
-      prev.map(t => {
-        if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: 'Ticket Re-opened',
-            actor: 'Agent',
-            timestamp
-          };
-
-          const sysMessage: TicketMessage = {
-            id: `msg-sys-${Date.now()}`,
-            sender: 'System',
-            senderName: 'Workflow Engine',
-            text: 'Closed ticket has been re-opened by operator. Restoring active SLA queue monitoring.',
-            timestamp
-          };
-
-          return {
-            ...t,
-            status: 'Open',
-            slaStatus: 'Within Limits',
-            resolutionNotes: undefined,
-            feedbackRating: undefined,
-            feedbackComment: undefined,
-            closedDate: undefined,
-            messages: [...t.messages, sysMessage],
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
-          };
-        }
-        return t;
-      })
-    );
+  const reopenTicket = async (ticketId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/tickets/admin/${ticketId}/reopen`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => prev.map(t => t.id === ticketId ? mapTicketData(data.ticket) : t));
+      }
+    } catch (err) {
+      console.error('Error reopening ticket:', err);
+    }
   };
 
   const uploadAttachment = (ticketId: string, attachment: TicketAttachment) => {
+    // Session-only local attachments update
     setTickets(prev =>
       prev.map(t => {
         if (t.id === ticketId) {
-          const timestamp = new Date().toLocaleString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
-          
-          const updatedTimeline: TicketActivity = {
-            id: `act-${Date.now()}`,
-            action: `File uploaded: ${attachment.name}`,
-            actor: 'Agent',
-            timestamp
-          };
-
           return {
             ...t,
-            attachments: [...t.attachments, attachment],
-            timeline: [...t.timeline, updatedTimeline],
-            updatedDate: timestamp
+            attachments: [...t.attachments, attachment]
           };
         }
         return t;
@@ -448,7 +324,8 @@ export const TicketsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         escalateTicket,
         closeTicket,
         reopenTicket,
-        uploadAttachment
+        uploadAttachment,
+        fetchTickets
       }}
     >
       {children}
