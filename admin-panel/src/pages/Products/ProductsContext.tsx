@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CATEGORIES_CONFIG, PRODUCT_MOVEMENTS, PRODUCT_ACTIVITIES, formatCurrency } from '../../data/mockDb';
+import { PRODUCT_MOVEMENTS, PRODUCT_ACTIVITIES, formatCurrency } from '../../data/mockDb';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
 
@@ -101,7 +101,6 @@ interface ProductsContextType {
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
 
-const initialCategories: Category[] = CATEGORIES_CONFIG as Category[];
 const initialMovements: InventoryMovement[] = PRODUCT_MOVEMENTS as InventoryMovement[];
 const initialActivities: ProductActivity[] = PRODUCT_ACTIVITIES as ProductActivity[];
 

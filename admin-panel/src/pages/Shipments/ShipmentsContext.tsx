@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import { SHIPMENTS, RETURN_REQUESTS, REFUND_REQUESTS, REPLACEMENT_ORDERS, CANCELLATION_REQUESTS } from '../../data/mockDb';
+
 
 export interface Shipment {
   id: string;
@@ -73,7 +73,7 @@ interface ShipmentsContextType {
   refundRequests: RefundRequest[];
   replacementOrders: ReplacementOrder[];
   cancellationRequests: CancellationRequest[];
-  createShipment: (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => Shipment;
+  createShipment: (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => Promise<any>;
   updateShipmentStatus: (id: string, status: Shipment['status'], trackingNum?: string) => void;
   generateShippingLabel: (id: string) => void;
   deleteShipment: (id: string) => void;
@@ -96,9 +96,7 @@ const ShipmentsContext = createContext<ShipmentsContextType | undefined>(undefin
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
 const WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com' : 'http://localhost:5000');
 
-const initialShipments: Shipment[] = SHIPMENTS as Shipment[];
-const initialReturns: ReturnRequest[] = RETURN_REQUESTS as ReturnRequest[];
-const initialReplacements: ReplacementOrder[] = REPLACEMENT_ORDERS as ReplacementOrder[];
+
 
 export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [shipments, setShipments] = useState<Shipment[]>([]);

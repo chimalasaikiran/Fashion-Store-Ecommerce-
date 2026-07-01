@@ -238,7 +238,6 @@ export default function OrderList() {
 
   
   const totalOrdersCount = orders.length;
-  const pendingOrdersCount = orders.filter(o => o.orderStatus === 'Pending').length;
   const processingOrdersCount = orders.filter(o => ['Processing', 'Dispatched', 'Shipped', 'Out For Delivery', 'Confirmed', 'Packed'].includes(o.orderStatus)).length;
   const deliveredOrdersCount = orders.filter(o => o.orderStatus === 'Delivered').length;
   const cancelledOrdersCount = orders.filter(o => o.orderStatus === 'Cancelled').length;
@@ -247,7 +246,6 @@ export default function OrderList() {
     .reduce((sum, o) => sum + o.totalAmount, 0);
 
   const totalOrdersStat = totalOrdersCount;
-  const pendingStat = pendingOrdersCount;
   const processingStat = processingOrdersCount;
   const deliveredStat = deliveredOrdersCount;
   const cancelledStat = cancelledOrdersCount;
