@@ -60,7 +60,14 @@ export default function ProductDetail() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to get secure upload signature from server.');
+        let errMsg = 'Failed to get secure upload signature from server.';
+        try {
+          const errData = await res.json();
+          if (errData && errData.message) {
+            errMsg = errData.message;
+          }
+        } catch (_) {}
+        throw new Error(errMsg);
       }
 
       const { signature, timestamp, apiKey, cloudName, folder } = await res.json();
