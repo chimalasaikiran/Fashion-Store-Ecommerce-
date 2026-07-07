@@ -1,5 +1,7 @@
 const Product = require("../models/Product");
 const Review = require("../models/Review");
+const mongoose = require("mongoose");
+
 
 
 const getImageUrl = (req, filename) => {
@@ -94,7 +96,12 @@ const getProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    const product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -116,9 +123,6 @@ const getProductById = async (req, res) => {
     });
   } catch (error) {
     console.error("Get Product By ID Error:", error);
-    if (error.kind === "ObjectId") {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
     res.status(500).json({ success: false, message: "Server error fetching product details" });
   }
 };
@@ -174,7 +178,12 @@ const createProduct = async (req, res) => {
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
   try {
-    let product = await Product.findById(req.params.id);
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    let product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -185,7 +194,7 @@ const updateProduct = async (req, res) => {
       req.body.originalPrice = req.body.price;
     }
 
-    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    product = await Product.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
@@ -220,7 +229,12 @@ const updateProduct = async (req, res) => {
 // @access  Private/Admin
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    const product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -230,7 +244,7 @@ const deleteProduct = async (req, res) => {
 
     // Emit socket event for real-time sync
     if (global.io) {
-      global.io.emit("product_deleted", { id: req.params.id });
+      global.io.emit("product_deleted", { id });
     }
 
     res.status(200).json({
@@ -245,13 +259,18 @@ const deleteProduct = async (req, res) => {
 
 const getProductReviews = async (req, res) => {
   try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
     // Check if product exists
-    const productExists = await Product.exists({ _id: req.params.id });
+    const productExists = await Product.exists({ _id: id });
     if (!productExists) {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    const reviews = await Review.find({ product: req.params.id }).sort({ createdAt: -1 });
+    const reviews = await Review.find({ product: id }).sort({ createdAt: -1 });
 
     const formattedReviews = reviews.map((rev) => {
       const r = rev.toJSON(); 
@@ -284,7 +303,10 @@ const createProductReview = async (req, res) => {
     const { name, avatar, verified, rating, text, images } = req.body;
     const productId = req.params.id;
 
-    
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });

@@ -22,8 +22,8 @@ export default function OrderList() {
   const [orderStatusFilter, setOrderStatusFilter] = useState<'All' | Order['orderStatus']>('All');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<'All' | Order['paymentStatus']>('All');
   const [dateFilter, setDateFilter] = useState<'All' | 'Last 7 Days' | 'Last 30 Days'>('All');
-  const [sortBy, setSortBy] = useState<'id' | 'customerName' | 'items' | 'totalAmount' | 'createdDate'>('id');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortBy, setSortBy] = useState<'id' | 'customerName' | 'items' | 'totalAmount' | 'createdDate'>('createdDate');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
@@ -106,8 +106,8 @@ export default function OrderList() {
       fieldA = a.items.reduce((sum, item) => sum + item.quantity, 0);
       fieldB = b.items.reduce((sum, item) => sum + item.quantity, 0);
     } else if (sortBy === 'createdDate') {
-      fieldA = new Date(a.createdDate).getTime();
-      fieldB = new Date(b.createdDate).getTime();
+      fieldA = a.createdAt ? new Date(a.createdAt).getTime() : new Date(a.createdDate).getTime();
+      fieldB = b.createdAt ? new Date(b.createdAt).getTime() : new Date(b.createdDate).getTime();
     }
 
     if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;

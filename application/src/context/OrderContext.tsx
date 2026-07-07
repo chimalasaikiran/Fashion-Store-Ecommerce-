@@ -37,6 +37,7 @@ export interface OrderItem {
   billingAddress?: { name: string; street: string; city: string; state: string; zip: string; country: string; phone: string };
   promoCode?: string;
   shippingMethod?: string;
+  createdAt?: string;
 }
 
 interface OrderContextType {
@@ -58,6 +59,14 @@ interface OrderContextType {
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
+
+const sortOrdersDescending = (items: OrderItem[]): OrderItem[] => {
+  return [...items].sort((a, b) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeB - timeA;
+  });
+};
 
 export function OrderProvider({ children }: { children: React.ReactNode }) {
   const { profile } = useProfile();
@@ -114,6 +123,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
             billingAddress: order.billingAddress,
             promoCode: order.promoCode || "",
             shippingMethod: order.shippingMethod || "Economy",
+            createdAt: order.createdAt,
           });
         });
       }
@@ -126,7 +136,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await getOrdersApi();
       if (res && res.success && res.orders) {
-        setOrders(flattenOrders(res.orders));
+        setOrders(sortOrdersDescending(flattenOrders(res.orders)));
       }
     } catch (err) {
       console.log("[OrderContext] Error fetching orders from backend:", err);
@@ -151,7 +161,16 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       setOrders((prev) => {
         const newItems = flattenOrders([updatedOrder]);
         const filtered = prev.filter((item) => item.orderId !== updatedOrder.orderId);
-        return [...newItems, ...filtered];
+        return sortOrdersDescending([...newItems, ...filtered]);
+      });
+    });
+
+    socket.on("order_created", (newOrder: any) => {
+      console.log("[OrderContext] Socket: New order placed!", newOrder);
+      setOrders((prev) => {
+        const newItems = flattenOrders([newOrder]);
+        const filtered = prev.filter((item) => item.orderId !== newOrder.orderId);
+        return sortOrdersDescending([...newItems, ...filtered]);
       });
     });
 
@@ -269,9 +288,10 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         status: "active",
         orderStatus: "Pending",
         date: dateStr,
+        createdAt: new Date().toISOString(),
         deliveryDate: "June 15, 2026 | 03:00 PM",
       }));
-      setOrders((prev) => [...newOrders, ...prev]);
+      setOrders((prev) => sortOrdersDescending([...newOrders, ...prev]));
       return newOrderId;
     }
   };

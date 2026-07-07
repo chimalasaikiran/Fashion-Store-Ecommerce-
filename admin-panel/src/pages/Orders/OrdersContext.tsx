@@ -55,6 +55,7 @@ export interface Order {
   orderStatus: 'Pending' | 'Confirmed' | 'Packed' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Refunded' | 'Processing' | 'Dispatched' | 'Out For Delivery';
   deliveryStatus: 'Pending' | 'In Transit' | 'Delivered' | 'Cancelled';
   createdDate: string;
+  createdAt?: string;
   deliveryDate: string;
   courierPartner: string;
   trackingId: string;
@@ -128,6 +129,7 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: 
       orderStatus: ord.status || 'Pending',
       deliveryStatus: ord.deliveryStatus || 'Pending',
       createdDate: ord.date || (ord.createdAt ? new Date(ord.createdAt).toLocaleDateString() : new Date().toLocaleDateString()),
+      createdAt: ord.createdAt || new Date().toISOString(),
       deliveryDate: ord.deliveryDate || '',
       courierPartner: ord.courierPartner || 'Delhivery',
       trackingId: ord.trackingId || '',
