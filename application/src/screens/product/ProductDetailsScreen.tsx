@@ -75,6 +75,10 @@ export default function ProductDetailsScreen() {
       try {
         const res = await getProductDetails(productId);
         if (res.success && active) {
+          if (res.product.status === "Draft") {
+            router.back();
+            return;
+          }
           setDetails(res.product);
           setSelectedImageIndex(0);
           setSelectedSize(res.product.defaultSize || (res.product.sizes && res.product.sizes[0]) || "");
@@ -104,7 +108,11 @@ export default function ProductDetailsScreen() {
     socket.on("product_updated", (data) => {
       if (data.id === productId) {
         console.log("[Socket ProductDetails] Product updated in real-time:", data.name);
-        setDetails(data);
+        if (data.status === "Draft") {
+          router.back();
+        } else {
+          setDetails(data);
+        }
       }
     });
 

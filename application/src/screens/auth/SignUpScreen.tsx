@@ -10,6 +10,7 @@ import {
   Platform,
   Pressable,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,7 +19,9 @@ import { useRouter } from "expo-router";
 import { Ionicons, AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import Svg, { Path } from "react-native-svg";
 import { Colors } from "../../constants/Colors";
-import { signupUser } from "../../services/api";
+import { signupUser, setAuthToken, socialLoginUser } from "../../services/api";
+import { useProfile } from "../../context/ProfileContext";
+import { useCart } from "../../context/CartContext";
 
 
 
@@ -33,6 +36,8 @@ const TEXT_MUTED = Colors.textMuted;
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { updateProfile } = useProfile();
+  const { loadCart } = useCart();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -41,6 +46,45 @@ export default function SignUpScreen() {
   const [agreed, setAgreed] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSocialSelect = async (name: string, email: string, provider: 'google' | 'apple' | 'facebook') => {
+    if (!email.trim() || !name.trim()) {
+      setError("Social login configuration missing.");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      const response = await socialLoginUser(
+        email.trim().toLowerCase(),
+        name.trim(),
+        provider
+      );
+
+      await setAuthToken(response.token);
+      await loadCart();
+
+      updateProfile({
+        name: response.user.name,
+        email: response.user.email,
+        phone: response.user.phone || "",
+        countryCode: response.user.countryCode || "",
+        gender: response.user.gender || "",
+        avatar: response.user.avatar ? response.user.avatar : undefined,
+      });
+
+      if (response.user && response.user.phone && response.user.gender) {
+        router.replace("/home" as any);
+      } else {
+        router.replace("/complete-profile" as any);
+      }
+    } catch (err: any) {
+      console.log("Social Auth Error:", err);
+      setError(err.message || "Failed to authenticate with social account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleShowPass = useCallback(() => setShowPass((v) => !v), []);
   const toggleAgreed = useCallback(() => setAgreed((v) => !v), []);
@@ -63,7 +107,7 @@ export default function SignUpScreen() {
         params: { email: email.trim().toLowerCase(), name: name.trim() },
       });
     } catch (err: any) {
-      console.error("SignUp Error:", err);
+      console.log("SignUp Error:", err);
       setError(err.message || "Sign up failed. Please try again.");
     } finally {
       setLoading(false);
@@ -107,11 +151,21 @@ export default function SignUpScreen() {
         >
           {}
           <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.75}>
+            {/* Apple Sign-In Button */}
+            <TouchableOpacity 
+              style={styles.socialBtn} 
+              activeOpacity={0.75}
+              onPress={() => handleSocialSelect("Alexander Sterling", "a.sterling@icloud.com", "apple")}
+            >
               <AntDesign name="apple" size={22} color="#000" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.75}>
-              {}
+
+            {/* Google Sign-In Button */}
+            <TouchableOpacity 
+              style={styles.socialBtn} 
+              activeOpacity={0.75}
+              onPress={() => handleSocialSelect("Liam Carter", "liam.carter@gmail.com", "google")}
+            >
               <Svg width={22} height={22} viewBox="0 0 48 48">
                 <Path fill="#EA4335" d="M24 9.5c3.2 0 5.9 1.1 8.1 2.9l6-6C34.5 3.2 29.6 1 24 1 14.8 1 7 6.7 3.7 14.6l7 5.4C12.4 13.5 17.7 9.5 24 9.5z"/>
                 <Path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7c4.3-4 6.8-9.9 6.8-16.9z"/>
@@ -119,7 +173,13 @@ export default function SignUpScreen() {
                 <Path fill="#34A853" d="M24 47c5.5 0 10.2-1.8 13.6-4.9l-7.4-5.7c-1.9 1.3-4.3 2-6.2 2-6.3 0-11.6-4.2-13.5-9.9l-7.1 6.3C7 41.3 14.8 47 24 47z"/>
               </Svg>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.75}>
+
+            {/* Facebook Sign-In Button */}
+            <TouchableOpacity 
+              style={styles.socialBtn} 
+              activeOpacity={0.75}
+              onPress={() => handleSocialSelect("Marcus Brody", "marcus.brody@facebook.com", "facebook")}
+            >
               <FontAwesome5 name="facebook-f" size={20} color="#1877F2" />
             </TouchableOpacity>
           </View>
@@ -131,7 +191,7 @@ export default function SignUpScreen() {
           <View style={styles.inputBox}>
             <TextInput
               style={styles.input}
-              placeholder="John Doe"
+              placeholder="User name"
               placeholderTextColor={PLACEHOLDER}
               value={name}
               onChangeText={setName}

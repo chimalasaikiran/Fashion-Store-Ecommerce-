@@ -156,7 +156,7 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode; isLoggedIn?
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${API_URL}/products`);
+      const res = await fetch(`${API_URL}/products?status=all`);
       const data = await res.json();
       if (data.success) {
         setProducts(data.products);

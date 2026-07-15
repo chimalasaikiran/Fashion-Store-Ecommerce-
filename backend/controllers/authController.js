@@ -73,15 +73,13 @@ const signup = async (req, res) => {
       console.log(`[Signup OTP for ${email}]: ${otp}`);
 
       
-      try {
-        await sendEmail({
-          email: userExists.email,
-          subject: `${otp} is your Fashion Store verification code`,
-          html: getOtpEmailTemplate(userExists.name, userExists.email, otp),
-        });
-      } catch (err) {
+      sendEmail({
+        email: userExists.email,
+        subject: `${otp} is your Fashion Store verification code`,
+        html: getOtpEmailTemplate(userExists.name, userExists.email, otp),
+      }).catch((err) => {
         console.error("Nodemailer failed to send email during userExists signup retry:", err.message);
-      }
+      });
       
       return res.status(200).json({
         success: true,
@@ -117,15 +115,13 @@ const signup = async (req, res) => {
     console.log(`[Signup OTP for ${email}]: ${otp}`);
 
     
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: `${otp} is your Fashion Store verification code`,
-        html: getOtpEmailTemplate(user.name, user.email, otp),
-      });
-    } catch (err) {
+    sendEmail({
+      email: user.email,
+      subject: `${otp} is your Fashion Store verification code`,
+      html: getOtpEmailTemplate(user.name, user.email, otp),
+    }).catch((err) => {
       console.error("Nodemailer failed to send email during signup:", err.message);
-    }
+    });
 
     res.status(201).json({
       success: true,
@@ -225,15 +221,13 @@ const resendOtp = async (req, res) => {
     console.log(`[Resend OTP for ${email}]: ${otp}`);
 
     
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: `${otp} is your Fashion Store verification code`,
-        html: getOtpEmailTemplate(user.name, user.email, otp),
-      });
-    } catch (err) {
+    sendEmail({
+      email: user.email,
+      subject: `${otp} is your Fashion Store verification code`,
+      html: getOtpEmailTemplate(user.name, user.email, otp),
+    }).catch((err) => {
       console.error("Nodemailer failed to send email during resendOtp:", err.message);
-    }
+    });
 
     res.status(200).json({
       success: true,
@@ -306,15 +300,13 @@ const login = async (req, res) => {
       console.log(`[Login Verification OTP for ${email}]: ${otp}`);
 
       
-      try {
-        await sendEmail({
-          email: user.email,
-          subject: `${otp} is your Fashion Store verification code`,
-          html: getOtpEmailTemplate(user.name, user.email, otp),
-        });
-      } catch (err) {
+      sendEmail({
+        email: user.email,
+        subject: `${otp} is your Fashion Store verification code`,
+        html: getOtpEmailTemplate(user.name, user.email, otp),
+      }).catch((err) => {
         console.error("Nodemailer failed to send email during login unverified:", err.message);
-      }
+      });
 
       return res.status(403).json({
         success: false,
@@ -453,6 +445,95 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const socialLogin = async (req, res) => {
+  const { email, name, provider, providerId } = req.body;
+
+  try {
+    if (!email || !name || !provider) {
+      return res.status(400).json({ success: false, message: "Please provide email, name, and provider" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      if (user.isBlocked) {
+        return res.status(403).json({
+          success: false,
+          message: `Your account has been blocked: ${user.blockReason || "Suspicious account activity"}`,
+        });
+      }
+
+      if (!user.isVerified) {
+        user.isVerified = true;
+        await user.save();
+      }
+
+      await ActivityLog.create({
+        userId: user._id.toString(),
+        userName: user.name,
+        action: `Logged in successfully via ${provider}`,
+        category: "Auth",
+        status: "Success",
+        ipAddress: req.ip || "127.0.0.1",
+        device: req.headers["user-agent"] || "Mobile Application",
+      });
+
+      return res.json({
+        success: true,
+        token: generateToken(user._id),
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          countryCode: user.countryCode,
+          gender: user.gender,
+          avatar: user.avatar,
+        },
+      });
+    }
+
+    // Register new user since email was not found
+    const crypto = require("crypto");
+    const randomPassword = crypto.randomBytes(16).toString("hex");
+
+    user = await User.create({
+      name,
+      email,
+      password: randomPassword,
+      isVerified: true,
+      avatar: "",
+    });
+
+    await ActivityLog.create({
+      userId: user._id.toString(),
+      userName: user.name,
+      action: `Created account via ${provider} social login`,
+      category: "Profile",
+      status: "Success",
+      ipAddress: req.ip || "127.0.0.1",
+      device: req.headers["user-agent"] || "Mobile Application",
+    });
+
+    res.status(201).json({
+      success: true,
+      token: generateToken(user._id),
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        countryCode: user.countryCode,
+        gender: user.gender,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error("Social Login Error:", error);
+    res.status(500).json({ success: false, message: "Server error during social login" });
+  }
+};
+
 module.exports = {
   signup,
   verifyOtp,
@@ -460,4 +541,5 @@ module.exports = {
   login,
   completeProfile,
   resetPassword,
+  socialLogin,
 };

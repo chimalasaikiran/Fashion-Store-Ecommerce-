@@ -99,6 +99,13 @@ export function ProfileTab({ onBack }: ProfileTabProps) {
       route: "/help-center",
     },
     {
+      id: "support_tickets",
+      label: "Support Tickets",
+      icon: "chatbubbles-outline",
+      iconType: "ionicons",
+      route: "/support-tickets",
+    },
+    {
       id: "privacy_policy",
       label: "Privacy Policy",
       icon: "shield-checkmark-outline",

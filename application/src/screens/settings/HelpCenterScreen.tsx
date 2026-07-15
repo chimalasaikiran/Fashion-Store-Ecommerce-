@@ -372,8 +372,28 @@ export default function HelpCenterScreen() {
             { paddingBottom: insets.bottom + 32 },
           ]}
         >
+          {/* Support Ticket Banner */}
+          <View style={styles.ticketBannerCard}>
+            <View style={styles.ticketBannerIconContainer}>
+              <Ionicons name="chatbubbles" size={22} color="#FFFFFF" />
+            </View>
+            <View style={styles.ticketBannerTextContainer}>
+              <Text style={styles.ticketBannerTitle}>Raise a Support Ticket</Text>
+              <Text style={styles.ticketBannerSub}>Have a problem with your order or account? Track your issues directly with our support team.</Text>
+              <TouchableOpacity
+                style={styles.ticketBannerBtn}
+                onPress={() => router.push("/support-tickets")}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.ticketBannerBtnText}>View / Raise Tickets</Text>
+                <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {CONTACT_DATA.map((item) => {
             const isExpanded = !!expandedContactIds[item.id];
+
             return (
               <View key={item.id} style={styles.accordionCard}>
                 <TouchableOpacity
@@ -442,6 +462,65 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 3,
     elevation: 2,
+  },
+  sheetOptionText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: TEXT_PRIMARY,
+  },
+  ticketBannerCard: {
+    backgroundColor: "#FAF6F0",
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "#E3C9B8",
+    padding: 18,
+    flexDirection: "row",
+    gap: 14,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1.5 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  ticketBannerIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: BROWN_DARK,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  ticketBannerTextContainer: {
+    flex: 1,
+    gap: 4,
+  },
+  ticketBannerTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: TEXT_PRIMARY,
+  },
+  ticketBannerSub: {
+    fontSize: 12,
+    color: TEXT_MUTED,
+    lineHeight: 16,
+    fontWeight: "500",
+  },
+  ticketBannerBtn: {
+    backgroundColor: ACCENT,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 6,
+  },
+  ticketBannerBtnText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
   headerTitle: {
     fontSize: 18,

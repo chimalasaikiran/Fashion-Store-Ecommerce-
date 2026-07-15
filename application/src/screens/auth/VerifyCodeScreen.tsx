@@ -121,7 +121,7 @@ export default function VerifyCodeScreen() {
         router.replace("/complete-profile" as any);
       }, 1500);
     } catch (err: any) {
-      console.error("Verify Error:", err);
+      console.log("Verify Error:", err);
       setErrorMsg(err.message || "Invalid code. Please try again.");
     } finally {
       setLoading(false);

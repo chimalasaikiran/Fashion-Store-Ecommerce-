@@ -26,6 +26,9 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 const getWsUrl = (): string => {
+  if (process.env.EXPO_PUBLIC_WS_URL) {
+    return process.env.EXPO_PUBLIC_WS_URL;
+  }
   const hostUri = Constants.expoConfig?.hostUri;
   if (__DEV__ && hostUri) {
     const ip = hostUri.split(":")[0];

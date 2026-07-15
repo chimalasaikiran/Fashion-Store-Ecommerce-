@@ -59,3 +59,8 @@ backend/coverage/
 *.tsbuildinfo
 
 .vercel
+
+# Uploads
+backend/public/images/avatar_*
+backend/public/images/product_*
+

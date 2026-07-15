@@ -2,6 +2,9 @@ import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 
 const getBaseUrl = (): string => {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
   const hostUri = Constants.expoConfig?.hostUri;
   if (__DEV__ && hostUri) {
     const ip = hostUri.split(":")[0];
@@ -225,4 +228,65 @@ export const getCartApi = async () => {
 export const syncCartApi = async (cartItems: any[]) => {
   return await apiRequest("/cart", "PUT", { cart: cartItems }, true);
 };
+
+export interface TicketMessage {
+  id: string;
+  sender: "Customer" | "Agent" | "System";
+  senderName: string;
+  text: string;
+  timestamp: string;
+  avatar?: string;
+}
+
+export interface TicketTimeline {
+  id: string;
+  action: string;
+  actor: string;
+  timestamp: string;
+}
+
+export interface SupportTicketType {
+  _id: string;
+  ticketId: string;
+  user: string;
+  customerName: string;
+  customerEmail: string;
+  subject: string;
+  category: string;
+  priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  status: "Open" | "In Progress" | "Resolved" | "Closed" | "Escalated";
+  assignedAgent: string;
+  createdDate: string;
+  updatedDate: string;
+  messages: TicketMessage[];
+  timeline: TicketTimeline[];
+}
+
+export const createTicketApi = async (ticketData: {
+  subject: string;
+  category: string;
+  priority?: string;
+  message: string;
+}) => {
+  return await apiRequest("/tickets", "POST", ticketData, true);
+};
+
+export const getMyTicketsApi = async () => {
+  return await apiRequest("/tickets", "GET", undefined, true);
+};
+
+export const addTicketMessageApi = async (id: string, text: string) => {
+  return await apiRequest(`/tickets/${encodeURIComponent(id)}/messages`, "POST", { text }, true);
+};
+
+export const socialLoginUser = async (
+  email: string,
+  name: string,
+  provider: "google" | "apple" | "facebook",
+  providerId?: string
+) => {
+  return await apiRequest("/auth/social-login", "POST", { email, name, provider, providerId });
+};
+
+
 

@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { useEffect, useState, useCallback } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import AppSplashScreen from "../screens/onboarding/SplashScreen";
-import { View } from "react-native";
+import { View, LogBox } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { CartProvider } from "../context/CartContext";
 import { WishlistProvider } from "../context/WishlistContext";
@@ -14,6 +14,7 @@ import { NotificationProvider } from "../context/NotificationContext";
 
 
 SplashScreen.preventAutoHideAsync();
+LogBox.ignoreAllLogs();
 
 function NotificationWrapper({ children }: { children: React.ReactNode }) {
   const { fetchOrders, orders } = useOrders();

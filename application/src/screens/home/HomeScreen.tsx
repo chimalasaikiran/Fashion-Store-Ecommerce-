@@ -7,6 +7,7 @@ import {
   ScrollView,
   Animated,
   Dimensions,
+  RefreshControl,
 } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -71,7 +72,20 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { products, toggleLike } = useWishlist();
+  const { products, toggleLike, refreshProducts } = useWishlist();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refreshProducts();
+    } catch (err) {
+      console.error("Failed to refresh products:", err);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshProducts]);
+
   const [activeCategory, setActiveCategory] = useState("All");
   const [categories, setCategories] = useState<any[]>([{ id: "all", name: "All" }]);
   const [activeTab, setActiveTab] = useState("home");
@@ -329,6 +343,9 @@ export default function HomeScreen() {
             paddingBottom: 120, 
           },
         ]}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[BROWN_DARK]} />
+        }
       >
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Special Offers</Text>
@@ -473,7 +490,7 @@ export default function HomeScreen() {
                 key={item.id}
                 style={[styles.productCard, isOutOfStock && { opacity: 0.85 }]}
                 activeOpacity={0.9}
-                onPress={() => router.push({ pathname: "/product-details", params: { id: item.id } })}
+                onPress={() => router.push({ pathname: "/product-details" as any, params: { id: item.id } })}
               >
                 <View style={styles.productImageWrapper}>
                   <Image source={item.image} style={styles.productImage} contentFit="cover" />

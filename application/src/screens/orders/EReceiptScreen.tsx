@@ -29,6 +29,7 @@ const TEXT_PRIMARY = Colors.textPrimary;
 const MOCK_PRODUCTS = [
   {
     id: "modern_party_dress",
+    productId: "modern_party_dress",
     name: "Modern Party Dress",
     category: "Dress",
     price: 80.0,
@@ -37,6 +38,7 @@ const MOCK_PRODUCTS = [
   },
   {
     id: "white_shirt",
+    productId: "white_shirt",
     name: "White Shirt",
     category: "Shirt",
     price: 70.0,
@@ -45,6 +47,7 @@ const MOCK_PRODUCTS = [
   },
   {
     id: "brown_coat",
+    productId: "brown_coat",
     name: "Brown Coat",
     category: "Coats",
     price: 75.0,

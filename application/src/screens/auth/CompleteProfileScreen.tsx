@@ -200,7 +200,7 @@ export default function CompleteProfileScreen() {
         router.replace("/notification-access" as any);
       }, 1500);
     } catch (err: any) {
-      console.error("Complete Profile Error:", err);
+      console.log("Complete Profile Error:", err);
       setErrorMsg(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);

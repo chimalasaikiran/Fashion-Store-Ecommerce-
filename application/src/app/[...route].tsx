@@ -42,6 +42,10 @@ import TrackOrderScreen from "../screens/orders/TrackOrderScreen";
 import VerifyCodeScreen from "../screens/auth/VerifyCodeScreen";
 import WishlistScreen from "../screens/wishlist/WishlistScreen";
 import YourProfileScreen from "../screens/profile/YourProfileScreen";
+import SupportTicketsScreen from "../screens/settings/SupportTicketsScreen";
+import RaiseTicketScreen from "../screens/settings/RaiseTicketScreen";
+import TicketDetailsScreen from "../screens/settings/TicketDetailsScreen";
+
 
 export default function RouteHandler() {
   const { route } = useLocalSearchParams<{ route?: string[] }>();
@@ -133,6 +137,13 @@ export default function RouteHandler() {
       return <WishlistScreen />;
     case "your-profile":
       return <YourProfileScreen />;
+    case "support-tickets":
+      return <SupportTicketsScreen />;
+    case "raise-ticket":
+      return <RaiseTicketScreen />;
+    case "ticket-details":
+      return <TicketDetailsScreen />;
+
     default:
       return <WelcomeScreen />;
   }

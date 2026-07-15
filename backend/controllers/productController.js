@@ -21,8 +21,18 @@ const getImageUrl = (req, filename) => {
 
 const getProducts = async (req, res) => {
   try {
-    const { category, minPrice, maxPrice, color, size, search } = req.query;
+    const { category, minPrice, maxPrice, color, size, search, status } = req.query;
     let query = {};
+
+    // Filter by visibility status (Live / Draft)
+    if (status) {
+      if (status !== "all") {
+        query.status = status;
+      }
+    } else {
+      // Default to returning only Live products for general/client requests
+      query.status = "Live";
+    }
 
     
     if (category) {
@@ -105,6 +115,28 @@ const getProductById = async (req, res) => {
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // If product is a draft, check for valid administrator authorization token
+    if (product.status === "Draft") {
+      let isAuthorizedAdmin = false;
+      if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+        try {
+          const token = req.headers.authorization.split(" ")[1];
+          const decoded = require("jsonwebtoken").verify(token, process.env.JWT_SECRET || "fallback_secret");
+          const Admin = require("../src/modules/admin/admin.model");
+          const admin = await Admin.findById(decoded.id);
+          if (admin && admin.status !== "Inactive") {
+            isAuthorizedAdmin = true;
+          }
+        } catch (err) {
+          // Token verification failed or not an admin
+        }
+      }
+
+      if (!isAuthorizedAdmin) {
+        return res.status(404).json({ success: false, message: "Product not found" });
+      }
     }
 
     const p = product.toObject();

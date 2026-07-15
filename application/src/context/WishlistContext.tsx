@@ -12,6 +12,7 @@ export interface Product {
   image: any;
   liked: boolean;
   stock?: number;
+  status?: string;
 }
 
 interface WishlistContextType {
@@ -35,6 +36,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_3_1781014096781.png"),
     liked: true,
     stock: 15,
+    status: "Live",
   },
   {
     id: "2",
@@ -46,6 +48,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_5_1781014303170.png"),
     liked: false,
     stock: 10,
+    status: "Live",
   },
   {
     id: "3",
@@ -57,6 +60,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_1_1781014071035.png"),
     liked: false,
     stock: 8,
+    status: "Live",
   },
   {
     id: "4",
@@ -68,6 +72,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_2_1781014083606.png"),
     liked: true,
     stock: 12,
+    status: "Live",
   },
   {
     id: "5",
@@ -79,6 +84,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_4_1781014289331.png"),
     liked: false,
     stock: 5,
+    status: "Live",
   },
   {
     id: "6",
@@ -90,6 +96,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_6_1781014316459.png"),
     liked: true,
     stock: 20,
+    status: "Live",
   },
   {
     id: "7",
@@ -101,6 +108,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_3_1781014096781.png"),
     liked: false,
     stock: 7,
+    status: "Live",
   },
   {
     id: "8",
@@ -112,6 +120,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_1_1781014071035.png"),
     liked: false,
     stock: 14,
+    status: "Live",
   },
   {
     id: "9",
@@ -123,6 +132,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_5_1781014303170.png"),
     liked: false,
     stock: 0,
+    status: "Draft",
   },
   {
     id: "10",
@@ -134,6 +144,7 @@ const INITIAL_STATIC_PRODUCTS: Product[] = [
     image: require("../../assets/images/fashion_portrait_4_1781014289331.png"),
     liked: false,
     stock: 6,
+    status: "Live",
   },
 ];
 
@@ -175,17 +186,34 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
     socket.on("product_created", (data) => {
       console.log("[Socket Wishlist] Product created:", data.name);
-      refreshProducts();
+      setProducts((prev) => {
+        if (prev.some((p) => p.id === data.id)) return prev;
+        return [...prev, { ...data, liked: false }];
+      });
     });
 
     socket.on("product_updated", (data) => {
       console.log("[Socket Wishlist] Product updated:", data.name);
-      refreshProducts();
+      setProducts((prev) => {
+        const exists = prev.some((p) => p.id === data.id);
+        if (!exists) {
+          if (data.status === "Live") {
+            return [...prev, { ...data, liked: false }];
+          }
+          return prev;
+        }
+        return prev.map((p) => {
+          if (p.id === data.id) {
+            return { ...p, ...data, liked: p.liked };
+          }
+          return p;
+        });
+      });
     });
 
     socket.on("product_deleted", (data) => {
       console.log("[Socket Wishlist] Product deleted:", data.id);
-      refreshProducts();
+      setProducts((prev) => prev.filter((p) => p.id !== data.id));
     });
 
     socket.on("disconnect", () => {
@@ -197,9 +225,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const wishlistItems = useMemo(() => {
-    return products.filter((p) => p.liked);
+  const liveProducts = useMemo(() => {
+    return products.filter((p) => p.status !== "Draft");
   }, [products]);
+
+  const wishlistItems = useMemo(() => {
+    return liveProducts.filter((p) => p.liked);
+  }, [liveProducts]);
 
   const toggleLike = (id: string) => {
     setProducts((prev) =>
@@ -208,13 +240,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isLiked = (id: string) => {
-    const prod = products.find((p) => p.id === id);
+    const prod = liveProducts.find((p) => p.id === id);
     return prod ? prod.liked : false;
   };
 
   return (
     <WishlistContext.Provider
-      value={{ products, wishlistItems, toggleLike, isLiked, refreshProducts }}
+      value={{ products: liveProducts, wishlistItems, toggleLike, isLiked, refreshProducts }}
     >
       {children}
     </WishlistContext.Provider>

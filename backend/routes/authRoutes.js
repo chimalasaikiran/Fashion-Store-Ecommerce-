@@ -7,6 +7,7 @@ const {
   login,
   completeProfile,
   resetPassword,
+  socialLogin,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -16,5 +17,6 @@ router.post("/resend-otp", resendOtp);
 router.post("/login", login);
 router.put("/complete-profile", protect, completeProfile);
 router.post("/reset-password", resetPassword);
+router.post("/social-login", socialLogin);
 
 module.exports = router;
