@@ -98,7 +98,7 @@ const WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'https://f
 
 
 
-export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ShipmentsProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: boolean }> = ({ children, isLoggedIn }) => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
 
   const [returnRequests, setReturnRequests] = useState<ReturnRequest[]>([]);
@@ -189,7 +189,7 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Fetch cancellations, refunds, returns & replacements on login
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
     if (loggedIn) {
       fetchCancellations();
       fetchRefunds();
@@ -197,11 +197,11 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       fetchReplacements();
       fetchShipments();
     }
-  }, []);
+  }, [isLoggedIn]);
 
   // WebSockets for Real-Time updates
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
     if (!loggedIn) return;
 
     const socket = io(WS_URL);
@@ -268,7 +268,7 @@ export const ShipmentsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [isLoggedIn]);
 
   const createShipment = async (shipment: Omit<Shipment, 'id' | 'trackingNumber' | 'labelGenerated'>) => {
     try {

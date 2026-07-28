@@ -77,7 +77,7 @@ const TicketsContext = createContext<TicketsContextType | undefined>(undefined);
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com/api' : 'http://localhost:5000/api');
 const WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'https://fashion-store-backend-3931.onrender.com' : 'http://localhost:5000');
 
-export const TicketsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const TicketsProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: boolean }> = ({ children, isLoggedIn }) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
 
   const getHeaders = () => {
@@ -131,16 +131,16 @@ export const TicketsProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Fetch tickets on mount
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (token) {
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
+    if (loggedIn) {
       fetchTickets();
     }
-  }, []);
+  }, [isLoggedIn]);
 
   // WebSocket / Socket.io real-time listener
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) return;
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
+    if (!loggedIn) return;
 
     const socket = io(WS_URL);
 
@@ -166,7 +166,7 @@ export const TicketsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [isLoggedIn]);
 
   const addReply = async (ticketId: string, text: string) => {
     try {

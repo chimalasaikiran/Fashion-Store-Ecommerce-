@@ -92,7 +92,7 @@ const WS_URL = import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'https://f
 const initialTemplates: NotificationTemplate[] = NOTIFICATION_TEMPLATES as NotificationTemplate[];
 const initialNotifications: StatusNotification[] = STATUS_NOTIFICATIONS as StatusNotification[];
 
-export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PaymentsProvider: React.FC<{ children: React.ReactNode; isLoggedIn?: boolean }> = ({ children, isLoggedIn }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [creditNotes, setCreditNotes] = useState<CreditNote[]>([]);
@@ -192,16 +192,16 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Fetch transactions on mount if logged in
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (token) {
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
+    if (loggedIn) {
       fetchTransactions();
     }
-  }, []);
+  }, [isLoggedIn]);
 
   // Socket.io integration for real-time updates
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) return;
+    const loggedIn = isLoggedIn || localStorage.getItem('isLoggedIn') === 'true';
+    if (!loggedIn) return;
 
     const socket = io(WS_URL);
 
@@ -227,7 +227,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [isLoggedIn]);
 
   // Derive invoices and credit notes from transactions state
   useEffect(() => {

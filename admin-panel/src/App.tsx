@@ -113,11 +113,11 @@ function App() {
   return (
     <RoleAccessProvider isLoggedIn={isLoggedIn}>
       <UsersProvider isLoggedIn={isLoggedIn}>
-        <ProductsProvider>
+        <ProductsProvider isLoggedIn={isLoggedIn}>
           <OrdersProvider isLoggedIn={isLoggedIn}>
-            <ShipmentsProvider>
-              <TicketsProvider>
-                <PaymentsProvider>
+            <ShipmentsProvider isLoggedIn={isLoggedIn}>
+              <TicketsProvider isLoggedIn={isLoggedIn}>
+                <PaymentsProvider isLoggedIn={isLoggedIn}>
                   <BrowserRouter>
                     <Routes>
                       <Route 
