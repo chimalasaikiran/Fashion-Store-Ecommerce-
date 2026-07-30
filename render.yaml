@@ -10,7 +10,7 @@ services:
       - key: PORT
         value: 5000
       - key: JWT_SECRET
-        sync: false
+        value: 4215822a60d9d592a8d392d6b9ae0bcdeb3996c46fee41d7fabf747944782f36
       - key: EMAIL_HOST
         value: smtp.gmail.com
       - key: EMAIL_PORT
@@ -18,12 +18,12 @@ services:
       - key: EMAIL_USER
         value: saikiran13720@gmail.com
       - key: EMAIL_PASS
-        sync: false
+        value: yhkchphtviuyaaqs
       - key: MONGO_URI
-        sync: false
+        value: mongodb+srv://saikiran85229:5ICoQCyOSuJy5VEL@cluster0.anvqnoh.mongodb.net/fashion_db?appName=Cluster0
       - key: CLOUDINARY_CLOUD_NAME
-        sync: false
+        value: dzqlqutma
       - key: CLOUDINARY_API_KEY
-        sync: false
+        value: "473544246922355"
       - key: CLOUDINARY_API_SECRET
-        sync: false
+        value: 4E0K7F5jnzqqV7rXBcs3NIDkeeA
