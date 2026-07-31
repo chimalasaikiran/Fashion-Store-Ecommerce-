@@ -121,7 +121,7 @@ export default function SignUpScreen() {
       <View style={[styles.header, { paddingTop: insets.top -15 }]}>
         {}
         <Image
-          source={require("../../../assets/images/fashion_portrait_4_1781014289331.png")}
+          source={require("../../../assets/images/fashion_portrait_4_1781014289331.jpg")}
           style={styles.headerBg}
           contentFit="cover"
         />
@@ -220,7 +220,7 @@ export default function SignUpScreen() {
           <View style={[styles.inputBox, styles.passwordBox]}>
             <TextInput
               style={[styles.input, { flex: 1 }]}
-              placeholder="••••••••••••••"
+              placeholder="Password"
               placeholderTextColor={PLACEHOLDER}
               value={password}
               onChangeText={setPassword}

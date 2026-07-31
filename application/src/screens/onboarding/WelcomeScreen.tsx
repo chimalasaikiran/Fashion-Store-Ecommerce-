@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import Animated, {
@@ -28,15 +28,15 @@ const WHITE = Colors.background;
 const BLACK = Colors.shadowColor;
 
 const COL_1_IMAGES = [
-  require("../../../assets/images/fashion_portrait_1_1781014071035.png"),
-  require("../../../assets/images/fashion_portrait_2_1781014083606.png"),
-  require("../../../assets/images/fashion_portrait_3_1781014096781.png"),
+  require("../../../assets/images/fashion_portrait_1_1781014071035.jpg"),
+  require("../../../assets/images/fashion_portrait_2_1781014083606.jpg"),
+  require("../../../assets/images/fashion_portrait_3_1781014096781.jpg"),
 ];
 
 const COL_2_IMAGES = [
-  require("../../../assets/images/fashion_portrait_4_1781014289331.png"),
-  require("../../../assets/images/fashion_portrait_5_1781014303170.png"),
-  require("../../../assets/images/fashion_portrait_6_1781014316459.png"),
+  require("../../../assets/images/fashion_portrait_4_1781014289331.jpg"),
+  require("../../../assets/images/fashion_portrait_5_1781014303170.jpg"),
+  require("../../../assets/images/fashion_portrait_6_1781014316459.jpg"),
 ];
 
 const AutoScrollColumn = ({ images, duration, direction = 1, tags = [] }: any) => {

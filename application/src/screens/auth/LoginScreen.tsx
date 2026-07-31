@@ -149,7 +149,7 @@ export default function LoginScreen() {
       {}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <Image
-          source={require("../../../assets/images/fashion_portrait_5_1781014303170.png")}
+          source={require("../../../assets/images/fashion_portrait_5_1781014303170.jpg")}
           style={styles.headerBg}
           contentFit="cover"
         />
@@ -236,7 +236,7 @@ export default function LoginScreen() {
           <View style={[styles.inputBox, styles.passwordBox]}>
             <TextInput
               style={[styles.input, { flex: 1 }]}
-              placeholder="••••••••••••••"
+              placeholder="Password"
               placeholderTextColor={PLACEHOLDER}
               value={password}
               onChangeText={setPassword}

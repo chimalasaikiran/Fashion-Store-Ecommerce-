@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   View,
   Text,
@@ -34,7 +34,7 @@ const MOCK_PRODUCTS = [
     category: "Dress",
     price: 80.0,
     originalPrice: 100.0,
-    image: require("../../../assets/images/fashion_portrait_4_1781014289331.png"),
+    image: require("../../../assets/images/fashion_portrait_4_1781014289331.jpg"),
   },
   {
     id: "white_shirt",
@@ -43,7 +43,7 @@ const MOCK_PRODUCTS = [
     category: "Shirt",
     price: 70.0,
     originalPrice: 100.0,
-    image: require("../../../assets/images/fashion_portrait_5_1781014303170.png"),
+    image: require("../../../assets/images/fashion_portrait_5_1781014303170.jpg"),
   },
   {
     id: "brown_coat",
@@ -52,7 +52,7 @@ const MOCK_PRODUCTS = [
     category: "Coats",
     price: 75.0,
     originalPrice: 150.0,
-    image: require("../../../assets/images/fashion_portrait_3_1781014096781.png"),
+    image: require("../../../assets/images/fashion_portrait_3_1781014096781.jpg"),
   },
 ];
 

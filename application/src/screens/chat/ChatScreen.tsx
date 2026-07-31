@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   View,
   Text,
@@ -23,18 +23,18 @@ const TEXT_MUTED = Colors.textMuted;
 const TEXT_PRIMARY = Colors.textPrimary;
 
 const STORIES = [
-  { id: "sophia", name: "Sophia", avatar: require("../../../assets/images/fashion_portrait_1_1781014071035.png"), online: true },
-  { id: "emily", name: "Emily", avatar: require("../../../assets/images/fashion_portrait_2_1781014083606.png"), online: true },
-  { id: "grace", name: "Grace", avatar: require("../../../assets/images/fashion_portrait_3_1781014096781.png"), online: true },
-  { id: "ava", name: "Ava", avatar: require("../../../assets/images/fashion_portrait_4_1781014289331.png"), online: true },
-  { id: "jenny", name: "Jenny", avatar: require("../../../assets/images/jenny_avatar.png"), online: true },
+  { id: "sophia", name: "Sophia", avatar: require("../../../assets/images/fashion_portrait_1_1781014071035.jpg"), online: true },
+  { id: "emily", name: "Emily", avatar: require("../../../assets/images/fashion_portrait_2_1781014083606.jpg"), online: true },
+  { id: "grace", name: "Grace", avatar: require("../../../assets/images/fashion_portrait_3_1781014096781.jpg"), online: true },
+  { id: "ava", name: "Ava", avatar: require("../../../assets/images/fashion_portrait_4_1781014289331.jpg"), online: true },
+  { id: "jenny", name: "Jenny", avatar: require("../../../assets/images/jenny_avatar.jpg"), online: true },
 ];
 
 const CHATS_DATA = [
   {
     id: "lily",
     name: "Lily Harris",
-    avatar: require("../../../assets/images/fashion_portrait_2_1781014083606.png"),
+    avatar: require("../../../assets/images/fashion_portrait_2_1781014083606.jpg"),
     lastMsg: "Thanks!",
     time: "08:04 PM",
     unreadCount: 1,
@@ -44,7 +44,7 @@ const CHATS_DATA = [
   {
     id: "amelia",
     name: "Amelia Johnson",
-    avatar: require("../../../assets/images/fashion_portrait_5_1781014303170.png"),
+    avatar: require("../../../assets/images/fashion_portrait_5_1781014303170.jpg"),
     lastMsg: "How Are You?",
     time: "09:34 PM",
     unreadCount: 2,
@@ -54,7 +54,7 @@ const CHATS_DATA = [
   {
     id: "sarah",
     name: "Sarah Williams",
-    avatar: require("../../../assets/images/fashion_portrait_6_1781014316459.png"),
+    avatar: require("../../../assets/images/fashion_portrait_6_1781014316459.jpg"),
     lastMsg: "Thanks!",
     time: "08:34 PM",
     unreadCount: 0,
@@ -64,7 +64,7 @@ const CHATS_DATA = [
   {
     id: "jessica",
     name: "Jessica Brown",
-    avatar: require("../../../assets/images/review_hat_girl.png"),
+    avatar: require("../../../assets/images/review_hat_girl.jpg"),
     lastMsg: "Welcome!",
     time: "04:28 PM",
     unreadCount: 0,
@@ -74,7 +74,7 @@ const CHATS_DATA = [
   {
     id: "harper",
     name: "Harper Anderson",
-    avatar: require("../../../assets/images/leslie_avatar.png"),
+    avatar: require("../../../assets/images/leslie_avatar.jpg"),
     lastMsg: "Thanks!",
     time: "02:34 PM",
     unreadCount: 3,
@@ -84,7 +84,7 @@ const CHATS_DATA = [
   {
     id: "ashley",
     name: "Ashley Davis",
-    avatar: require("../../../assets/images/seller_avatar.png"),
+    avatar: require("../../../assets/images/seller_avatar.jpg"),
     lastMsg: "Good Morning!",
     time: "01:14 PM",
     unreadCount: 3,
@@ -94,7 +94,7 @@ const CHATS_DATA = [
   {
     id: "megan",
     name: "Megan Miller",
-    avatar: require("../../../assets/images/fashion_portrait_1_1781014071035.png"),
+    avatar: require("../../../assets/images/fashion_portrait_1_1781014071035.jpg"),
     lastMsg: "Thanks!",
     time: "12:34 PM",
     unreadCount: 0,

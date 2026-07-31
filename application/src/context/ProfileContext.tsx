@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+﻿import React, { createContext, useContext, useState } from "react";
 import { API_URL } from "../services/api";
 
 export interface ProfileData {
@@ -20,7 +20,7 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const resolveAvatarSource = (avatar: any) => {
   if (!avatar) {
-    return require("../../assets/images/fashion_portrait_2_1781014083606.png");
+    return require("../../assets/images/fashion_portrait_2_1781014083606.jpg");
   }
   if (typeof avatar === "string") {
     if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
@@ -39,7 +39,7 @@ export const resolveAvatarSource = (avatar: any) => {
   if (avatar && avatar.uri) {
     return avatar;
   }
-  return require("../../assets/images/fashion_portrait_2_1781014083606.png");
+  return require("../../assets/images/fashion_portrait_2_1781014083606.jpg");
 };
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
@@ -50,7 +50,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     countryCode: "+1",
     dob: "15/02/2002",
     gender: "Female",
-    avatar: require("../../assets/images/fashion_portrait_2_1781014083606.png"),
+    avatar: require("../../assets/images/fashion_portrait_2_1781014083606.jpg"),
   });
 
   const updateProfile = (updated: Partial<ProfileData>) => {

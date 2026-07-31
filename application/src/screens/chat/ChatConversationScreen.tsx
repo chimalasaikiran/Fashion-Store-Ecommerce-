@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -26,18 +26,18 @@ const TEXT_PRIMARY = Colors.textPrimary;
 
 
 const AVATARS: Record<string, any> = {
-  lily: require("../../../assets/images/fashion_portrait_2_1781014083606.png"),
-  sophia: require("../../../assets/images/fashion_portrait_1_1781014071035.png"),
-  emily: require("../../../assets/images/fashion_portrait_2_1781014083606.png"),
-  grace: require("../../../assets/images/fashion_portrait_3_1781014096781.png"),
-  ava: require("../../../assets/images/fashion_portrait_4_1781014289331.png"),
-  jenny: require("../../../assets/images/jenny_avatar.png"),
-  amelia: require("../../../assets/images/fashion_portrait_5_1781014303170.png"),
-  sarah: require("../../../assets/images/fashion_portrait_6_1781014316459.png"),
-  jessica: require("../../../assets/images/review_hat_girl.png"),
-  harper: require("../../../assets/images/leslie_avatar.png"),
-  ashley: require("../../../assets/images/seller_avatar.png"),
-  megan: require("../../../assets/images/fashion_portrait_1_1781014071035.png"),
+  lily: require("../../../assets/images/fashion_portrait_2_1781014083606.jpg"),
+  sophia: require("../../../assets/images/fashion_portrait_1_1781014071035.jpg"),
+  emily: require("../../../assets/images/fashion_portrait_2_1781014083606.jpg"),
+  grace: require("../../../assets/images/fashion_portrait_3_1781014096781.jpg"),
+  ava: require("../../../assets/images/fashion_portrait_4_1781014289331.jpg"),
+  jenny: require("../../../assets/images/jenny_avatar.jpg"),
+  amelia: require("../../../assets/images/fashion_portrait_5_1781014303170.jpg"),
+  sarah: require("../../../assets/images/fashion_portrait_6_1781014316459.jpg"),
+  jessica: require("../../../assets/images/review_hat_girl.jpg"),
+  harper: require("../../../assets/images/leslie_avatar.jpg"),
+  ashley: require("../../../assets/images/seller_avatar.jpg"),
+  megan: require("../../../assets/images/fashion_portrait_1_1781014071035.jpg"),
 };
 
 interface Message {
@@ -65,7 +65,7 @@ export default function ChatConversationScreen() {
   const userOnline = params.online === "true";
 
   
-  const myAvatar = require("../../../assets/images/fashion_portrait_4_1781014289331.png");
+  const myAvatar = require("../../../assets/images/fashion_portrait_4_1781014289331.jpg");
   const myName = "Jennifer Aaker";
 
   const [inputMessage, setInputMessage] = useState("");
@@ -92,7 +92,7 @@ export default function ChatConversationScreen() {
     {
       id: "3",
       type: "image",
-      imageSource: require("../../../assets/images/fashion_portrait_3_1781014096781.png"),
+      imageSource: require("../../../assets/images/fashion_portrait_3_1781014096781.jpg"),
       sender: "them",
       senderName: userName,
       senderAvatar: userAvatar,
@@ -250,7 +250,7 @@ export default function ChatConversationScreen() {
                         />
                       ))}
                     </View>
-                    <Text style={styles.audioDuration}>• {item.duration}</Text>
+                    <Text style={styles.audioDuration}>â€¢ {item.duration}</Text>
                   </View>
                 )}
 

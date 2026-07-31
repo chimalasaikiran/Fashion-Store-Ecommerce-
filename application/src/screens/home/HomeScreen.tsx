@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -41,7 +41,7 @@ const PROMO_OFFERS = [
     italicTitle: "Extra Off",
     discountText: "Up to",
     percent: "30",
-    image: require("../../../assets/images/special_offers_banner.png"),
+    image: require("../../../assets/images/special_offers_banner.jpg"),
     backgroundColor: "#F3EBE3",
   },
   {
@@ -51,7 +51,7 @@ const PROMO_OFFERS = [
     italicTitle: "Arrivals",
     discountText: "Flat",
     percent: "50",
-    image: require("../../../assets/images/special_offers_banner.png"),
+    image: require("../../../assets/images/special_offers_banner.jpg"),
     backgroundColor: "#E3ECF0",
   },
   {
@@ -61,7 +61,7 @@ const PROMO_OFFERS = [
     italicTitle: "Brands",
     discountText: "Save",
     percent: "20",
-    image: require("../../../assets/images/special_offers_banner.png"),
+    image: require("../../../assets/images/special_offers_banner.jpg"),
     backgroundColor: "#F0E3E3",
   }
 ];

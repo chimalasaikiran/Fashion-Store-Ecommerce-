@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -28,11 +28,11 @@ const TEXT_PRIMARY = Colors.textPrimary;
 const INPUT_BG = Colors.backgroundCard; 
 
 const MOCK_PHOTOS = [
-  require("../../../assets/images/review_hat_girl.png"),
-  require("../../../assets/images/brown_coat_pose1.png"),
-  require("../../../assets/images/brown_coat_pose2.png"),
-  require("../../../assets/images/brown_coat_pose3.png"),
-  require("../../../assets/images/brown_coat_pose4.png"),
+  require("../../../assets/images/review_hat_girl.jpg"),
+  require("../../../assets/images/brown_coat_pose1.jpg"),
+  require("../../../assets/images/brown_coat_pose2.jpg"),
+  require("../../../assets/images/brown_coat_pose3.jpg"),
+  require("../../../assets/images/brown_coat_pose4.jpg"),
 ];
 
 export default function LeaveReviewScreen() {
@@ -122,9 +122,9 @@ export default function LeaveReviewScreen() {
         name: "Verified Shopper",
         rating,
         text: reviewText,
-        avatar: "leslie_avatar.png",
+        avatar: "leslie_avatar.jpg",
         verified: true,
-        images: selectedPhotos.map(() => "review_hat_girl.png"), 
+        images: selectedPhotos.map(() => "review_hat_girl.jpg"), 
       });
 
       Alert.alert(

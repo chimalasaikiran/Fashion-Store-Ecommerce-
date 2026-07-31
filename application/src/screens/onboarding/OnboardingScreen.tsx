@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   View,
   Text,
@@ -75,7 +75,7 @@ function Slide1Content() {
             <Text style={styles.inClaimText}>Claim</Text>
           </TouchableOpacity>
         </View>
-        <Image source={require("../../../assets/images/fashion_portrait_2_1781014083606.png")} style={styles.inPromoImage} contentFit="cover" />
+        <Image source={require("../../../assets/images/fashion_portrait_2_1781014083606.jpg")} style={styles.inPromoImage} contentFit="cover" />
       </View>
       <View style={styles.inDots}>
         <View style={[styles.inDot, { backgroundColor: COLORS.accent, width: 10 }]} />
@@ -101,10 +101,10 @@ function Slide1Content() {
       </View>
       <View style={styles.inProductRow}>
         {[
-          require("../../../assets/images/fashion_portrait_5_1781014303170.png"),
-          require("../../../assets/images/fashion_portrait_6_1781014316459.png"),
-          require("../../../assets/images/fashion_portrait_1_1781014071035.png"),
-          require("../../../assets/images/fashion_portrait_4_1781014289331.png"),
+          require("../../../assets/images/fashion_portrait_5_1781014303170.jpg"),
+          require("../../../assets/images/fashion_portrait_6_1781014316459.jpg"),
+          require("../../../assets/images/fashion_portrait_1_1781014071035.jpg"),
+          require("../../../assets/images/fashion_portrait_4_1781014289331.jpg"),
         ].map((src, i) => (
           <View key={i} style={styles.inProductCard}>
             <Image source={src} style={styles.inProductImage} contentFit="cover" />
@@ -120,10 +120,10 @@ function Slide1Content() {
 
 function Slide2Content() {
   const wishlistItems = [
-    { img: require("../../../assets/images/fashion_portrait_3_1781014096781.png"), name: "Brown Coat", cat: "Coats", price: "$75.00", orig: "$150.00", rating: "4.8" },
-    { img: require("../../../assets/images/fashion_portrait_2_1781014083606.png"), name: "Classy Light C...", cat: "Coat", price: "$165.00", orig: "$220.00", rating: "4.9" },
-    { img: require("../../../assets/images/fashion_portrait_1_1781014071035.png"), name: "Light Brown S...", cat: "Sweater", price: "$35.00", orig: "$70.00", rating: "4.7" },
-    { img: require("../../../assets/images/fashion_portrait_4_1781014289331.png"), name: "Brown Dress", cat: "Dress", price: "$90.00", orig: "$100.00", rating: "4.8" },
+    { img: require("../../../assets/images/fashion_portrait_3_1781014096781.jpg"), name: "Brown Coat", cat: "Coats", price: "$75.00", orig: "$150.00", rating: "4.8" },
+    { img: require("../../../assets/images/fashion_portrait_2_1781014083606.jpg"), name: "Classy Light C...", cat: "Coat", price: "$165.00", orig: "$220.00", rating: "4.9" },
+    { img: require("../../../assets/images/fashion_portrait_1_1781014071035.jpg"), name: "Light Brown S...", cat: "Sweater", price: "$35.00", orig: "$70.00", rating: "4.7" },
+    { img: require("../../../assets/images/fashion_portrait_4_1781014289331.jpg"), name: "Brown Dress", cat: "Dress", price: "$90.00", orig: "$100.00", rating: "4.8" },
   ];
 
   return (
@@ -185,7 +185,7 @@ function Slide3Content() {
       {}
       <View style={styles.slide3OrderCard}>
         <Image
-          source={require("../../../assets/images/fashion_portrait_2_1781014083606.png")}
+          source={require("../../../assets/images/fashion_portrait_2_1781014083606.jpg")}
           style={styles.slide3OrderImage}
           contentFit="cover"
         />

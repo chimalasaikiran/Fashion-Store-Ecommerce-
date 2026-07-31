@@ -26,7 +26,6 @@ export default function AppSplashScreen({ onFinish }: SplashScreenProps) {
         source={require("../../../assets/images/splash-icon.png")}
         style={styles.logo}
         contentFit="contain"
-        tintColor="#D4956B"
       />
     </View>
   );
